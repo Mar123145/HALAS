@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard - Healed And Loved Animal Sanctuary (HALAS)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons Script -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-50 text-gray-900">
+
+    <nav class="sticky top-0 z-50 border-b border-gray-200 bg-white/95 backdrop-blur">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            <a href="dashboard.html" class="font-bold text-2xl text-blue-600">
+                <span>HALAS</span>
+            </a>
+
+            <div class="hidden md:flex items-center gap-1">
+                <a href="dashboard.html" class="px-3 py-2 rounded-lg bg-blue-50 text-blue-700 font-semibold">Dashboard</a>
+                <a href="browse.html" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Browse</a>
+                <a href="saved-pets.html" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Saved</a>
+                <a href="messages.html" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Messages</a>
+                <a href="profile.html" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Profile</a>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <div class="relative">
+                    <button id="notificationBellBtn" type="button" aria-label="Notifications" class="relative inline-flex items-center justify-center w-11 h-11 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-700">
+                        <i data-lucide="bell" class="w-5 h-5"></i>
+                        <span id="notificationsCount" class="hidden absolute -top-1 -right-1 min-w-[1.25rem] h-5 px-1 rounded-full bg-red-500 text-white text-[11px] font-bold leading-5 text-center">0</span>
+                    </button>
+                    <div id="notificationsPanel" class="hidden absolute right-0 mt-3 w-[min(22rem,calc(100vw-2rem))] bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden">
+                        <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+                            <h2 class="font-bold text-gray-900">Notifications</h2>
+                            <a href="messages.html" class="text-sm font-medium text-blue-600 hover:text-blue-700">Messages</a>
+                        </div>
+                        <div id="notificationsList" class="max-h-96 overflow-y-auto divide-y divide-gray-100">
+                            <div class="p-4 flex gap-3">
+                                <div class="w-9 h-9 bg-blue-50 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <i data-lucide="bell" class="w-4 h-4 text-blue-600"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text-gray-900">No notifications yet</h3>
+                                    <p class="text-gray-600 text-sm">Your updates will appear here.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button id="logoutBtn" type="button" class="hidden sm:inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-200 hover:bg-gray-50 text-gray-700 font-medium rounded-xl">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                    Log Out
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+        <section class="grid lg:grid-cols-[minmax(0,1fr)_360px] gap-6 items-stretch">
+            <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-6 sm:p-8">
+                <p id="welcomeText" class="text-blue-600 font-semibold">Welcome back!</p>
+                <div class="mt-2 flex flex-col md:flex-row md:items-end md:justify-between gap-5">
+                    <div>
+                        <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-gray-950">Adoption Dashboard</h1>
+                        <p class="text-gray-600 mt-2 max-w-2xl">See what needs attention, check your visit details, and continue your adoption steps from one place.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <a href="browse.html" class="inline-flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold">
+                            <i data-lucide="search" class="w-5 h-5"></i>
+                            Browse Pets
+                        </a>
+                        <a href="messages.html" class="inline-flex items-center justify-center gap-2 px-4 py-3 border border-gray-200 hover:bg-gray-50 text-gray-800 rounded-xl font-semibold">
+                            <i data-lucide="message-circle" class="w-5 h-5"></i>
+                            Message Shelter
+                        </a>
+                    </div>
+                </div>
+
+                <div class="grid sm:grid-cols-3 gap-3 mt-8">
+                    <a href="application.html" class="rounded-xl border border-gray-200 p-4 hover:border-blue-200 hover:bg-blue-50/50 transition-colors">
+                        <div class="flex items-center justify-between">
+                            <p class="text-sm font-medium text-gray-500">Applications</p>
+                            <i data-lucide="file-text" class="w-5 h-5 text-blue-600"></i>
+                        </div>
+                        <p id="activeApplicationsCount" class="text-3xl font-bold text-gray-950 mt-2">0</p>
+                        <p class="text-sm text-gray-500">Active</p>
+                    </a>
+                    <a href="saved-pets.html" class="rounded-xl border border-gray-200 p-4 hover:border-amber-200 hover:bg-amber-50/50 transition-colors">
+                        <div class="flex items-center justify-between">
+                            <p class="text-sm font-medium text-gray-500">Saved Pets</p>
+                            <i data-lucide="heart" class="w-5 h-5 text-amber-600"></i>
+                        </div>
+                        <p id="savedPetsCount" class="text-3xl font-bold text-gray-950 mt-2">0</p>
+                        <p class="text-sm text-gray-500">Shortlisted</p>
+                    </a>
+                    <a href="appointment.html" class="rounded-xl border border-gray-200 p-4 hover:border-emerald-200 hover:bg-emerald-50/50 transition-colors">
+                        <div class="flex items-center justify-between">
+                            <p class="text-sm font-medium text-gray-500">Visits</p>
+                            <i data-lucide="calendar-check" class="w-5 h-5 text-emerald-600"></i>
+                        </div>
+                        <p id="scheduledVisitsCount" class="text-3xl font-bold text-gray-950 mt-2">0</p>
+                        <p class="text-sm text-gray-500">Scheduled</p>
+                    </a>
+                </div>
+            </div>
+
+            <aside class="bg-white border border-gray-200 rounded-xl shadow-sm p-6 flex flex-col">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
+                        <i data-lucide="user" class="w-7 h-7"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <h2 id="profileName" class="text-xl font-bold text-gray-950 truncate">Loading...</h2>
+                        <p id="profileRole" class="text-gray-500 text-sm">Adopter Account</p>
+                    </div>
+                </div>
+                <div class="mt-6">
+                    <div class="flex items-center justify-between gap-3 mb-2">
+                        <p id="profileCompletionText" class="text-sm font-medium text-blue-600">Profile loading...</p>
+                        <a href="profile.html" class="text-sm font-semibold text-blue-600 hover:text-blue-700">Edit</a>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div id="profileProgressBar" class="bg-blue-600 h-2 rounded-full transition-all duration-500" style="width: 0%;"></div>
+                    </div>
+                    <a id="completeProfileBtn" href="profile.html" class="mt-5 inline-flex items-center justify-center gap-2 w-full px-4 py-3 bg-gray-900 hover:bg-gray-800 text-white rounded-xl font-semibold">
+                        <i data-lucide="user-cog" class="w-5 h-5"></i>
+                        Complete Profile
+                    </a>
+                </div>
+            </aside>
+        </section>
+
+        <section class="grid lg:grid-cols-[minmax(0,1fr)_360px] gap-6">
+            <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+                <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-950">Application Progress</h2>
+                        <p class="text-gray-500 mt-1">Your latest adoption application status.</p>
+                    </div>
+                    <span id="applicationStatusBadge" class="self-start px-4 py-2 rounded-full bg-blue-50 text-blue-600 text-sm font-semibold">No Application</span>
+                </div>
+
+                <div id="applicationTimeline" class="space-y-5">
+                    <div class="flex gap-4">
+                        <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-white flex-shrink-0">
+                            <i data-lucide="file-text" class="w-4 h-4"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-900">No Application</h3>
+                            <p class="text-gray-600 text-sm">No submitted application yet.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6 flex flex-wrap gap-3">
+                    <a href="application.html" class="inline-flex items-center justify-center gap-2 px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl">
+                        <i data-lucide="clipboard-list" class="w-5 h-5"></i>
+                        View Applications
+                    </a>
+                    <a href="adoption-history.html" class="inline-flex items-center justify-center gap-2 px-5 py-3 border border-gray-200 hover:bg-gray-50 text-gray-800 font-semibold rounded-xl">
+                        <i data-lucide="history" class="w-5 h-5"></i>
+                        History
+                    </a>
+                </div>
+            </div>
+
+            <aside class="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+                <div class="flex items-center gap-3 mb-5">
+                    <div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                        <i data-lucide="calendar-days" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-950">Next Visit</h2>
+                        <p class="text-sm text-gray-500">Home or shelter appointment</p>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <p class="text-sm text-gray-500">Schedule</p>
+                        <p id="upcomingVisitDate" class="font-semibold text-gray-950">No scheduled visit yet</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Location</p>
+                        <p id="upcomingVisitLocation" class="font-semibold text-gray-950">Schedule will appear here</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Notes</p>
+                        <p id="upcomingVisitNote" class="text-sm text-gray-700">You will be notified once a visit is scheduled.</p>
+                    </div>
+                </div>
+                <a href="appointment.html" class="mt-6 inline-flex items-center justify-center gap-2 w-full px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl">
+                    <i data-lucide="calendar-search" class="w-5 h-5"></i>
+                    Appointment Details
+                </a>
+            </aside>
+        </section>
+
+        <section class="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-950">Available Pets</h2>
+                    <p class="text-gray-500 mt-1">A few pets currently open for adoption.</p>
+                </div>
+                <a href="browse.html" class="inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-200 hover:bg-gray-50 rounded-xl font-semibold text-gray-800">
+                    View All
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </a>
+            </div>
+
+            <div id="recommendedPetsGrid" class="grid md:grid-cols-3 gap-5">
+                <div class="md:col-span-3 rounded-xl border border-dashed border-gray-300 bg-gray-50 p-8 text-center">
+                    <i data-lucide="search" class="w-12 h-12 text-gray-300 mx-auto mb-3"></i>
+                    <h3 class="font-semibold text-gray-900">Loading pets...</h3>
+                    <p class="text-sm text-gray-500 mt-1">Available pets will appear here shortly.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+
+    <!-- Dashboard Loading Overlay -->
+    <div id="dashboardLoading" class="fixed inset-0 bg-white z-[120] flex items-center justify-center px-4">
+        <div class="text-center">
+            <div class="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+            <h2 class="text-xl font-bold text-gray-900">Loading dashboard...</h2>
+            <p class="text-gray-600 text-sm mt-2">Please wait while we load your account.</p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+        import {
+            getFirestore,
+            doc,
+            getDoc,
+            updateDoc,
+            collection,
+            query,
+            where,
+            limit,
+            getDocs,
+            serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+        import { firebaseConfig } from "../firebase-config.js";
+
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const dashboardLoading = document.getElementById("dashboardLoading");
+        const logoutBtn = document.getElementById("logoutBtn");
+
+        const welcomeText = document.getElementById("welcomeText");
+        const profileName = document.getElementById("profileName");
+        const profileRole = document.getElementById("profileRole");
+        const profileCompletionText = document.getElementById("profileCompletionText");
+        const profileProgressBar = document.getElementById("profileProgressBar");
+        const completeProfileBtn = document.getElementById("completeProfileBtn");
+
+        const activeApplicationsCount = document.getElementById("activeApplicationsCount");
+        const savedPetsCount = document.getElementById("savedPetsCount");
+        const scheduledVisitsCount = document.getElementById("scheduledVisitsCount");
+        const notificationsCount = document.getElementById("notificationsCount");
+
+        const applicationStatusBadge = document.getElementById("applicationStatusBadge");
+        const applicationTimeline = document.getElementById("applicationTimeline");
+        const upcomingVisitDate = document.getElementById("upcomingVisitDate");
+        const upcomingVisitLocation = document.getElementById("upcomingVisitLocation");
+        const upcomingVisitNote = document.getElementById("upcomingVisitNote");
+        const notificationBellBtn = document.getElementById("notificationBellBtn");
+        const notificationsPanel = document.getElementById("notificationsPanel");
+        const notificationsList = document.getElementById("notificationsList");
+        const recommendedPetsGrid = document.getElementById("recommendedPetsGrid");
+
+        function hideLoading() {
+            dashboardLoading.classList.add("hidden");
+        }
+
+        function formatName(userData, fallbackEmail) {
+            const first = userData?.firstName || "";
+            const middle = userData?.middleInitial || userData?.middleName || "";
+            const last = userData?.lastName || "";
+            const fullName = `${first} ${middle ? middle.charAt(0) + "." : ""} ${last}`.replace(/\s+/g, " ").trim();
+            return fullName || fallbackEmail || "User";
+        }
+
+        function calculateProfileCompletion(data) {
+            const completionFields = [
+                "lastName",
+                "firstName",
+                "email",
+                "contactNumber",
+                "address",
+                "city",
+                "province",
+                "zipCode",
+                "homeType",
+                "ownership",
+                "currentPets",
+                "children",
+                "householdNotes",
+                "preferredPet",
+                "preferredAge",
+                "preferredSize",
+                "adoptionReason"
+            ];
+
+            const completed = completionFields.filter((field) => {
+                const value = data && data[field];
+                return value !== undefined &&
+                       value !== null &&
+                       String(value).trim() !== "";
+            }).length;
+
+            return Math.round((completed / completionFields.length) * 100);
+        }
+
+        function normalizeStatus(status) {
+            return String(status || "pending").trim().toLowerCase();
+        }
+
+        function timestampMillis(value) {
+            if (!value) return 0;
+            if (value.toDate && typeof value.toDate === "function") {
+                return value.toDate().getTime();
+            }
+
+            const parsed = new Date(value);
+            return Number.isNaN(parsed.getTime()) ? 0 : parsed.getTime();
+        }
+
+        function formatDate(value) {
+            const millis = timestampMillis(value);
+            if (!millis) return "";
+
+            return new Date(millis).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric"
+            });
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#39;");
+        }
+
+        function applicationStatusLabel(status) {
+            const normalized = normalizeStatus(status);
+            const labels = {
+                pending: "Pending Review",
+                reviewing: "Under Review",
+                "under review": "Under Review",
+                "visit scheduled": "Visit Scheduled",
+                "visit completed": "Visit Completed",
+                "reschedule requested": "Reschedule Requested",
+                "cancel requested": "Cancel Requested",
+                scheduled: "Visit Scheduled",
+                approved: "Approved",
+                rejected: "Rejected",
+                cancelled: "Cancelled"
+            };
+
+            return labels[normalized] || String(status || "Pending Review");
+        }
+
+        function applicationBadgeClass(status) {
+            const normalized = normalizeStatus(status);
+            if (normalized === "approved" || normalized === "visit completed") {
+                return "px-4 py-2 rounded-full bg-green-50 text-green-700 text-sm font-semibold";
+            }
+            if (normalized === "rejected" || normalized === "cancelled") {
+                return "px-4 py-2 rounded-full bg-red-50 text-red-700 text-sm font-semibold";
+            }
+            if (normalized === "reviewing" || normalized === "under review" || normalized === "visit scheduled" || normalized === "scheduled") {
+                return "px-4 py-2 rounded-full bg-blue-50 text-blue-600 text-sm font-semibold";
+            }
+            return "px-4 py-2 rounded-full bg-yellow-50 text-yellow-700 text-sm font-semibold";
+        }
+
+        async function getCollectionDocs(collectionName, userId, maxDocs = 20) {
+            try {
+                const q = query(
+                    collection(db, collectionName),
+                    where("userId", "==", userId),
+                    limit(maxDocs)
+                );
+
+                const snapshot = await getDocs(q);
+                return snapshot.docs.map((docSnap) => ({
+                    id: docSnap.id,
+                    ...docSnap.data()
+                }));
+            } catch (error) {
+                console.warn(`Could not load ${collectionName}:`, error);
+                return [];
+            }
+        }
+
+        async function getRecommendedPets() {
+            try {
+                const q = query(
+                    collection(db, "pets"),
+                    where("status", "==", "available"),
+                    limit(3)
+                );
+
+                const snapshot = await getDocs(q);
+                return snapshot.docs.map((docSnap) => ({
+                    id: docSnap.id,
+                    ...docSnap.data()
+                }));
+            } catch (error) {
+                console.warn("Could not load recommended pets:", error);
+                return [];
+            }
+        }
+
+        function renderRecommendedPets(pets) {
+            if (!pets.length) {
+                recommendedPetsGrid.innerHTML = `
+                    <div class="md:col-span-3 rounded-xl border border-dashed border-gray-300 bg-gray-50 p-8 text-center">
+                        <i data-lucide="search" class="w-12 h-12 text-gray-300 mx-auto mb-3"></i>
+                        <h3 class="font-semibold text-gray-900">No recommendations yet</h3>
+                        <p class="text-sm text-gray-500 mt-1">Available pets will appear here after the shelter adds listings.</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            recommendedPetsGrid.innerHTML = pets.map((pet) => {
+                const name = pet.name || "Unnamed Pet";
+                const breed = pet.breed || pet.type || "Pet";
+                const age = pet.age || "Not specified";
+                const profileLink = `pet-details.html?id=${pet.id}`;
+                const images = Array.isArray(pet.imageUrls) ? pet.imageUrls : [];
+                const imageUrl = pet.imageUrl || pet.photoUrl || images[0] || "";
+                const imageBlock = imageUrl
+                    ? `<img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(name)} photo" class="w-full h-full object-cover">`
+                    : `<i data-lucide="heart" class="w-12 h-12 text-blue-200"></i>`;
+
+                return `
+                    <div class="border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-shadow">
+                        <div class="h-36 bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center">
+                            ${imageBlock}
+                        </div>
+                        <div class="p-4">
+                            <h3 class="text-xl font-bold text-gray-900">${escapeHtml(name)}</h3>
+                            <p class="text-gray-600 text-sm">${escapeHtml(breed)}</p>
+                            <p class="text-gray-500 text-sm mb-4">Age: ${escapeHtml(age)}</p>
+                            <a href="${profileLink}" class="block text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-colors">View</a>
+                        </div>
+                    </div>
+                `;
+            }).join("");
+
+            lucide.createIcons();
+        }
+
+        function renderNotifications(notifications) {
+            if (!notifications.length) {
+                notificationsList.innerHTML = `
+                    <div class="p-4 flex gap-3">
+                        <div class="w-9 h-9 bg-blue-50 rounded-full flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="bell" class="w-4 h-4 text-blue-600"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <h3 class="font-semibold text-gray-900">No notifications yet</h3>
+                            <p class="text-gray-600 text-sm">Your updates will appear here.</p>
+                        </div>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            notificationsList.innerHTML = notifications.slice(0, 3).map((item) => {
+                const title = item.title || "Notification";
+                const message = item.message || "You have a new update.";
+                return `
+                    <div class="p-4 flex gap-3">
+                        <div class="w-9 h-9 bg-blue-50 rounded-full flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="bell" class="w-4 h-4 text-blue-600"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <h3 class="font-semibold text-gray-900">${escapeHtml(title)}</h3>
+                            <p class="text-gray-600 text-sm">${escapeHtml(message)}</p>
+                        </div>
+                    </div>
+                `;
+            }).join("");
+
+            lucide.createIcons();
+        }
+
+        function updateApplicationStatus(applications) {
+            const activeApplications = applications.filter((app) => {
+                const status = normalizeStatus(app.status);
+                return status !== "approved" && status !== "rejected" && status !== "cancelled";
+            });
+
+            activeApplicationsCount.textContent = activeApplications.length;
+
+            const sortedApplications = applications.slice().sort((a, b) => {
+                const aDate = timestampMillis(a.updatedAt || a.createdAt || a.submittedAt || a.date);
+                const bDate = timestampMillis(b.updatedAt || b.createdAt || b.submittedAt || b.date);
+                return bDate - aDate;
+            });
+
+            if (!sortedApplications.length) {
+                applicationStatusBadge.textContent = "No Application";
+                applicationStatusBadge.className = "px-4 py-2 rounded-full bg-gray-100 text-gray-600 text-sm font-semibold";
+                applicationTimeline.innerHTML = `
+                    <div class="flex gap-4">
+                        <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-white">
+                            <i data-lucide="file-text" class="w-4 h-4"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-900">No Application</h3>
+                            <p class="text-gray-600 text-sm">You have not submitted an adoption application yet.</p>
+                        </div>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            const latest = sortedApplications[0];
+            const normalizedStatus = normalizeStatus(latest.status);
+            const status = latest.status || "pending";
+            const petName = latest.petName || "your selected pet";
+            const submittedDate = formatDate(latest.createdAt || latest.submittedAt || latest.date);
+            const updatedDate = formatDate(latest.updatedAt);
+
+            applicationStatusBadge.textContent = applicationStatusLabel(status);
+            applicationStatusBadge.className = applicationBadgeClass(status);
+
+            const completedIcon = "check";
+            const currentIcon = normalizedStatus === "rejected" || normalizedStatus === "cancelled" ? "x" : "clock";
+            const terminalIcon = normalizedStatus === "approved" ? "check-circle" : currentIcon;
+            const terminalColor = normalizedStatus === "approved"
+                ? "bg-green-500"
+                : normalizedStatus === "rejected" || normalizedStatus === "cancelled"
+                    ? "bg-red-500"
+                    : "bg-blue-600";
+
+            const steps = [
+                {
+                    state: "complete",
+                    icon: completedIcon,
+                    title: "Application Submitted",
+                    text: submittedDate
+                        ? `Your adoption application for ${petName} was submitted on ${submittedDate}.`
+                        : `Your adoption application for ${petName} has been submitted.`
+                }
+            ];
+
+            if (normalizedStatus === "pending") {
+                steps.push({
+                    state: "current",
+                    icon: "clock",
+                    title: "Waiting for Shelter Review",
+                    text: "The shelter has not marked this application as reviewing yet."
+                });
+            } else if (normalizedStatus === "reviewing" || normalizedStatus === "under review") {
+                steps.push({
+                    state: "current",
+                    icon: "clock",
+                    title: "Shelter Review",
+                    text: updatedDate
+                        ? `The shelter marked this application under review on ${updatedDate}.`
+                        : "The shelter team is reviewing your application."
+                });
+            } else if (normalizedStatus === "visit scheduled" || normalizedStatus === "scheduled") {
+                steps.push({
+                    state: "complete",
+                    icon: completedIcon,
+                    title: "Shelter Review",
+                    text: "The shelter review has moved forward."
+                });
+                steps.push({
+                    state: "current",
+                    icon: "calendar-check",
+                    title: "Visit Scheduled",
+                    text: "A visit has been scheduled. Check your appointments for the visit details."
+                });
+            } else if (normalizedStatus === "visit completed") {
+                steps.push({
+                    state: "complete",
+                    icon: completedIcon,
+                    title: "Shelter Review",
+                    text: "The shelter review has moved forward."
+                });
+                steps.push({
+                    state: "complete",
+                    icon: "calendar-check",
+                    title: "Visit Completed",
+                    text: updatedDate
+                        ? `Your visit was marked completed on ${updatedDate}.`
+                        : "Your visit has been completed."
+                });
+                steps.push({
+                    state: "current",
+                    icon: "clock",
+                    title: "Final Decision Pending",
+                    text: "The shelter will approve or reject the application after the completed visit."
+                });
+            } else if (normalizedStatus === "approved") {
+                steps.push({
+                    state: "complete",
+                    icon: completedIcon,
+                    title: "Shelter Review",
+                    text: "The shelter completed the review."
+                });
+                steps.push({
+                    state: "complete",
+                    icon: terminalIcon,
+                    title: "Application Approved",
+                    text: updatedDate
+                        ? `Your application was approved on ${updatedDate}.`
+                        : "Your application has been approved."
+                });
+            } else if (normalizedStatus === "rejected" || normalizedStatus === "cancelled") {
+                steps.push({
+                    state: "terminal",
+                    icon: terminalIcon,
+                    title: normalizedStatus === "cancelled" ? "Application Cancelled" : "Application Rejected",
+                    text: latest.closedReason || latest.rejectionReason || (updatedDate
+                        ? `This application was ${applicationStatusLabel(status).toLowerCase()} on ${updatedDate}.`
+                        : `This application is ${applicationStatusLabel(status).toLowerCase()}.`)
+                });
+            } else {
+                steps.push({
+                    state: "current",
+                    icon: currentIcon,
+                    title: applicationStatusLabel(status),
+                    text: updatedDate
+                        ? `This application was updated on ${updatedDate}.`
+                        : "This application has a shelter status update."
+                });
+            }
+
+            applicationTimeline.innerHTML = steps.map((step) => {
+                const iconColor = step.state === "complete"
+                    ? "bg-green-500"
+                    : step.state === "terminal"
+                        ? terminalColor
+                        : "bg-blue-600";
+                const opacity = step.state === "future" ? "opacity-60" : "";
+
+                return `
+                    <div class="flex gap-4 ${opacity}">
+                        <div class="w-8 h-8 rounded-full ${iconColor} flex items-center justify-center text-white flex-shrink-0">
+                            <i data-lucide="${step.icon}" class="w-4 h-4"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-900">${escapeHtml(step.title)}</h3>
+                            <p class="text-gray-600 text-sm">${escapeHtml(step.text)}</p>
+                        </div>
+                    </div>
+                `;
+            }).join("");
+
+            lucide.createIcons();
+        }
+
+        function updateNotificationBadge(count) {
+            notificationsCount.textContent = count > 99 ? "99+" : count;
+            notificationsCount.classList.toggle("hidden", count === 0);
+        }
+
+        function updateUpcomingVisit(appointments) {
+            scheduledVisitsCount.textContent = appointments.length;
+
+            if (!appointments.length) {
+                upcomingVisitDate.textContent = "No scheduled visit yet";
+                upcomingVisitLocation.textContent = "Schedule will appear here";
+                upcomingVisitNote.textContent = "You will be notified once a visit is scheduled.";
+                return;
+            }
+
+            const visit = appointments[0];
+            upcomingVisitDate.textContent = visit.scheduleText || visit.date || "Visit scheduled";
+            upcomingVisitLocation.textContent = visit.location || "HALAS Shelter Office";
+            upcomingVisitNote.textContent = visit.note || "Check the visit location and any shelter instructions before the appointment.";
+        }
+
+        async function loadDashboard(user) {
+            const userRef = doc(db, "users", user.uid);
+            const userSnap = await getDoc(userRef);
+            const userData = userSnap.exists() ? userSnap.data() : {};
+
+            const fullName = formatName(userData, user.email);
+            const firstName = userData.firstName || fullName.split(" ")[0] || "User";
+            const profileCompletion = calculateProfileCompletion(userData);
+
+            welcomeText.textContent = `Welcome back, ${firstName}!`;
+            profileName.textContent = fullName;
+            profileRole.textContent = userData.role === "admin" ? "Admin Account" : "Adopter Account";
+            profileProgressBar.style.width = `${profileCompletion}%`;
+
+            if (profileCompletion >= 100) {
+                completeProfileBtn.classList.add("hidden");
+                profileCompletionText.textContent = "Profile complete";
+                profileCompletionText.className = "text-green-600 text-sm font-medium";
+            } else {
+                completeProfileBtn.classList.remove("hidden");
+                profileCompletionText.textContent = `Profile ${profileCompletion}% complete`;
+                profileCompletionText.className = "text-blue-600 text-sm font-medium";
+            }
+
+            if (profileCompletion >= 100) {
+                completeProfileBtn.classList.add("hidden");
+                profileCompletionText.textContent = "Profile complete";
+                profileCompletionText.className = "text-green-600 text-sm font-medium";
+            } else {
+                completeProfileBtn.classList.remove("hidden");
+                profileCompletionText.textContent = `Profile ${profileCompletion}% complete`;
+                profileCompletionText.className = "text-blue-600 text-sm font-medium";
+            }
+
+            try {
+                await updateDoc(userRef, {
+                    emailVerified: user.emailVerified,
+                    profileCompletion: profileCompletion,
+                    lastDashboardVisitAt: serverTimestamp()
+                });
+            } catch (error) {
+                console.warn("Dashboard loaded, but user profile was not updated:", error);
+            }
+
+            const [applications, savedPets, appointments, notifications, recommendedPets] = await Promise.all([
+                getCollectionDocs("applications", user.uid),
+                getCollectionDocs("savedPets", user.uid),
+                getCollectionDocs("appointments", user.uid),
+                getCollectionDocs("notifications", user.uid),
+                getRecommendedPets()
+            ]);
+
+            savedPetsCount.textContent = savedPets.length;
+            const unreadNotifications = notifications.filter((item) => String(item.status || "unread").toLowerCase() === "unread");
+            updateNotificationBadge(unreadNotifications.length);
+
+            updateApplicationStatus(applications);
+            updateUpcomingVisit(appointments);
+            renderNotifications(notifications);
+            renderRecommendedPets(recommendedPets);
+
+            hideLoading();
+        }
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = "../login.html";
+                return;
+            }
+
+            await user.reload();
+
+            if (!user.emailVerified) {
+                await signOut(auth);
+                window.location.href = "../login.html";
+                return;
+            }
+
+            try {
+                await loadDashboard(user);
+            } catch (error) {
+                console.error("Dashboard loading error:", error);
+                hideLoading();
+                alert("Unable to load dashboard data. Please check your Firebase rules and collections.");
+            }
+        });
+
+        logoutBtn.addEventListener("click", async () => {
+            await signOut(auth);
+            window.location.href = "../login.html";
+        });
+
+        notificationBellBtn.addEventListener("click", (event) => {
+            event.stopPropagation();
+            notificationsPanel.classList.toggle("hidden");
+        });
+
+        document.addEventListener("click", (event) => {
+            if (!notificationsPanel.classList.contains("hidden") &&
+                !notificationsPanel.contains(event.target) &&
+                !notificationBellBtn.contains(event.target)) {
+                notificationsPanel.classList.add("hidden");
+            }
+        });
+
+        lucide.createIcons();
+    </script>
+    <script src="../mobile-nav.js"></script>
+</body>
+</html>
+
+
+

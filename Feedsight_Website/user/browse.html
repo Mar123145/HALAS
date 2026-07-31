@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browse Pets - Healed And Loved Animal Sanctuary (HALAS)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Custom checkbox styling for a cleaner look */
+        input[type="checkbox"] {
+            accent-color: #2563eb; /* Tailwind blue-600 */
+            width: 1.25rem;
+            height: 1.25rem;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen text-gray-900">
+    <nav class="sticky top-0 z-50 border-b border-gray-200 bg-white/95 backdrop-blur">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            <a href="dashboard.html" class="font-bold text-2xl text-blue-600">
+                <span>HALAS</span>
+            </a>
+
+            <div class="hidden md:flex items-center gap-1">
+                <a href="dashboard.html" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Dashboard</a>
+                <a href="browse.html" class="px-3 py-2 rounded-lg bg-blue-50 text-blue-700 font-semibold">Browse</a>
+                <a href="saved-pets.html" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Saved</a>
+                <a href="messages.html" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Messages</a>
+                <a href="profile.html" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Profile</a>
+                <button id="logoutBtn" type="button" class="inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-200 hover:bg-gray-50 text-gray-700 font-medium rounded-xl">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                    Log Out
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <section class="bg-white border border-gray-200 rounded-xl shadow-sm p-6 sm:p-8 mb-6">
+            <p class="text-blue-600 font-semibold mb-2">Available Pets</p>
+            <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+                <div>
+                    <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-gray-950">Browse Pets</h1>
+                    <p class="text-gray-500 mt-2 max-w-2xl">Search current shelter listings and save pets you want to revisit.</p>
+                </div>
+                <a href="saved-pets.html" class="inline-flex items-center justify-center gap-2 px-4 py-3 border border-gray-200 hover:bg-gray-50 text-gray-800 rounded-xl font-semibold">
+                    <i data-lucide="heart" class="w-5 h-5 text-amber-600"></i>
+                    Saved Pets
+                </a>
+            </div>
+        </section>
+
+        <div class="grid lg:grid-cols-4 gap-8">
+            
+            <!-- Sidebar Filters -->
+            <aside class="lg:col-span-1">
+                <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-6 sticky top-24">
+                    <h2 class="text-xl font-bold mb-6">Filters</h2>
+
+                    <div class="space-y-6">
+                        <!-- Pet Type Filter -->
+                        <div>
+                            <h3 class="font-semibold mb-3">Pet Type</h3>
+                            <div class="space-y-3">
+                                <div class="flex items-center gap-2">
+                                    <input type="checkbox" id="type-Dog" value="Dog" class="filter-type rounded border-gray-300">
+                                    <label for="type-Dog" class="cursor-pointer text-gray-600 select-none">Dog</label>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <input type="checkbox" id="type-Cat" value="Cat" class="filter-type rounded border-gray-300">
+                                    <label for="type-Cat" class="cursor-pointer text-gray-600 select-none">Cat</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Size Filter -->
+                        <div>
+                            <h3 class="font-semibold mb-3">Size</h3>
+                            <div class="space-y-3">
+                                <div class="flex items-center gap-2">
+                                    <input type="checkbox" id="size-Small" value="Small" class="filter-size rounded border-gray-300">
+                                    <label for="size-Small" class="cursor-pointer text-gray-600 select-none">Small</label>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <input type="checkbox" id="size-Medium" value="Medium" class="filter-size rounded border-gray-300">
+                                    <label for="size-Medium" class="cursor-pointer text-gray-600 select-none">Medium</label>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <input type="checkbox" id="size-Large" value="Large" class="filter-size rounded border-gray-300">
+                                    <label for="size-Large" class="cursor-pointer text-gray-600 select-none">Large</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Reset Button -->
+                        <button id="reset-filters" class="w-full hidden px-4 py-2 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-medium">
+                            Reset Filters
+                        </button>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Content Area -->
+            <div class="lg:col-span-3">
+                <div class="flex items-center justify-between mb-6">
+                    <p class="text-gray-500" id="results-count">Showing 9 of 9 pets</p>
+                </div>
+
+                <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-4 mb-6">
+                    <div class="grid md:grid-cols-3 gap-4">
+                        <div class="md:col-span-2">
+                            <label for="searchInput" class="block text-sm font-medium text-gray-700">Search Pets</label>
+                            <div class="relative mt-1">
+                                <i data-lucide="search" class="w-5 h-5 text-gray-400 absolute left-3 top-2.5"></i>
+                                <input id="searchInput" type="text" placeholder="Search by name, breed, type, or location" class="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="statusFilter" class="block text-sm font-medium text-gray-700">Availability</label>
+                            <select id="statusFilter" class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                                <option value="available">Available Pets</option>
+                                <option value="all">All Pets</option>
+                                <option value="pending">Pending / Reserved</option>
+                                <option value="adopted">Adopted</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pets Grid Container -->
+                <div id="pets-grid" class="grid md:grid-cols-2 gap-6">
+                    <!-- Cards will be injected here by JavaScript -->
+                </div>
+
+                <!-- Empty State Container -->
+                <div id="empty-state" class="hidden bg-white border border-gray-200 rounded-xl shadow-sm p-12 text-center">
+                    <i data-lucide="heart" class="w-16 h-16 text-gray-300 mx-auto mb-4"></i>
+                    <h3 class="text-xl font-semibold mb-2">No pets found</h3>
+                    <p class="text-gray-500 mb-6">Try adjusting your filters to see more results</p>
+                    <button onclick="clearAllFilters()" class="px-6 py-2 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors font-medium">
+                        Clear Filters
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="confirmModal" class="hidden fixed inset-0 bg-black/40 z-[110] flex items-center justify-center px-4">
+        <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+            <div class="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="heart-off" class="w-7 h-7 text-red-600"></i>
+            </div>
+            <h2 id="confirmTitle" class="text-2xl font-bold text-gray-900 text-center mb-2">Remove Saved Pet?</h2>
+            <p id="confirmText" class="text-gray-600 text-center mb-6">This pet will be removed from your saved list.</p>
+            <div class="grid grid-cols-2 gap-3">
+                <button id="confirmCancelBtn" type="button" class="px-5 py-3 border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium rounded-xl">Cancel</button>
+                <button id="confirmActionBtn" type="button" class="px-5 py-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-xl">Remove</button>
+            </div>
+        </div>
+    </div>
+
+<script type="module">
+        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+        import {
+            doc,
+            setDoc,
+            deleteDoc,
+            collection,
+            query,
+            where,
+            getDocs,
+            serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+
+    import { auth, db } from "../firebase-app.js";
+    let currentUser = null;
+
+    let pets = [];
+    let selectedTypes = [];
+    let selectedSizes = [];
+    let favorites = [];
+    let savedPetDocs = {};
+
+    const petsGrid = document.getElementById('pets-grid');
+    const emptyState = document.getElementById('empty-state');
+    const resultsCount = document.getElementById('results-count');
+    const resetFiltersBtn = document.getElementById('reset-filters');
+    const searchInput = document.getElementById("searchInput");
+    const statusFilter = document.getElementById("statusFilter");
+
+    const typeCheckboxes = document.querySelectorAll('.filter-type');
+    const sizeCheckboxes = document.querySelectorAll('.filter-size');
+
+    const logoutBtn = document.getElementById("logoutBtn");
+    const confirmModal = document.getElementById("confirmModal");
+    const confirmTitle = document.getElementById("confirmTitle");
+    const confirmText = document.getElementById("confirmText");
+    const confirmCancelBtn = document.getElementById("confirmCancelBtn");
+    const confirmActionBtn = document.getElementById("confirmActionBtn");
+    let confirmResolver = null;
+
+    function normalizeStatus(status) {
+        return String(status || "available").trim().toLowerCase();
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#39;");
+    }
+
+    logoutBtn.addEventListener("click", async () => {
+        await signOut(auth);
+        window.location.href = "../login.html";
+    });
+
+    function showConfirm(title, text, actionLabel = "Remove") {
+        confirmTitle.textContent = title;
+        confirmText.textContent = text;
+        confirmActionBtn.textContent = actionLabel;
+        confirmModal.classList.remove("hidden");
+        lucide.createIcons();
+
+        return new Promise((resolve) => {
+            confirmResolver = resolve;
+        });
+    }
+
+    function closeConfirm(value) {
+        confirmModal.classList.add("hidden");
+        if (confirmResolver) {
+            confirmResolver(value);
+            confirmResolver = null;
+        }
+    }
+
+    confirmCancelBtn.addEventListener("click", () => closeConfirm(false));
+    confirmActionBtn.addEventListener("click", () => closeConfirm(true));
+    confirmModal.addEventListener("click", (event) => {
+        if (event.target === confirmModal) closeConfirm(false);
+    });
+
+    onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+            window.location.href = "../login.html";
+            return;
+        }
+
+        currentUser = user;
+        await loadSavedPets();
+        await loadPetsFromFirebase();
+    });
+
+    function savedPetDocId(petId) {
+        return `${currentUser.uid}_${petId}`.replace(/[^a-zA-Z0-9_-]/g, "_");
+    }
+
+    async function loadSavedPets() {
+        try {
+            const savedQuery = query(
+                collection(db, "savedPets"),
+                where("userId", "==", currentUser.uid)
+            );
+            const snapshot = await getDocs(savedQuery);
+
+            savedPetDocs = {};
+            favorites = snapshot.docs
+                .map((docSnap) => {
+                    const data = docSnap.data();
+                    if (data.petId) {
+                        savedPetDocs[data.petId] = docSnap.id;
+                    }
+                    return data.petId;
+                })
+                .filter(Boolean);
+        } catch (error) {
+            console.error("Error loading saved pets:", error);
+            favorites = [];
+            savedPetDocs = {};
+        }
+    }
+
+    async function loadPetsFromFirebase() {
+        try {
+            const querySnapshot = await getDocs(collection(db, "pets"));
+
+            pets = querySnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+
+            renderPets();
+        } catch (error) {
+            console.error("Error loading pets:", error);
+            petsGrid.innerHTML = `
+                <p class="text-red-500">Failed to load pets from Firebase.</p>
+            `;
+        }
+    }
+
+    function renderPets() {
+        const searchTerm = searchInput.value.trim().toLowerCase();
+        const selectedStatus = statusFilter.value;
+
+        const filteredPets = pets.filter(pet => {
+            const typeMatch = selectedTypes.length === 0 || selectedTypes.includes(pet.type);
+            const sizeMatch = selectedSizes.length === 0 || selectedSizes.includes(pet.size);
+            const status = normalizeStatus(pet.status);
+            const statusMatch = selectedStatus === "all" || status === selectedStatus;
+            const haystack = [
+                pet.name,
+                pet.breed,
+                pet.type,
+                pet.size,
+                pet.city,
+                pet.description
+            ].filter(Boolean).join(" ").toLowerCase();
+            const searchMatch = !searchTerm || haystack.includes(searchTerm);
+            return typeMatch && sizeMatch && statusMatch && searchMatch;
+        });
+
+        resultsCount.textContent = `Showing ${filteredPets.length} of ${pets.length} pets`;
+
+        if (selectedTypes.length > 0 || selectedSizes.length > 0) {
+            resetFiltersBtn.classList.remove('hidden');
+        } else {
+            resetFiltersBtn.classList.add('hidden');
+        }
+
+        if (filteredPets.length === 0) {
+            petsGrid.classList.add('hidden');
+            emptyState.classList.remove('hidden');
+        } else {
+            petsGrid.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+        }
+
+        petsGrid.innerHTML = filteredPets.map(pet => {
+            const isFav = favorites.includes(pet.id);
+            const petId = String(pet.id || "");
+            const petUrlId = encodeURIComponent(petId);
+            const name = escapeHtml(pet.name || "Unnamed Pet");
+            const breed = escapeHtml(pet.breed || "Mixed Breed");
+            const age = escapeHtml(pet.age || "Age not set");
+            const size = escapeHtml(pet.size || "Size not set");
+            const type = escapeHtml(pet.type || "Pet");
+            const city = escapeHtml(pet.city || "Shelter");
+            const favIconClass = isFav ? "fill-red-500 text-red-500" : "text-gray-400";
+            const galleryImages = Array.isArray(pet.imageUrls) ? pet.imageUrls : [];
+            const primaryImage = pet.imageUrl || pet.photoUrl || galleryImages[0] || "";
+            const imageBlock = primaryImage
+                ? `<img src="${escapeHtml(primaryImage)}" alt="${name} photo" class="w-full h-full object-cover">`
+                : `<i data-lucide="heart" class="w-16 h-16 text-blue-200"></i>`;
+
+            return `
+                <div class="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-xl transition-shadow group">
+                    <div class="relative h-48 bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center overflow-hidden">
+                        ${imageBlock}
+
+                        <button type="button" data-pet-id="${escapeHtml(petId)}" class="favorite-toggle absolute top-3 right-3 p-2 bg-white rounded-full shadow-md hover:shadow-lg transition-shadow" aria-label="${isFav ? "Remove from saved pets" : "Save pet"}">
+                            <i data-lucide="heart" class="w-5 h-5 transition-colors ${favIconClass}"></i>
+                        </button>
+                    </div>
+
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold text-gray-900 mb-2">${name}</h3>
+
+                        <div class="space-y-2 mb-4 text-sm text-gray-500">
+                            <p>${breed}</p>
+                            <p>Age: ${age}</p>
+
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="zap" class="w-4 h-4"></i>
+                                <span>${size} - ${type}</span>
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="map-pin" class="w-4 h-4"></i>
+                                <span>${city}</span>
+                            </div>
+                        </div>
+
+                        <a href="pet-details.html?id=${petUrlId}" 
+                        class="block text-center w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-xl transition-colors">
+                        View Details
+                        </a>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        lucide.createIcons();
+    }
+
+    window.toggleFavorite = async function(id) {
+        if (!currentUser) return;
+
+        const pet = pets.find((item) => item.id === id);
+        if (!pet) return;
+
+        const wasSaved = favorites.includes(id);
+
+        if (wasSaved) {
+            const confirmed = await showConfirm(
+                "Remove Saved Pet?",
+                `Remove ${pet.name || "this pet"} from your saved pets?`,
+                "Remove"
+            );
+            if (!confirmed) return;
+
+            favorites = favorites.filter(favId => favId !== id);
+            renderPets();
+
+            try {
+                const docId = savedPetDocs[id] || savedPetDocId(id);
+                await deleteDoc(doc(db, "savedPets", docId));
+                delete savedPetDocs[id];
+            } catch (error) {
+                console.error("Error removing saved pet:", error);
+                favorites.push(id);
+                renderPets();
+                alert("Unable to remove this pet from your saved list. Please try again.");
+            }
+            return;
+        }
+
+        favorites.push(id);
+        renderPets();
+
+        try {
+            const docId = savedPetDocId(id);
+            await setDoc(doc(db, "savedPets", docId), {
+                userId: currentUser.uid,
+                petId: pet.id,
+                petName: pet.name || "",
+                petType: pet.type || "",
+                petBreed: pet.breed || "",
+                petStatus: pet.status || "available",
+                imageUrl: pet.imageUrl || null,
+                savedAt: serverTimestamp(),
+                updatedAt: serverTimestamp()
+            });
+            savedPetDocs[id] = docId;
+        } catch (error) {
+            console.error("Error saving pet:", error);
+            favorites = favorites.filter(favId => favId !== id);
+            renderPets();
+            alert("Unable to save this pet. Please check your Firebase rules and try again.");
+        }
+    };
+
+    function handleCheckboxChange(e, stateArray) {
+        if (e.target.checked) {
+            stateArray.push(e.target.value);
+        } else {
+            const index = stateArray.indexOf(e.target.value);
+            if (index > -1) stateArray.splice(index, 1);
+        }
+
+        renderPets();
+    }
+
+    window.clearAllFilters = function() {
+        selectedTypes = [];
+        selectedSizes = [];
+
+        typeCheckboxes.forEach(cb => cb.checked = false);
+        sizeCheckboxes.forEach(cb => cb.checked = false);
+
+        renderPets();
+    };
+
+    typeCheckboxes.forEach(cb => {
+        cb.addEventListener('change', e => handleCheckboxChange(e, selectedTypes));
+    });
+
+    sizeCheckboxes.forEach(cb => {
+        cb.addEventListener('change', e => handleCheckboxChange(e, selectedSizes));
+    });
+
+    petsGrid.addEventListener("click", (event) => {
+        const button = event.target.closest(".favorite-toggle");
+        if (!button) return;
+        toggleFavorite(button.dataset.petId);
+    });
+
+    resetFiltersBtn.addEventListener('click', clearAllFilters);
+    searchInput.addEventListener("input", renderPets);
+    statusFilter.addEventListener("change", renderPets);
+
+</script>
+    <script src="../mobile-nav.js"></script>
+</body>
+</html>
+
+
+
+
+
+

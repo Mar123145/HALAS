@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile - Healed And Loved Animal Sanctuary (HALAS)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons Script -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-50">
+    <nav class="sticky top-0 z-50 border-b border-gray-200 bg-white/95 backdrop-blur">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            <a href="dashboard.html" class="font-bold text-2xl text-blue-600">
+                <span>HALAS</span>
+            </a>
+
+            <div class="hidden md:flex items-center gap-1">
+                <a href="dashboard.html" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Dashboard</a>
+                <a href="browse.html" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Browse</a>
+                <a href="saved-pets.html" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Saved</a>
+                <a href="messages.html" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Messages</a>
+                <a href="profile.html" class="px-3 py-2 rounded-lg bg-blue-50 text-blue-700 font-semibold">Profile</a>
+                <button id="logoutBtn" type="button" class="inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-200 hover:bg-gray-50 text-gray-700 font-medium rounded-xl">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                    Log Out
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <!-- Header Section -->
+        <section class="py-8 px-4 sm:px-6 lg:px-8">
+            <div class="max-w-7xl mx-auto">
+                <div class="grid lg:grid-cols-3 gap-8 items-center">
+                    <div class="lg:col-span-2 space-y-4">
+                        <p class="text-blue-600 font-semibold">Account Settings</p>
+                        <h1 class="text-4xl sm:text-5xl font-bold text-gray-900 leading-tight">
+                            My Profile
+                        </h1>
+                        <p class="text-lg text-gray-600">
+                            Keep your personal details, household information, and adoption preferences updated to help shelters evaluate your application faster.
+                        </p>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                        <div class="flex items-center gap-4">
+                            <div class="w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center">
+                                <i data-lucide="user" class="w-10 h-10 text-blue-600"></i>
+                            </div>
+                            <div>
+                                <h2 id="headerProfileName" class="text-xl font-bold text-gray-900">Loading...</h2>
+                                <p id="headerRole" class="text-gray-600 text-sm">Adopter Account</p>
+                                <span id="emailStatusBadge" class="inline-block mt-2 px-3 py-1 bg-gray-100 text-gray-600 text-sm font-semibold rounded-full">
+                                    Checking Email
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="mt-5">
+                            <div class="flex justify-between text-sm mb-2">
+                                <span class="text-gray-600">Profile Completion</span>
+                                <span id="completionPercent" class="font-semibold text-blue-600">0%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div id="profileProgressBar" class="bg-blue-600 h-2 rounded-full transition-all duration-500" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Profile Content -->
+        <section class="py-10 px-4 sm:px-6 lg:px-8">
+            <div class="max-w-7xl mx-auto grid lg:grid-cols-4 gap-8">
+
+                <!-- Sidebar -->
+                <aside class="lg:col-span-1">
+                    <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-5 sticky top-28">
+                        <h2 class="text-xl font-bold text-gray-900 mb-4">Profile Menu</h2>
+                        <div class="space-y-2">
+                            <a href="#personal" data-section="personal" class="profile-menu-link flex items-center gap-3 p-3 rounded-lg bg-blue-50 text-blue-600 font-medium transition-colors">
+                                <i data-lucide="user" class="w-5 h-5"></i>
+                                Personal Info
+                            </a>
+                            <a href="#address" data-section="address" class="profile-menu-link flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition-colors">
+                                <i data-lucide="map-pin" class="w-5 h-5"></i>
+                                Address
+                            </a>
+                            <a href="#household" data-section="household" class="profile-menu-link flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition-colors">
+                                <i data-lucide="home" class="w-5 h-5"></i>
+                                Household
+                            </a>
+                            <a href="#preferences" data-section="preferences" class="profile-menu-link flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition-colors">
+                                <i data-lucide="heart" class="w-5 h-5"></i>
+                                Preferences
+                            </a>
+                            <a href="#security" data-section="security" class="profile-menu-link flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition-colors">
+                                <i data-lucide="lock" class="w-5 h-5"></i>
+                                Security
+                            </a>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Main Form -->
+                <div class="lg:col-span-3">
+                    <form id="profileForm" class="space-y-8">
+
+                        <!-- Personal Information -->
+                        <div id="personal" class="profile-section scroll-mt-32 bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center">
+                                    <i data-lucide="user" class="w-6 h-6 text-blue-600"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-2xl font-bold text-gray-900">Personal Information</h2>
+                                    <p class="text-gray-600">Basic account information used for adoption records.</p>
+                                </div>
+                            </div>
+
+                            <div class="grid md:grid-cols-3 gap-4">
+                                <div>
+                                    <label for="lastName" class="block text-sm font-medium text-gray-700">Last Name</label>
+                                    <input type="text" id="lastName" name="lastName" required class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label for="firstName" class="block text-sm font-medium text-gray-700">First Name</label>
+                                    <input type="text" id="firstName" name="firstName" required class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label for="middleInitial" class="block text-sm font-medium text-gray-700">Middle Initial</label>
+                                    <input type="text" id="middleInitial" name="middleInitial" maxlength="1" class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                            </div>
+
+                            <div class="grid md:grid-cols-2 gap-4 mt-4">
+                                <div>
+                                    <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
+                                    <input type="email" id="email" name="email" readonly class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm bg-gray-100 text-gray-600 focus:outline-none">
+                                    <p class="text-xs text-gray-500 mt-1">Email is managed by Firebase Authentication.</p>
+                                </div>
+                                <div>
+                                    <label for="contactNumber" class="block text-sm font-medium text-gray-700">Contact Number</label>
+                                    <input type="tel" id="contactNumber" name="contactNumber" required class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Address Information -->
+                        <div id="address" class="profile-section scroll-mt-32 bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="w-12 h-12 bg-orange-50 rounded-full flex items-center justify-center">
+                                    <i data-lucide="map-pin" class="w-6 h-6 text-orange-600"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-2xl font-bold text-gray-900">Address Information</h2>
+                                    <p class="text-gray-600">Shelters may use this for visit scheduling or home assessment.</p>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="completeAddress" class="block text-sm font-medium text-gray-700">Complete Address</label>
+                                <input type="text" id="completeAddress" name="completeAddress" required class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+
+                            <div class="grid md:grid-cols-3 gap-4 mt-4">
+                                <div>
+                                    <label for="city" class="block text-sm font-medium text-gray-700">City / Municipality</label>
+                                    <input type="text" id="city" name="city" required class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label for="province" class="block text-sm font-medium text-gray-700">Province</label>
+                                    <input type="text" id="province" name="province" required class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label for="zipCode" class="block text-sm font-medium text-gray-700">ZIP Code</label>
+                                    <input type="text" id="zipCode" name="zipCode" class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Household Information -->
+                        <div id="household" class="profile-section scroll-mt-32 bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center">
+                                    <i data-lucide="home" class="w-6 h-6 text-green-600"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-2xl font-bold text-gray-900">Household Information</h2>
+                                    <p class="text-gray-600">This helps the shelter determine if your home is suitable for a pet.</p>
+                                </div>
+                            </div>
+
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="homeType" class="block text-sm font-medium text-gray-700">Home Type</label>
+                                    <select id="homeType" name="homeType" class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <option value="">Select home type</option>
+                                        <option value="House">House</option>
+                                        <option value="Apartment">Apartment</option>
+                                        <option value="Condominium">Condominium</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="ownership" class="block text-sm font-medium text-gray-700">Home Ownership</label>
+                                    <select id="ownership" name="ownership" class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <option value="">Select ownership</option>
+                                        <option value="Owned">Owned</option>
+                                        <option value="Rented">Rented</option>
+                                        <option value="Living with family">Living with family</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="grid md:grid-cols-2 gap-4 mt-4">
+                                <div>
+                                    <label for="currentPets" class="block text-sm font-medium text-gray-700">Do you currently have pets?</label>
+                                    <select id="currentPets" name="currentPets" class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <option value="">Select answer</option>
+                                        <option value="Yes">Yes</option>
+                                        <option value="No">No</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="children" class="block text-sm font-medium text-gray-700">Are there children at home?</label>
+                                    <select id="children" name="children" class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <option value="">Select answer</option>
+                                        <option value="Yes">Yes</option>
+                                        <option value="No">No</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mt-4">
+                                <label for="householdNotes" class="block text-sm font-medium text-gray-700">Additional Household Notes</label>
+                                <textarea id="householdNotes" name="householdNotes" rows="4" placeholder="Example: We have a fenced yard and one vaccinated dog." class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Adoption Preferences -->
+                        <div id="preferences" class="profile-section scroll-mt-32 bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="w-12 h-12 bg-indigo-50 rounded-full flex items-center justify-center">
+                                    <i data-lucide="heart" class="w-6 h-6 text-indigo-600"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-2xl font-bold text-gray-900">Adoption Preferences</h2>
+                                    <p class="text-gray-600">Tell the shelter what kind of companion you are looking for.</p>
+                                </div>
+                            </div>
+
+                            <div class="grid md:grid-cols-3 gap-4">
+                                <div>
+                                    <label for="petType" class="block text-sm font-medium text-gray-700">Preferred Pet</label>
+                                    <select id="petType" name="petType" class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <option value="">Select preference</option>
+                                        <option value="Dog">Dog</option>
+                                        <option value="Cat">Cat</option>
+                                        <option value="Either">Either</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="petAge" class="block text-sm font-medium text-gray-700">Preferred Age</label>
+                                    <select id="petAge" name="petAge" class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <option value="">Select age</option>
+                                        <option value="Puppy / Kitten">Puppy / Kitten</option>
+                                        <option value="Young">Young</option>
+                                        <option value="Adult">Adult</option>
+                                        <option value="Senior">Senior</option>
+                                        <option value="No preference">No preference</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="petSize" class="block text-sm font-medium text-gray-700">Preferred Size</label>
+                                    <select id="petSize" name="petSize" class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <option value="">Select size</option>
+                                        <option value="Small">Small</option>
+                                        <option value="Medium">Medium</option>
+                                        <option value="Large">Large</option>
+                                        <option value="No preference">No preference</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mt-4">
+                                <label for="adoptionReason" class="block text-sm font-medium text-gray-700">Reason for Adoption</label>
+                                <textarea id="adoptionReason" name="adoptionReason" rows="4" placeholder="Why do you want to adopt a pet?" class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Security Settings -->
+                        <div id="security" class="profile-section scroll-mt-32 bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
+                                    <i data-lucide="lock" class="w-6 h-6 text-gray-700"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-2xl font-bold text-gray-900">Account Security</h2>
+                                    <p class="text-gray-600">Update your password when needed.</p>
+                                </div>
+                            </div>
+
+                            <div class="grid md:grid-cols-3 gap-4">
+                                <div>
+                                    <label for="currentPassword" class="block text-sm font-medium text-gray-700">Current Password</label>
+                                    <input type="password" id="currentPassword" name="currentPassword" placeholder="Current password" class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label for="newPassword" class="block text-sm font-medium text-gray-700">New Password</label>
+                                    <input type="password" id="newPassword" name="newPassword" placeholder="New password" class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label for="confirmPassword" class="block text-sm font-medium text-gray-700">Confirm New Password</label>
+                                    <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm password" class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-6 flex flex-col sm:flex-row gap-4 justify-end">
+                            <a href="dashboard.html" class="inline-flex items-center justify-center px-8 py-3 border border-gray-300 hover:bg-gray-50 font-medium rounded-xl transition-colors text-center">
+                                Cancel
+                            </a>
+                            <button id="saveBtn" type="submit" class="inline-flex items-center justify-center px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors text-center">
+                                Save Changes
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="border-t border-gray-200 bg-white py-8 px-4 sm:px-6 lg:px-8">
+            <div class="max-w-7xl mx-auto text-center">
+                <h4 class="font-bold text-gray-900 mb-2">HALAS</h4>
+                <p class="text-gray-500 text-sm">Connecting loving pets with their forever homes.</p>
+            </div>
+        </footer>
+    </main>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="fixed inset-0 bg-black/40 z-[100] flex items-center justify-center px-4">
+        <div class="bg-white rounded-xl shadow-xl p-8 text-center max-w-sm w-full">
+            <div class="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+            <h2 id="loadingTitle" class="text-xl font-bold text-gray-900">Loading profile...</h2>
+            <p id="loadingText" class="text-gray-600 text-sm mt-2">Please wait while we load your account.</p>
+        </div>
+    </div>
+
+    <!-- Message Modal -->
+    <div id="messageModal" class="hidden fixed inset-0 bg-black/40 z-[110] flex items-center justify-center px-4">
+        <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+            <div id="messageIcon" class="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="info" class="w-7 h-7 text-blue-600"></i>
+            </div>
+            <h2 id="messageTitle" class="text-2xl font-bold text-gray-900 text-center mb-2">Message</h2>
+            <p id="messageText" class="text-gray-600 text-center mb-6">Message content</p>
+            <button id="messageCloseBtn" type="button" class="w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors">
+                OK
+            </button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+        import {
+            getAuth,
+            onAuthStateChanged,
+            signOut,
+            EmailAuthProvider,
+            reauthenticateWithCredential,
+            updatePassword
+        } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+        import {
+            getFirestore,
+            doc,
+            getDoc,
+            setDoc,
+            serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+        import { firebaseConfig } from "../firebase-config.js";
+
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+
+        const profileForm = document.getElementById("profileForm");
+        const logoutBtn = document.getElementById("logoutBtn");
+        const saveBtn = document.getElementById("saveBtn");
+
+        const headerProfileName = document.getElementById("headerProfileName");
+        const headerRole = document.getElementById("headerRole");
+        const emailStatusBadge = document.getElementById("emailStatusBadge");
+        const completionPercent = document.getElementById("completionPercent");
+        const profileProgressBar = document.getElementById("profileProgressBar");
+
+        const loadingOverlay = document.getElementById("loadingOverlay");
+        const loadingTitle = document.getElementById("loadingTitle");
+        const loadingText = document.getElementById("loadingText");
+
+        const messageModal = document.getElementById("messageModal");
+        const messageIcon = document.getElementById("messageIcon");
+        const messageTitle = document.getElementById("messageTitle");
+        const messageText = document.getElementById("messageText");
+        const messageCloseBtn = document.getElementById("messageCloseBtn");
+
+        const fields = {
+            lastName: document.getElementById("lastName"),
+            firstName: document.getElementById("firstName"),
+            middleInitial: document.getElementById("middleInitial"),
+            email: document.getElementById("email"),
+            contactNumber: document.getElementById("contactNumber"),
+            completeAddress: document.getElementById("completeAddress"),
+            city: document.getElementById("city"),
+            province: document.getElementById("province"),
+            zipCode: document.getElementById("zipCode"),
+            homeType: document.getElementById("homeType"),
+            ownership: document.getElementById("ownership"),
+            currentPets: document.getElementById("currentPets"),
+            children: document.getElementById("children"),
+            householdNotes: document.getElementById("householdNotes"),
+            petType: document.getElementById("petType"),
+            petAge: document.getElementById("petAge"),
+            petSize: document.getElementById("petSize"),
+            adoptionReason: document.getElementById("adoptionReason"),
+            currentPassword: document.getElementById("currentPassword"),
+            newPassword: document.getElementById("newPassword"),
+            confirmPassword: document.getElementById("confirmPassword")
+        };
+
+        function showLoading(title = "Loading profile...", text = "Please wait while we load your account.") {
+            loadingTitle.textContent = title;
+            loadingText.textContent = text;
+            loadingOverlay.classList.remove("hidden");
+            saveBtn.disabled = true;
+            saveBtn.classList.add("opacity-70", "cursor-not-allowed");
+        }
+
+        function hideLoading() {
+            loadingOverlay.classList.add("hidden");
+            saveBtn.disabled = false;
+            saveBtn.classList.remove("opacity-70", "cursor-not-allowed");
+        }
+
+        function showMessage(type, title, text) {
+            messageTitle.textContent = title;
+            messageText.textContent = text;
+
+            if (type === "success") {
+                messageIcon.className = "w-14 h-14 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-4";
+                messageIcon.innerHTML = '<i data-lucide="check" class="w-7 h-7 text-green-600"></i>';
+            } else if (type === "error") {
+                messageIcon.className = "w-14 h-14 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-4";
+                messageIcon.innerHTML = '<i data-lucide="x" class="w-7 h-7 text-red-600"></i>';
+            } else {
+                messageIcon.className = "w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center mx-auto mb-4";
+                messageIcon.innerHTML = '<i data-lucide="info" class="w-7 h-7 text-blue-600"></i>';
+            }
+
+            messageModal.classList.remove("hidden");
+            lucide.createIcons();
+        }
+
+        messageCloseBtn.addEventListener("click", function() {
+            messageModal.classList.add("hidden");
+        });
+
+        function getValue(id) {
+            return fields[id].value.trim();
+        }
+
+        function setValue(id, value) {
+            if (fields[id]) {
+                fields[id].value = value || "";
+            }
+        }
+
+        function formatFullName(data, fallbackEmail) {
+            const firstName = data.firstName || "";
+            const middle = data.middleInitial || data.middleName || "";
+            const lastName = data.lastName || "";
+            const middleText = middle ? `${middle.charAt(0)}.` : "";
+            return `${firstName} ${middleText} ${lastName}`.replace(/\s+/g, " ").trim() || fallbackEmail || "User";
+        }
+
+        function calculateProfileCompletion(data) {
+            const completionFields = [
+                "lastName",
+                "firstName",
+                "email",
+                "contactNumber",
+                "address",
+                "city",
+                "province",
+                "zipCode",
+                "homeType",
+                "ownership",
+                "currentPets",
+                "children",
+                "householdNotes",
+                "preferredPet",
+                "preferredAge",
+                "preferredSize",
+                "adoptionReason"
+            ];
+
+            const completed = completionFields.filter((field) => {
+                const value = data && data[field];
+                return value !== undefined &&
+                       value !== null &&
+                       String(value).trim() !== "";
+            }).length;
+
+            return Math.round((completed / completionFields.length) * 100);
+        }
+
+        function updateHeader(data, user) {
+            const fullName = formatFullName(data, user.email);
+            const completion = calculateProfileCompletion(data);
+
+            headerProfileName.textContent = fullName;
+            headerRole.textContent = data.role === "admin" ? "Admin Account" : "Adopter Account";
+            completionPercent.textContent = `${completion}%`;
+            profileProgressBar.style.width = `${completion}%`;
+
+            if (user.emailVerified) {
+                emailStatusBadge.textContent = "Verified Email";
+                emailStatusBadge.className = "inline-block mt-2 px-3 py-1 bg-green-50 text-green-600 text-sm font-semibold rounded-full";
+            } else {
+                emailStatusBadge.textContent = "Email Not Verified";
+                emailStatusBadge.className = "inline-block mt-2 px-3 py-1 bg-red-50 text-red-600 text-sm font-semibold rounded-full";
+            }
+        }
+
+        function fillForm(data, user) {
+            setValue("lastName", data.lastName);
+            setValue("firstName", data.firstName);
+            setValue("middleInitial", data.middleInitial || data.middleName);
+            setValue("email", data.email || user.email);
+            setValue("contactNumber", data.contactNumber);
+
+            setValue("completeAddress", data.address || data.completeAddress);
+            setValue("city", data.city);
+            setValue("province", data.province);
+            setValue("zipCode", data.zipCode);
+
+            setValue("homeType", data.homeType);
+            setValue("ownership", data.ownership);
+            setValue("currentPets", data.currentPets);
+            setValue("children", data.children);
+            setValue("householdNotes", data.householdNotes);
+
+            setValue("petType", data.preferredPet || data.petType);
+            setValue("petAge", data.preferredAge || data.petAge);
+            setValue("petSize", data.preferredSize || data.petSize);
+            setValue("adoptionReason", data.adoptionReason);
+
+            updateHeader(data, user);
+        }
+
+        function collectProfileData(user) {
+            const middleInitial = getValue("middleInitial");
+            const completeAddress = getValue("completeAddress");
+
+            const data = {
+                uid: user.uid,
+
+                lastName: getValue("lastName"),
+                firstName: getValue("firstName"),
+                middleInitial: middleInitial,
+                middleName: middleInitial,
+
+                email: user.email,
+                contactNumber: getValue("contactNumber"),
+
+                address: completeAddress,
+                completeAddress: completeAddress,
+                city: getValue("city"),
+                province: getValue("province"),
+                zipCode: getValue("zipCode"),
+
+                homeType: getValue("homeType"),
+                ownership: getValue("ownership"),
+                currentPets: getValue("currentPets"),
+                children: getValue("children"),
+                householdNotes: getValue("householdNotes"),
+
+                preferredPet: getValue("petType"),
+                preferredAge: getValue("petAge"),
+                preferredSize: getValue("petSize"),
+                adoptionReason: getValue("adoptionReason"),
+
+                role: "user",
+                emailVerified: user.emailVerified,
+                accountStatus: user.emailVerified ? "active" : "pending_email_verification",
+                agreementAccepted: true,
+                updatedAt: serverTimestamp()
+            };
+
+            data.profileCompletion = calculateProfileCompletion(data);
+            return data;
+        }
+
+        async function loadProfile(user) {
+            const userRef = doc(db, "users", user.uid);
+            const userSnap = await getDoc(userRef);
+
+            if (userSnap.exists()) {
+                const userData = userSnap.data();
+                fillForm(userData, user);
+            } else {
+                const defaultData = {
+                    uid: user.uid,
+                    email: user.email,
+                    role: "user",
+                    emailVerified: user.emailVerified,
+                    accountStatus: user.emailVerified ? "active" : "pending_email_verification",
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp()
+                };
+
+                await setDoc(userRef, defaultData, { merge: true });
+                fillForm(defaultData, user);
+            }
+
+            hideLoading();
+        }
+
+        async function updateUserPasswordIfNeeded(user) {
+            const currentPassword = getValue("currentPassword");
+            const newPassword = getValue("newPassword");
+            const confirmPassword = getValue("confirmPassword");
+
+            if (!currentPassword && !newPassword && !confirmPassword) {
+                return;
+            }
+
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                throw new Error("Please fill in current password, new password, and confirm new password.");
+            }
+
+            if (newPassword !== confirmPassword) {
+                throw new Error("New password and confirm password do not match.");
+            }
+
+            if (newPassword.length < 6) {
+                throw new Error("New password must be at least 6 characters.");
+            }
+
+            const credential = EmailAuthProvider.credential(user.email, currentPassword);
+            await reauthenticateWithCredential(user, credential);
+            await updatePassword(user, newPassword);
+
+            fields.currentPassword.value = "";
+            fields.newPassword.value = "";
+            fields.confirmPassword.value = "";
+        }
+
+        onAuthStateChanged(auth, async function(user) {
+            if (!user) {
+                window.location.href = "../login.html";
+                return;
+            }
+
+            currentUser = user;
+            await user.reload();
+
+            try {
+                await loadProfile(user);
+            } catch (error) {
+                console.error(error);
+                hideLoading();
+                showMessage("error", "Profile Load Failed", error.message);
+            }
+        });
+
+        profileForm.addEventListener("submit", async function(event) {
+            event.preventDefault();
+
+            if (!currentUser) {
+                showMessage("error", "Not Logged In", "Please log in first.");
+                return;
+            }
+
+            showLoading("Saving profile...", "Please wait while we update your information.");
+
+            try {
+                await updateUserPasswordIfNeeded(currentUser);
+
+                const profileData = collectProfileData(currentUser);
+                const userRef = doc(db, "users", currentUser.uid);
+
+                await setDoc(userRef, profileData, { merge: true });
+
+                updateHeader(profileData, currentUser);
+                hideLoading();
+                showMessage("success", "Profile Updated", "Your profile information has been saved successfully.");
+            } catch (error) {
+                console.error(error);
+                hideLoading();
+
+                if (error.code === "auth/wrong-password" || error.code === "auth/invalid-credential") {
+                    showMessage("error", "Incorrect Password", "The current password you entered is incorrect.");
+                } else if (error.code === "auth/weak-password") {
+                    showMessage("error", "Weak Password", "The new password must be at least 6 characters.");
+                } else if (error.code === "permission-denied") {
+                    showMessage("error", "Permission Denied", "Firestore blocked the request. Please check your users security rule.");
+                } else {
+                    showMessage("error", "Update Failed", error.message);
+                }
+            }
+        });
+
+        logoutBtn.addEventListener("click", async function() {
+            await signOut(auth);
+            window.location.href = "../login.html";
+        });
+
+
+        function setActiveProfileMenu(sectionId) {
+            document.querySelectorAll(".profile-menu-link").forEach((link) => {
+                const isActive = link.dataset.section === sectionId;
+
+                link.classList.toggle("bg-blue-50", isActive);
+                link.classList.toggle("text-blue-600", isActive);
+                link.classList.toggle("text-gray-700", !isActive);
+                link.classList.toggle("hover:bg-gray-50", !isActive);
+            });
+        }
+
+        document.querySelectorAll(".profile-menu-link").forEach((link) => {
+            link.addEventListener("click", function(event) {
+                event.preventDefault();
+
+                const sectionId = this.dataset.section;
+                const section = document.getElementById(sectionId);
+
+                if (section) {
+                    section.scrollIntoView({
+                        behavior: "smooth",
+                        block: "start"
+                    });
+
+                    history.replaceState(null, "", `#${sectionId}`);
+                    setActiveProfileMenu(sectionId);
+                }
+            });
+        });
+
+        const profileSections = document.querySelectorAll(".profile-section");
+
+        const sectionObserver = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    setActiveProfileMenu(entry.target.id);
+                }
+            });
+        }, {
+            root: null,
+            threshold: 0.35,
+            rootMargin: "-120px 0px -55% 0px"
+        });
+
+        profileSections.forEach((section) => sectionObserver.observe(section));
+
+        lucide.createIcons();
+    </script>
+    <script src="../mobile-nav.js"></script>
+</body>
+</html>
+
+
+
+

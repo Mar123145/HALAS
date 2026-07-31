@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Animal - HALAS Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .image-preview {
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen text-gray-900">
+    <nav class="sticky top-0 z-50 border-b border-gray-200 bg-white/95 backdrop-blur">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            <a href="dashboard.html" class="font-bold text-2xl text-blue-600">
+                <span>HALAS</span>
+            </a>
+
+            <div class="hidden md:flex items-center gap-1">
+                <a href="dashboard.html" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Dashboard</a>
+                <a href="add-pet.html" class="px-3 py-2 rounded-lg bg-blue-50 text-blue-700 font-semibold">Add Animal</a>
+                <a href="schedule-visit.html" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Schedule Visit</a>
+                <a href="messages.html" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Messages</a>
+                <button id="logoutBtn" type="button" class="inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-200 hover:bg-gray-50 text-gray-700 font-medium rounded-xl"><i data-lucide="log-out" class="w-4 h-4"></i>Log Out</button>
+            </div>
+        </div>
+    </nav>
+
+    <div id="loadingOverlay" class="fixed inset-0 bg-white z-[120] flex items-center justify-center px-4">
+        <div class="text-center">
+            <div class="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+            <h2 class="text-xl font-bold text-gray-900">Checking admin access...</h2>
+            <p class="text-gray-600 text-sm mt-2">Please wait.</p>
+        </div>
+    </div>
+
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="mb-8">
+            <a href="dashboard.html" class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium mb-4">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                Back to Admin Dashboard
+            </a>
+
+            <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-6 sm:p-8">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div>
+                        <p class="text-gray-500 font-medium mb-2">Animal Management</p>
+                        <h1 class="text-4xl font-bold">Add New Animal</h1>
+                        <p class="text-gray-500 mt-2 max-w-2xl">
+                            Register a new animal profile with basic details, physical information, health records, and rescue history.
+                        </p>
+                    </div>
+
+                    <div class="w-20 h-20 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                        <i data-lucide="paw-print" class="w-10 h-10"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <form id="addAnimalForm" class="space-y-8">
+
+            <!-- Basic Information -->
+            <section class="bg-white border rounded-2xl shadow-sm p-6">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center">
+                        <i data-lucide="info" class="w-5 h-5 text-blue-600"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900">Basic Information</h2>
+                        <p class="text-gray-500 text-sm">General animal identity and profile details.</p>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="animalName" class="block text-sm font-semibold text-gray-700 mb-2">Animal Name <span class="text-red-500">*</span></label>
+                        <input id="animalName" name="animalName" type="text" required placeholder="Example: Luna"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <div>
+                        <label for="breed" class="block text-sm font-semibold text-gray-700 mb-2">Breed <span class="text-red-500">*</span></label>
+                        <input id="breed" name="breed" type="text" required placeholder="Example: Golden Retriever"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <div>
+                        <label for="type" class="block text-sm font-semibold text-gray-700 mb-2">Type <span class="text-red-500">*</span></label>
+                        <select id="type" name="type" required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">Select type</option>
+                            <option value="Dog">Dog</option>
+                            <option value="Cat">Cat</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="gender" class="block text-sm font-semibold text-gray-700 mb-2">Gender</label>
+                        <select id="gender" name="gender"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">Select gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Unknown">Unknown</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="dateOfBirth" class="block text-sm font-semibold text-gray-700 mb-2">Date of Birth <span class="text-gray-400 font-normal">(optional)</span></label>
+                        <input id="dateOfBirth" name="dateOfBirth" type="date"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <div>
+                        <label for="age" class="block text-sm font-semibold text-gray-700 mb-2">Age</label>
+                        <input id="age" name="age" type="text" placeholder="Example: 2 years"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <div>
+                        <label for="status" class="block text-sm font-semibold text-gray-700 mb-2">Animal Status <span class="text-red-500">*</span></label>
+                        <select id="status" name="status" required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="available" selected>Available</option>
+                            <option value="unavailable">Not Available</option>
+                            <option value="pending">Pending / Reserved</option>
+                            <option value="adopted">Adopted</option>
+                        </select>
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label for="description" class="block text-sm font-semibold text-gray-700 mb-2">
+                            About this Animal / Description
+                        </label>
+                        <textarea id="description" name="description" rows="5"
+                            placeholder="Example: Luna is a gentle and playful dog who enjoys walks, belly rubs, and being around people. She would do best in a loving home with enough space to play."
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                        <p class="text-xs text-gray-500 mt-2">
+                            This will be shown to potential adopters, so write a friendly summary of the animal's personality, habits, and ideal home.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Animal Photo -->
+            <section class="bg-white border rounded-2xl shadow-sm p-6">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 bg-purple-50 rounded-full flex items-center justify-center">
+                        <i data-lucide="image" class="w-5 h-5 text-purple-600"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900">Animal Photo</h2>
+                        <p class="text-gray-500 text-sm">Upload a clear photo for the animal profile.</p>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-6 items-start">
+                    <div class="md:col-span-1">
+                        <div id="photoPreview" class="image-preview h-56 w-full rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 flex items-center justify-center overflow-hidden">
+                            <div id="photoPlaceholder" class="text-center px-4">
+                                <i data-lucide="image-plus" class="w-12 h-12 text-gray-300 mx-auto mb-3"></i>
+                                <p class="text-gray-500 text-sm">No photo selected</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="md:col-span-2 space-y-4">
+                        <div>
+                            <label for="animalPhoto" class="block text-sm font-semibold text-gray-700 mb-2">Animal Picture</label>
+                            <input id="animalPhoto" name="animalPhoto" type="file" accept="image/*"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <p class="text-xs text-gray-500 mt-2">Accepted formats: JPG, PNG, WEBP. Recommended: clear front-facing photo.</p>
+                        </div>
+
+                        <div>
+                            <label for="additionalImageUrls" class="block text-sm font-semibold text-gray-700 mb-2">Additional Image URLs</label>
+                            <textarea id="additionalImageUrls" name="additionalImageUrls" rows="3" placeholder="Paste one image URL per line for gallery photos."
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                            <p class="text-xs text-gray-500 mt-2">Optional. These appear as extra gallery images on the pet profile.</p>
+                        </div>
+
+                        <button id="removePhotoBtn" type="button" class="hidden px-4 py-2 border border-red-300 text-red-600 hover:bg-red-50 rounded-lg font-medium transition-colors">
+                            Remove Selected Photo
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Physical Details -->
+            <section class="bg-white border rounded-2xl shadow-sm p-6">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 bg-indigo-50 rounded-full flex items-center justify-center">
+                        <i data-lucide="ruler" class="w-5 h-5 text-indigo-600"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900">Physical Details</h2>
+                        <p class="text-gray-500 text-sm">Body size, appearance, and condition information.</p>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="weightKg" class="block text-sm font-semibold text-gray-700 mb-2">Weight <span class="text-red-500">*</span> <span class="text-gray-400 font-normal">(kg)</span></label>
+                        <input id="weightKg" name="weightKg" type="number" min="0" step="0.1" required placeholder="Example: 12.5"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <div>
+                        <label for="size" class="block text-sm font-semibold text-gray-700 mb-2">Height or Size <span class="text-red-500">*</span></label>
+                        <select id="size" name="size" required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">Select size</option>
+                            <option value="Small">Small</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Large">Large</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="colorMarkings" class="block text-sm font-semibold text-gray-700 mb-2">Color / Markings <span class="text-red-500">*</span></label>
+                        <input id="colorMarkings" name="colorMarkings" type="text" required placeholder="Example: Brown with white chest"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <div>
+                        <label for="bodyConditionScore" class="block text-sm font-semibold text-gray-700 mb-2">Body Condition Score</label>
+                        <select id="bodyConditionScore" name="bodyConditionScore"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">Select score</option>
+                            <option value="1">1 - Severely Underweight</option>
+                            <option value="2">2 - Very Thin</option>
+                            <option value="3">3 - Thin</option>
+                            <option value="4">4 - Slightly Underweight</option>
+                            <option value="5">5 - Ideal</option>
+                            <option value="6">6 - Slightly Overweight</option>
+                            <option value="7">7 - Overweight</option>
+                            <option value="8">8 - Obese</option>
+                            <option value="9">9 - Severely Obese</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Health Information -->
+            <section class="bg-white border rounded-2xl shadow-sm p-6">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 bg-green-50 rounded-full flex items-center justify-center">
+                        <i data-lucide="heart-pulse" class="w-5 h-5 text-green-600"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900">Health Information</h2>
+                        <p class="text-gray-500 text-sm">Medical condition, vaccination, and veterinary information.</p>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="healthStatus" class="block text-sm font-semibold text-gray-700 mb-2">Current Health Status</label>
+                        <select id="healthStatus" name="healthStatus"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">Select health status</option>
+                            <option value="Healthy">Healthy</option>
+                            <option value="Under Observation">Under Observation</option>
+                            <option value="Needs Treatment">Needs Treatment</option>
+                            <option value="Special Needs">Special Needs</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="vaccinationStatus" class="block text-sm font-semibold text-gray-700 mb-2">Vaccination Status</label>
+                        <select id="vaccinationStatus" name="vaccinationStatus"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">Select vaccination status</option>
+                            <option value="Fully Vaccinated">Fully Vaccinated</option>
+                            <option value="Partially Vaccinated">Partially Vaccinated</option>
+                            <option value="Not Vaccinated">Not Vaccinated</option>
+                            <option value="Unknown">Unknown</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="medicalConditions" class="block text-sm font-semibold text-gray-700 mb-2">Existing Medical Conditions</label>
+                        <textarea id="medicalConditions" name="medicalConditions" rows="3" placeholder="List known medical conditions, if any."
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                    </div>
+
+                    <div>
+                        <label for="allergies" class="block text-sm font-semibold text-gray-700 mb-2">Allergies</label>
+                        <textarea id="allergies" name="allergies" rows="3" placeholder="List allergies, if any."
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                    </div>
+
+                    <div>
+                        <label for="currentMedications" class="block text-sm font-semibold text-gray-700 mb-2">Current Medications</label>
+                        <textarea id="currentMedications" name="currentMedications" rows="3" placeholder="List current medications, dosage, and frequency."
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                    </div>
+
+                    <div>
+                        <label for="lastVetVisit" class="block text-sm font-semibold text-gray-700 mb-2">Last Vet Visit</label>
+                        <input id="lastVetVisit" name="lastVetVisit" type="date"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+
+                        <label for="nextVetAppointment" class="block text-sm font-semibold text-gray-700 mb-2 mt-4">Next Vet Appointment</label>
+                        <input id="nextVetAppointment" name="nextVetAppointment" type="date"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Rescue / Adoption History -->
+            <section class="bg-white border rounded-2xl shadow-sm p-6">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 bg-orange-50 rounded-full flex items-center justify-center">
+                        <i data-lucide="home" class="w-5 h-5 text-orange-600"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900">Rescue / Adoption History</h2>
+                        <p class="text-gray-500 text-sm">Background history, behavior, and special care notes.</p>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="rescueDate" class="block text-sm font-semibold text-gray-700 mb-2">Rescue Date</label>
+                        <input id="rescueDate" name="rescueDate" type="date"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <div>
+                        <label for="previousOwnerInfo" class="block text-sm font-semibold text-gray-700 mb-2">Previous Owner Information</label>
+                        <textarea id="previousOwnerInfo" name="previousOwnerInfo" rows="3" placeholder="Known previous owner details or background."
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                    </div>
+
+                    <div>
+                        <label for="behaviorNotes" class="block text-sm font-semibold text-gray-700 mb-2">Behavior Notes</label>
+                        <textarea id="behaviorNotes" name="behaviorNotes" rows="4" placeholder="Temperament, social behavior, training, habits, etc."
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                    </div>
+
+                    <div>
+                        <label for="traumaCareNotes" class="block text-sm font-semibold text-gray-700 mb-2">Trauma or Special Care Notes</label>
+                        <textarea id="traumaCareNotes" name="traumaCareNotes" rows="4" placeholder="Trauma history, triggers, care instructions, or special needs."
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Submit Bar -->
+            <section class="bg-white border rounded-2xl shadow-sm p-6 sticky bottom-4 z-40">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <p class="text-sm text-gray-500">
+                        Fields marked with <span class="text-red-500">*</span> are required. Choose the animal status before saving.
+                    </p>
+
+                    <div class="flex flex-wrap gap-3">
+                        <button type="reset" class="px-5 py-3 border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition-colors">
+                            Clear Form
+                        </button>
+                        <button id="saveAnimalBtn" type="submit" class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors">
+                            <i data-lucide="save" class="w-5 h-5"></i>
+                            Save Animal
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </form>
+    </main>
+
+    <!-- Message Modal -->
+    <div id="messageModal" class="hidden fixed inset-0 bg-black/40 z-[130] flex items-center justify-center px-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
+            <div id="messageIcon" class="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="info" class="w-7 h-7 text-blue-600"></i>
+            </div>
+            <h2 id="messageTitle" class="text-2xl font-bold text-gray-900 text-center mb-2">Message</h2>
+            <p id="messageText" class="text-gray-600 text-center mb-6">Message content</p>
+            <div class="grid grid-cols-2 gap-3">
+                <button id="addAnotherBtn" type="button" class="px-5 py-3 border border-gray-300 hover:bg-gray-50 rounded-lg font-medium">
+                    Add Another
+                </button>
+                <a href="dashboard.html" class="px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-center">
+                    Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import {
+            onAuthStateChanged,
+            signOut
+        } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+        import {
+            doc,
+            getDoc,
+            collection,
+            addDoc,
+            serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+        import {
+            ref,
+            uploadBytes,
+            getDownloadURL
+        } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-storage.js";
+        import { auth, db, storage } from "../firebase-app.js";
+
+        const loadingOverlay = document.getElementById("loadingOverlay");
+        const logoutBtn = document.getElementById("logoutBtn");
+        const addAnimalForm = document.getElementById("addAnimalForm");
+        const saveAnimalBtn = document.getElementById("saveAnimalBtn");
+        const animalPhoto = document.getElementById("animalPhoto");
+        const photoPreview = document.getElementById("photoPreview");
+        const photoPlaceholder = document.getElementById("photoPlaceholder");
+        const removePhotoBtn = document.getElementById("removePhotoBtn");
+
+        const messageModal = document.getElementById("messageModal");
+        const messageIcon = document.getElementById("messageIcon");
+        const messageTitle = document.getElementById("messageTitle");
+        const messageText = document.getElementById("messageText");
+        const addAnotherBtn = document.getElementById("addAnotherBtn");
+
+        let currentAdmin = null;
+        const maxImageBytes = 5 * 1024 * 1024;
+
+        function hideLoading() {
+            loadingOverlay.classList.add("hidden");
+        }
+
+        function setSaving(isSaving) {
+            saveAnimalBtn.disabled = isSaving;
+            saveAnimalBtn.classList.toggle("opacity-70", isSaving);
+            saveAnimalBtn.classList.toggle("cursor-not-allowed", isSaving);
+            saveAnimalBtn.innerHTML = isSaving
+                ? `<span class="w-5 h-5 border-2 border-white/40 border-t-white rounded-full animate-spin"></span> Saving...`
+                : `<i data-lucide="save" class="w-5 h-5"></i> Save Animal`;
+            lucide.createIcons();
+        }
+
+        function valueOf(id) {
+            return document.getElementById(id).value.trim();
+        }
+
+        function nullableValue(id) {
+            const value = valueOf(id);
+            return value || null;
+        }
+
+        function urlListValue(id) {
+            return valueOf(id)
+                .split(/\r?\n/)
+                .map((value) => value.trim())
+                .filter(Boolean);
+        }
+
+        function validateImageFile(file) {
+            if (!file) return true;
+
+            if (!file.type.startsWith("image/")) {
+                alert("Please select a valid image file.");
+                return false;
+            }
+
+            if (file.size > maxImageBytes) {
+                alert("Please choose an image smaller than 5 MB.");
+                return false;
+            }
+
+            return true;
+        }
+
+        function resetPhotoPreview() {
+            animalPhoto.value = "";
+            photoPreview.style.backgroundImage = "";
+            photoPlaceholder.classList.remove("hidden");
+            removePhotoBtn.classList.add("hidden");
+        }
+
+        async function uploadAnimalPhoto(file, animalName) {
+            if (!file) return null;
+            if (!validateImageFile(file)) {
+                throw new Error("Invalid image file.");
+            }
+
+            const safeName = animalName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+            const timestamp = Date.now();
+            const extension = file.name.split(".").pop() || "jpg";
+            const filePath = `pet-images/${safeName || "animal"}-${timestamp}.${extension}`;
+            const storageRef = ref(storage, filePath);
+
+            await uploadBytes(storageRef, file);
+            return await getDownloadURL(storageRef);
+        }
+
+        animalPhoto.addEventListener("change", () => {
+            const file = animalPhoto.files[0];
+
+            if (!file) {
+                resetPhotoPreview();
+                return;
+            }
+
+            if (!validateImageFile(file)) {
+                resetPhotoPreview();
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                photoPreview.style.backgroundImage = `url('${event.target.result}')`;
+                photoPlaceholder.classList.add("hidden");
+                removePhotoBtn.classList.remove("hidden");
+            };
+            reader.readAsDataURL(file);
+        });
+
+        removePhotoBtn.addEventListener("click", resetPhotoPreview);
+
+        function showSuccessMessage(name, status) {
+            const statusLabel = String(status || "available")
+                .replace("-", " ")
+                .replace(/\b\w/g, char => char.toUpperCase());
+
+            messageIcon.className = "w-14 h-14 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-4";
+            messageIcon.innerHTML = '<i data-lucide="check" class="w-7 h-7 text-green-600"></i>';
+            messageTitle.textContent = "Animal Saved";
+            messageText.textContent = `${name} has been added to the animal records with status: ${statusLabel}.`;
+            messageModal.classList.remove("hidden");
+            lucide.createIcons();
+        }
+
+        logoutBtn.addEventListener("click", async () => {
+            await signOut(auth);
+            window.location.href = "../admin-login.html";
+        });
+
+        addAnotherBtn.addEventListener("click", () => {
+            messageModal.classList.add("hidden");
+            addAnimalForm.reset();
+            resetPhotoPreview();
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+
+        addAnimalForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            if (!currentAdmin) {
+                alert("Admin access is required.");
+                return;
+            }
+
+            const animalName = valueOf("animalName");
+            const breed = valueOf("breed");
+            const type = valueOf("type");
+            const status = valueOf("status");
+            const size = valueOf("size");
+            const weightKg = Number(valueOf("weightKg"));
+
+            if (!animalName || !breed || !type || !status || !size || !weightKg) {
+                alert("Please complete all required fields.");
+                return;
+            }
+
+            let imageUrl = null;
+
+            try {
+                setSaving(true);
+                imageUrl = await uploadAnimalPhoto(animalPhoto.files[0], animalName);
+            } catch (error) {
+                console.error("Photo upload error:", error);
+                setSaving(false);
+                alert("Unable to upload the animal photo. Please check Firebase Storage rules.");
+                return;
+            }
+
+            const animalData = {
+                // Fields used by browse/admin cards
+                name: animalName,
+                breed: breed,
+                type: type,
+                age: nullableValue("age"),
+                size: size,
+                city: "HALAS Sanctuary",
+                status: status,
+                imageUrl: imageUrl,
+                imageUrls: [imageUrl, ...urlListValue("additionalImageUrls")].filter(Boolean),
+                description: nullableValue("description"),
+                about: nullableValue("description"),
+
+                // Basic Information
+                gender: nullableValue("gender"),
+                dateOfBirth: nullableValue("dateOfBirth"),
+
+                // Physical Details
+                weightKg: weightKg,
+                heightOrSize: size,
+                colorMarkings: valueOf("colorMarkings"),
+                bodyConditionScore: nullableValue("bodyConditionScore"),
+
+                // Health Information
+                healthStatus: nullableValue("healthStatus"),
+                medicalConditions: nullableValue("medicalConditions"),
+                allergies: nullableValue("allergies"),
+                currentMedications: nullableValue("currentMedications"),
+                vaccinationStatus: nullableValue("vaccinationStatus"),
+                lastVetVisit: nullableValue("lastVetVisit"),
+                nextVetAppointment: nullableValue("nextVetAppointment"),
+
+                // Rescue / Adoption History
+                rescueDate: nullableValue("rescueDate"),
+                previousOwnerInfo: nullableValue("previousOwnerInfo"),
+                behaviorNotes: nullableValue("behaviorNotes"),
+                traumaCareNotes: nullableValue("traumaCareNotes"),
+
+                // Audit fields
+                createdBy: currentAdmin.uid,
+                createdAt: serverTimestamp(),
+                updatedAt: serverTimestamp()
+            };
+
+            try {
+                await addDoc(collection(db, "pets"), animalData);
+                setSaving(false);
+                showSuccessMessage(animalName, status);
+            } catch (error) {
+                console.error("Add animal error:", error);
+                setSaving(false);
+                alert("Unable to save animal. Please check your Firestore rules and admin permissions.");
+            }
+        });
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = "../admin-login.html";
+                return;
+            }
+
+            try {
+                const userRef = doc(db, "users", user.uid);
+                const userSnap = await getDoc(userRef);
+
+                if (!userSnap.exists()) {
+                    await signOut(auth);
+                    window.location.href = "../admin-login.html";
+                    return;
+                }
+
+                const userData = userSnap.data();
+                const role = String(userData.role || "user").trim().toLowerCase();
+
+                if (role !== "admin") {
+                    window.location.href = "../user/dashboard.html";
+                    return;
+                }
+
+                currentAdmin = user;
+                hideLoading();
+            } catch (error) {
+                console.error("Admin access check error:", error);
+                alert("Unable to verify admin access. Check your Firestore rules.");
+                window.location.href = "../admin-login.html";
+            }
+        });
+
+        lucide.createIcons();
+    </script>
+    <script src="../mobile-nav.js"></script>
+</body>
+</html>
+
+
+

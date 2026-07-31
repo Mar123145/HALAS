@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Healed And Loved Animal Sanctuary (HALAS)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons Script -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-50 min-h-screen text-gray-900">
+
+    <nav class="sticky top-0 z-50 border-b border-gray-200 bg-white/95 backdrop-blur">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            <a href="../index.html" class="font-bold text-2xl text-blue-600">
+                <span>HALAS</span>
+            </a>
+            <div class="flex items-center gap-2">
+                <a href="../about.html" class="hidden sm:inline-flex px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">About</a>
+                <a href="../login.html" class="inline-flex items-center justify-center px-4 py-2 border border-gray-200 hover:bg-gray-50 text-gray-700 font-medium rounded-xl transition-colors text-center">
+                Log In
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Signup Section -->
+    <section class="py-16 px-6 sm:px-8 lg:px-10">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="user-plus" class="w-8 h-8 text-blue-600"></i>
+                </div>
+                <h1 class="text-4xl sm:text-5xl font-bold text-gray-900 leading-tight mb-4">
+                    Create Your HALAS Account
+                </h1>
+                <p class="text-lg text-gray-600">
+                    Sign up to start your adoption journey and connect with pets looking for a home.
+                </p>
+            </div>
+
+            <!-- Signup Form -->
+            <div class="max-w-2xl mx-auto bg-white border border-gray-200 p-8 rounded-xl shadow-sm">
+                <form id="signupForm" class="space-y-6">
+
+                    <!-- Name Fields -->
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 mb-4">Personal Information</h2>
+                        <div class="grid md:grid-cols-3 gap-4">
+                            <div>
+                                <label for="lastName" class="block text-sm font-medium text-gray-700">Last Name*</label>
+                                <input type="text" id="lastName" name="lastName" required placeholder="Last name" class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label for="firstName" class="block text-sm font-medium text-gray-700">First Name*</label>
+                                <input type="text" id="firstName" name="firstName" required placeholder="First name" class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label for="middleName" class="block text-sm font-medium text-gray-700">Middle Name (Optional)</label>
+                                <input type="text" id="middleName" name="middleName" maxlength="1" placeholder="M" class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Fields -->
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 mb-4">Contact Details</h2>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-gray-700">Email Address*</label>
+                                <input type="email" id="email" name="email" required placeholder="Enter your email" class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label for="contactNumber" class="block text-sm font-medium text-gray-700">Contact Number*</label>
+                                <input type="tel" id="contactNumber" name="contactNumber" required placeholder="09XXXXXXXXX" class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Address Fields -->
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 mb-4">Address Information*</h2>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="address" class="block text-sm font-medium text-gray-700">Complete Address*</label>
+                                <input type="text" id="address" name="address" required placeholder="House No., Street, Barangay" class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="city" class="block text-sm font-medium text-gray-700">City / Municipality*</label>
+                                    <input type="text" id="city" name="city" required placeholder="City or municipality" class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label for="province" class="block text-sm font-medium text-gray-700">Province*</label>
+                                    <input type="text" id="province" name="province" required placeholder="Province" class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Account Fields -->
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 mb-4">Account Security*</h2>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="password" class="block text-sm font-medium text-gray-700">Password*</label>
+                                <input type="password" id="password" name="password" required placeholder="Create a password" class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label for="confirmPassword" class="block text-sm font-medium text-gray-700">Confirm Password*</label>
+                                <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="Confirm password" class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Agreement -->
+                    <div class="flex items-start gap-3">
+                        <input type="checkbox" id="agreement" name="agreement" required class="mt-1 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                        <label for="agreement" class="text-sm text-gray-600">
+                            I confirm that the information provided is accurate and I understand that a shelter visit or home assessment may be required before adoption approval.
+                        </label>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div>
+                        <button id="submitBtn" type="submit" class="w-full px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors text-center">
+                            Create Account
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Login Link -->
+                <div class="text-center mt-4">
+                    <span class="text-sm text-gray-600">Already have an account?</span>
+                    <a href="../login.html" class="text-sm text-blue-600 hover:text-blue-500">Log in</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="hidden fixed inset-0 bg-black/40 z-[100] flex items-center justify-center px-4">
+        <div class="bg-white rounded-xl shadow-xl p-8 text-center max-w-sm w-full">
+            <div class="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+            <h2 class="text-xl font-bold text-gray-900">Creating your account...</h2>
+            <p class="text-gray-600 text-sm mt-2">Please wait while we save your information.</p>
+        </div>
+    </div>
+
+    <!-- Message Modal -->
+    <div id="messageModal" class="hidden fixed inset-0 bg-black/40 z-[110] flex items-center justify-center px-4">
+        <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+            <div id="messageIcon" class="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="info" class="w-7 h-7 text-blue-600"></i>
+            </div>
+            <h2 id="messageTitle" class="text-2xl font-bold text-gray-900 text-center mb-2">Message</h2>
+            <p id="messageText" class="text-gray-600 text-center mb-6">Message content</p>
+            <button id="messageCloseBtn" type="button" class="w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors">
+                OK
+            </button>
+        </div>
+    </div>
+
+    <script type="module">
+
+        import { createUserWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+        import { doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+        import { auth, db } from "../firebase-app.js";
+
+        const signupForm = document.getElementById("signupForm");
+        const loadingOverlay = document.getElementById("loadingOverlay");
+        const messageModal = document.getElementById("messageModal");
+        const messageIcon = document.getElementById("messageIcon");
+        const messageTitle = document.getElementById("messageTitle");
+        const messageText = document.getElementById("messageText");
+        const messageCloseBtn = document.getElementById("messageCloseBtn");
+        const submitBtn = document.getElementById("submitBtn");
+        const productionLoginUrl = "https://feedsight-41a1f.web.app/login.html";
+
+        let redirectAfterMessage = null;
+
+        function showLoading() {
+            loadingOverlay.classList.remove("hidden");
+            submitBtn.disabled = true;
+            submitBtn.classList.add("opacity-70", "cursor-not-allowed");
+        }
+
+        function hideLoading() {
+            loadingOverlay.classList.add("hidden");
+            submitBtn.disabled = false;
+            submitBtn.classList.remove("opacity-70", "cursor-not-allowed");
+        }
+
+        function showMessage(type, title, text, redirectUrl = null) {
+            redirectAfterMessage = redirectUrl;
+            messageTitle.textContent = title;
+            messageText.textContent = text;
+
+            if (type === "success") {
+                messageIcon.className = "w-14 h-14 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-4";
+                messageIcon.innerHTML = '<i data-lucide="check" class="w-7 h-7 text-green-600"></i>';
+            } else if (type === "error") {
+                messageIcon.className = "w-14 h-14 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-4";
+                messageIcon.innerHTML = '<i data-lucide="x" class="w-7 h-7 text-red-600"></i>';
+            } else {
+                messageIcon.className = "w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center mx-auto mb-4";
+                messageIcon.innerHTML = '<i data-lucide="info" class="w-7 h-7 text-blue-600"></i>';
+            }
+
+            messageModal.classList.remove("hidden");
+            lucide.createIcons();
+        }
+
+        messageCloseBtn.addEventListener("click", function() {
+            messageModal.classList.add("hidden");
+            if (redirectAfterMessage) {
+                window.location.href = redirectAfterMessage;
+            }
+        });
+
+        signupForm.addEventListener("submit", async function(event) {
+            event.preventDefault();
+
+            const lastName = document.getElementById("lastName").value.trim();
+            const firstName = document.getElementById("firstName").value.trim();
+            const middleName = document.getElementById("middleName").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const contactNumber = document.getElementById("contactNumber").value.trim();
+            const address = document.getElementById("address").value.trim();
+            const city = document.getElementById("city").value.trim();
+            const province = document.getElementById("province").value.trim();
+            const password = document.getElementById("password").value;
+            const confirmPassword = document.getElementById("confirmPassword").value;
+            const agreement = document.getElementById("agreement").checked;
+
+            if (password !== confirmPassword) {
+                showMessage("error", "Password Mismatch", "Your password and confirm password do not match.");
+                return;
+            }
+
+            if (!agreement) {
+                showMessage("error", "Agreement Required", "Please confirm the agreement before signing up.");
+                return;
+            }
+
+            showLoading();
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                await setDoc(doc(db, "users", user.uid), {
+                    uid: user.uid,
+                    lastName: lastName,
+                    firstName: firstName,
+                    middleName: middleName,
+                    email: email,
+                    contactNumber: contactNumber,
+                    address: address,
+                    city: city,
+                    province: province,
+                    role: "user",
+                    profileCompletion: 80,
+                    emailVerified: false,
+                    accountStatus: "pending_email_verification",
+                    createdAt: serverTimestamp()
+                });
+
+                const actionCodeSettings = {
+                    url: productionLoginUrl,
+                    handleCodeInApp: false
+                };
+
+                await sendEmailVerification(user, actionCodeSettings);
+
+                hideLoading();
+                showMessage(
+                    "success",
+                    "Verify Your Email",
+                    "Your account was created successfully. A verification link was sent to your email. Please verify your email before logging in.",
+                    "../login.html"
+                );
+
+            } catch (error) {
+                console.error(error);
+                hideLoading();
+
+                if (error.code === "auth/email-already-in-use") {
+                    showMessage("error", "Email Already Registered", "This email is already registered. Please log in or use another email.");
+                } else if (error.code === "auth/weak-password") {
+                    showMessage("error", "Weak Password", "Password should be at least 6 characters.");
+                } else if (error.code === "auth/invalid-email") {
+                    showMessage("error", "Invalid Email", "Please enter a valid email address.");
+                } else if (error.code === "permission-denied") {
+                    showMessage("error", "Permission Denied", "Firestore blocked the request. Please check your Firestore security rules.");
+                } else {
+                    showMessage("error", "Signup Failed", error.message);
+                }
+            }
+        });
+
+        // Initialize Lucide icons
+        lucide.createIcons();
+    </script>
+    <script src="../mobile-nav.js"></script>
+</body>
+</html>
+
+
+

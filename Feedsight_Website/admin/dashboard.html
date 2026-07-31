@@ -1,0 +1,1428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Healed And Loved Animal Sanctuary (HALAS)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-slate-50 text-gray-900 font-sans min-h-screen">
+    <nav class="sticky top-0 z-50 border-b border-gray-200 bg-white/95 backdrop-blur">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            <a href="dashboard.html" class="font-bold text-2xl text-blue-600">
+                <span>HALAS</span>
+            </a>
+
+            <div class="hidden md:flex items-center gap-1">
+                <button type="button" data-admin-tab="overview" onclick="switchTab('overview')" class="px-3 py-2 rounded-lg bg-blue-50 text-blue-700 font-semibold">Overview</button>
+                <button type="button" data-admin-tab="applications" onclick="switchTab('applications')" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Applications</button>
+                <button type="button" data-admin-tab="pets" onclick="switchTab('pets')" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Animals</button>
+                <button type="button" data-admin-tab="visits" onclick="switchTab('visits')" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Visits</button>
+                <a href="messages.html" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Messages</a>
+                <button id="logoutBtn" type="button" class="inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-200 hover:bg-gray-50 text-gray-700 font-medium rounded-xl"><i data-lucide="log-out" class="w-4 h-4"></i>Log Out</button>
+            </div>
+        </div>
+    </nav>
+
+    <div id="loadingOverlay" class="fixed inset-0 bg-white z-[120] flex items-center justify-center px-4">
+        <div class="text-center">
+            <div class="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+            <h2 class="text-xl font-bold text-gray-900">Loading admin dashboard...</h2>
+            <p class="text-gray-600 text-sm mt-2">Checking admin access and loading shelter records.</p>
+        </div>
+    </div>
+
+    <main class="py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            <section class="mb-8">
+                <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-6 sm:p-8">
+                    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                        <div>
+                            <p id="adminWelcome" class="text-gray-500 font-medium mb-2">Welcome, Admin</p>
+                            <h1 class="text-4xl font-bold">HALAS Admin Dashboard</h1>
+                            <p class="text-gray-500 mt-2 max-w-2xl">
+                                Review adopter applications, manage animal listings, track home visits, and monitor shelter activity.
+                            </p>
+                        </div>
+
+                        <div class="flex flex-wrap gap-3">
+                            <button type="button" onclick="switchTab('applications')" class="inline-flex items-center gap-2 px-4 py-3 bg-blue-600 text-white hover:bg-blue-700 rounded-xl font-semibold transition-colors">
+                                <i data-lucide="clipboard-list" class="w-5 h-5"></i>
+                                Review Applications
+                            </button>
+                            <button type="button" onclick="switchTab('pets')" class="inline-flex items-center gap-2 px-4 py-3 border border-gray-200 text-gray-800 hover:bg-gray-50 rounded-xl font-semibold transition-colors">
+                                <i data-lucide="paw-print" class="w-5 h-5"></i>
+                                View Animals
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="content-overview" class="tab-content space-y-8">
+                <div class="grid md:grid-cols-4 gap-6">
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 border-l-4 border-l-blue-600">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <p class="text-sm text-gray-500 mb-2">Total Animals</p>
+                                <p id="totalPetsCount" class="text-3xl font-bold text-gray-900">0</p>
+                                <p id="availablePetsText" class="text-xs text-gray-500 mt-2">0 available now</p>
+                            </div>
+                            <i data-lucide="paw-print" class="w-8 h-8 text-blue-200"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 border-l-4 border-l-green-600">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <p class="text-sm text-gray-500 mb-2">Adopted</p>
+                                <p id="adoptedPetsCount" class="text-3xl font-bold text-gray-900">0</p>
+                                <p class="text-xs text-gray-500 mt-2">Completed adoptions</p>
+                            </div>
+                            <i data-lucide="check-circle" class="w-8 h-8 text-green-200"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 border-l-4 border-l-yellow-500">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <p class="text-sm text-gray-500 mb-2">Pending Applications</p>
+                                <p id="pendingApplicationsCount" class="text-3xl font-bold text-gray-900">0</p>
+                                <p id="totalApplicationsText" class="text-xs text-gray-500 mt-2">0 total applications</p>
+                            </div>
+                            <i data-lucide="clock" class="w-8 h-8 text-yellow-200"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 border-l-4 border-l-indigo-600">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <p class="text-sm text-gray-500 mb-2">Scheduled Visits</p>
+                                <p id="scheduledVisitsCount" class="text-3xl font-bold text-gray-900">0</p>
+                                <p class="text-xs text-gray-500 mt-2">Home or shelter visits</p>
+                            </div>
+                            <i data-lucide="calendar-check" class="w-8 h-8 text-indigo-200"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid lg:grid-cols-3 gap-8">
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 lg:col-span-2">
+                        <div class="flex items-center justify-between mb-6">
+                            <div>
+                                <h3 class="text-lg font-bold text-gray-900">Applications and Adoptions</h3>
+                                <p class="text-sm text-gray-500">Monthly activity based on Firestore records.</p>
+                            </div>
+                        </div>
+                        <div class="relative h-72 w-full">
+                            <canvas id="adoptionChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                        <h3 class="text-lg font-bold text-gray-900 mb-2">Animal Status</h3>
+                        <p class="text-sm text-gray-500 mb-6">Current animal listing summary.</p>
+                        <div class="relative h-64 w-full mb-4">
+                            <canvas id="statusChart"></canvas>
+                        </div>
+                        <div id="petStatusLegend" class="space-y-2 text-sm mt-4">
+                            <p class="text-gray-500">Loading status summary...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid lg:grid-cols-2 gap-8">
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-bold text-gray-900">Newest Applications</h3>
+                            <button type="button" onclick="switchTab('applications')" class="text-blue-600 hover:text-blue-700 font-medium text-sm">View all</button>
+                        </div>
+                        <div id="recentApplicationsList" class="space-y-3">
+                            <p class="text-gray-500 text-sm">Loading applications...</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-bold text-gray-900">Available Animals</h3>
+                            <button type="button" onclick="switchTab('pets')" class="text-blue-600 hover:text-blue-700 font-medium text-sm">View animals</button>
+                        </div>
+                        <div id="availablePetsList" class="space-y-3">
+                            <p class="text-gray-500 text-sm">Loading animals...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="content-applications" class="tab-content hidden">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-900">Adopter Applications</h2>
+                            <p class="text-gray-500">Review, approve, or reject adoption requests.</p>
+                        </div>
+                        <div class="flex flex-wrap gap-3">
+                            <input id="applicationSearchInput" type="text" placeholder="Search applicant, pet, or contact..." class="border border-gray-300 rounded-xl px-3 py-2 text-sm w-full sm:w-72 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <select id="applicationStatusFilter" class="border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="all">All Status</option>
+                                <option value="pending">Pending</option>
+                                <option value="reviewing">Reviewing</option>
+                                <option value="visit scheduled">Visit Scheduled</option>
+                                <option value="visit completed">Visit Completed</option>
+                                <option value="approved">Approved</option>
+                                <option value="rejected">Rejected</option>
+                            </select>
+                            <button type="button" onclick="loadAdminDashboard()" class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 hover:bg-gray-50 rounded-xl font-medium">
+                                <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                                Refresh
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="border-b border-gray-200">
+                                    <th class="text-left py-3 px-4 font-semibold text-gray-900 text-sm">Applicant</th>
+                                    <th class="text-left py-3 px-4 font-semibold text-gray-900 text-sm">Pet</th>
+                                    <th class="text-left py-3 px-4 font-semibold text-gray-900 text-sm">Contact</th>
+                                    <th class="text-left py-3 px-4 font-semibold text-gray-900 text-sm">Status</th>
+                                    <th class="text-left py-3 px-4 font-semibold text-gray-900 text-sm">Date</th>
+                                    <th class="text-left py-3 px-4 font-semibold text-gray-900 text-sm">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="applicationsTableBody">
+                                <tr>
+                                    <td colspan="6" class="py-8 text-center text-gray-500">Loading applications...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section id="content-pets" class="tab-content hidden">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-900">Animal Management</h2>
+                            <p class="text-gray-500">View all animals listed in the shelter database.</p>
+                        </div>
+                        <div class="flex flex-wrap gap-3">
+                            <input id="petSearchInput" type="text" placeholder="Search animal name or breed..." class="border border-gray-300 rounded-xl px-3 py-2 text-sm w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <select id="petStatusFilter" class="border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="all">All Status</option>
+                                <option value="available">Available</option>
+                                <option value="pending">Pending</option>
+                                <option value="adopted">Adopted</option>
+                            </select>
+                            <a href="add-pet.html" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-colors">
+                                <i data-lucide="plus" class="w-4 h-4"></i>
+                                Add Animal
+                            </a>
+                        </div>
+                    </div>
+
+                    <div id="petsGrid" class="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+                        <p class="text-gray-500">Loading animals...</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="content-visits" class="tab-content hidden">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-900">Home Visits and Appointments</h2>
+                            <p class="text-gray-500">Monitor scheduled adopter visits and home assessments.</p>
+                        </div>
+                        <a href="schedule-visit.html" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-colors">
+                            <i data-lucide="calendar-plus" class="w-4 h-4"></i>
+                            Schedule Visit
+                        </a>
+                    </div>
+
+                    <div id="visitsList" class="space-y-4">
+                        <p class="text-gray-500">Loading visits...</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <div id="confirmModal" class="hidden fixed inset-0 bg-black/40 z-[130] flex items-center justify-center px-4">
+        <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+            <div id="confirmIcon" class="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="check-circle" class="w-7 h-7 text-blue-600"></i>
+            </div>
+            <h2 id="confirmTitle" class="text-2xl font-bold text-gray-900 text-center mb-2">Confirm Action</h2>
+            <p id="confirmText" class="text-gray-600 text-center mb-6">Please confirm this action.</p>
+            <div class="grid grid-cols-2 gap-3">
+                <button id="confirmCancelBtn" type="button" class="px-5 py-3 border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium rounded-xl">Cancel</button>
+                <button id="confirmActionBtn" type="button" class="px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="rescheduleModal" class="hidden fixed inset-0 bg-black/40 z-[135] flex items-center justify-center px-4">
+        <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+            <div class="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="calendar-clock" class="w-7 h-7 text-blue-600"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-900 text-center mb-2">Approve Reschedule</h2>
+            <p id="rescheduleText" class="text-gray-600 text-center mb-5">Choose the new visit date and time.</p>
+            <div class="grid sm:grid-cols-2 gap-4">
+                <div>
+                    <label for="rescheduleDateInput" class="block text-sm font-medium text-gray-700">New Date</label>
+                    <input id="rescheduleDateInput" type="date" class="mt-1 px-4 py-3 w-full border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label for="rescheduleTimeInput" class="block text-sm font-medium text-gray-700">New Time</label>
+                    <input id="rescheduleTimeInput" type="time" step="900" class="mt-1 px-4 py-3 w-full border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+            <p id="rescheduleError" class="hidden text-sm text-red-600 mt-3">Please choose a valid future date and time.</p>
+            <div class="grid grid-cols-2 gap-3 mt-6">
+                <button id="rescheduleCancelBtn" type="button" class="px-5 py-3 border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium rounded-xl">Cancel</button>
+                <button id="rescheduleActionBtn" type="button" class="px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl">Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+        import {
+            getAuth,
+            onAuthStateChanged,
+            signOut
+        } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+        import {
+            getFirestore,
+            doc,
+            getDoc,
+            updateDoc,
+            addDoc,
+            collection,
+            getDocs,
+            limit,
+            query,
+            where,
+            serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+        import { firebaseConfig } from "../firebase-config.js";
+
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const logoutBtn = document.getElementById("logoutBtn");
+        const loadingOverlay = document.getElementById("loadingOverlay");
+        const adminWelcome = document.getElementById("adminWelcome");
+
+        const totalPetsCount = document.getElementById("totalPetsCount");
+        const availablePetsText = document.getElementById("availablePetsText");
+        const adoptedPetsCount = document.getElementById("adoptedPetsCount");
+        const pendingApplicationsCount = document.getElementById("pendingApplicationsCount");
+        const totalApplicationsText = document.getElementById("totalApplicationsText");
+        const scheduledVisitsCount = document.getElementById("scheduledVisitsCount");
+
+        const recentApplicationsList = document.getElementById("recentApplicationsList");
+        const availablePetsList = document.getElementById("availablePetsList");
+        const applicationsTableBody = document.getElementById("applicationsTableBody");
+        const petsGrid = document.getElementById("petsGrid");
+        const visitsList = document.getElementById("visitsList");
+        const petStatusLegend = document.getElementById("petStatusLegend");
+
+        const applicationStatusFilter = document.getElementById("applicationStatusFilter");
+        const applicationSearchInput = document.getElementById("applicationSearchInput");
+        const petStatusFilter = document.getElementById("petStatusFilter");
+        const petSearchInput = document.getElementById("petSearchInput");
+        const confirmModal = document.getElementById("confirmModal");
+        const confirmIcon = document.getElementById("confirmIcon");
+        const confirmTitle = document.getElementById("confirmTitle");
+        const confirmText = document.getElementById("confirmText");
+        const confirmCancelBtn = document.getElementById("confirmCancelBtn");
+        const confirmActionBtn = document.getElementById("confirmActionBtn");
+        const rescheduleModal = document.getElementById("rescheduleModal");
+        const rescheduleText = document.getElementById("rescheduleText");
+        const rescheduleDateInput = document.getElementById("rescheduleDateInput");
+        const rescheduleTimeInput = document.getElementById("rescheduleTimeInput");
+        const rescheduleError = document.getElementById("rescheduleError");
+        const rescheduleCancelBtn = document.getElementById("rescheduleCancelBtn");
+        const rescheduleActionBtn = document.getElementById("rescheduleActionBtn");
+
+        let currentAdmin = null;
+        let applications = [];
+        let pets = [];
+        let appointments = [];
+        let adoptionChart = null;
+        let statusChart = null;
+        let confirmResolver = null;
+        let rescheduleResolver = null;
+
+        function hideLoading() {
+            loadingOverlay.classList.add("hidden");
+        }
+
+        function setMinimumRescheduleDate() {
+            const today = new Date();
+            rescheduleDateInput.min = [
+                today.getFullYear(),
+                String(today.getMonth() + 1).padStart(2, "0"),
+                String(today.getDate()).padStart(2, "0")
+            ].join("-");
+        }
+
+        function showConfirm(title, text, actionLabel = "Confirm", tone = "blue") {
+            confirmTitle.textContent = title;
+            confirmText.textContent = text;
+            confirmActionBtn.textContent = actionLabel;
+            const toneClasses = {
+                blue: ["bg-blue-50", "text-blue-600", "bg-blue-600", "hover:bg-blue-700"],
+                green: ["bg-green-50", "text-green-600", "bg-green-600", "hover:bg-green-700"],
+                red: ["bg-red-50", "text-red-600", "bg-red-600", "hover:bg-red-700"]
+            }[tone] || ["bg-blue-50", "text-blue-600", "bg-blue-600", "hover:bg-blue-700"];
+
+            confirmIcon.className = `w-14 h-14 rounded-full ${toneClasses[0]} flex items-center justify-center mx-auto mb-4`;
+            confirmIcon.innerHTML = `<i data-lucide="check-circle" class="w-7 h-7 ${toneClasses[1]}"></i>`;
+            confirmActionBtn.className = `px-5 py-3 ${toneClasses[2]} ${toneClasses[3]} text-white font-medium rounded-xl`;
+            confirmModal.classList.remove("hidden");
+            lucide.createIcons();
+
+            return new Promise((resolve) => {
+                confirmResolver = resolve;
+            });
+        }
+
+        function closeConfirm(value) {
+            confirmModal.classList.add("hidden");
+            if (confirmResolver) {
+                confirmResolver(value);
+                confirmResolver = null;
+            }
+        }
+
+        function showRescheduleModal(petName) {
+            rescheduleText.textContent = `Choose the new visit date and time for ${petName}.`;
+            rescheduleDateInput.value = "";
+            rescheduleTimeInput.value = "";
+            rescheduleError.classList.add("hidden");
+            setMinimumRescheduleDate();
+            rescheduleModal.classList.remove("hidden");
+            rescheduleDateInput.focus();
+            lucide.createIcons();
+
+            return new Promise((resolve) => {
+                rescheduleResolver = resolve;
+            });
+        }
+
+        function closeReschedule(value) {
+            rescheduleModal.classList.add("hidden");
+            if (rescheduleResolver) {
+                rescheduleResolver(value);
+                rescheduleResolver = null;
+            }
+        }
+
+        function normalizeStatus(status, fallback = "pending") {
+            return String(status || fallback).trim().toLowerCase();
+        }
+
+        function formatDate(value) {
+            if (!value) return "Not set";
+
+            if (value.toDate) {
+                return value.toDate().toLocaleDateString();
+            }
+
+            const parsed = new Date(value);
+            return Number.isNaN(parsed.getTime()) ? String(value) : parsed.toLocaleDateString();
+        }
+
+        function getTimestampMillis(value) {
+            if (!value) return 0;
+            if (value.toDate) return value.toDate().getTime();
+            const parsed = new Date(value);
+            return Number.isNaN(parsed.getTime()) ? 0 : parsed.getTime();
+        }
+
+        function getPersonName(item) {
+            return item?.applicantName ||
+                item?.fullName ||
+                item?.userName ||
+                [item?.firstName, item?.lastName].filter(Boolean).join(" ") ||
+                "Unknown applicant";
+        }
+
+        function getPetName(item) {
+            return item?.petName || item?.animalName || item?.pet?.name || "Not specified";
+        }
+
+        function isFinalStatus(status) {
+            return ["approved", "rejected", "cancelled"].includes(normalizeStatus(status));
+        }
+
+        function canScheduleVisit(app) {
+            return ["reviewing", "under review"].includes(normalizeStatus(app?.status));
+        }
+
+        function formatDateTime(value) {
+            if (!value) return "Not set";
+            const date = value?.toDate ? value.toDate() : new Date(value);
+            if (Number.isNaN(date.getTime())) return String(value);
+            return date.toLocaleString([], {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+                hour: "numeric",
+                minute: "2-digit"
+            });
+        }
+
+        function dateKey(value) {
+            const date = value?.toDate ? value.toDate() : new Date(value);
+            if (Number.isNaN(date.getTime())) return "";
+            return [
+                date.getFullYear(),
+                String(date.getMonth() + 1).padStart(2, "0"),
+                String(date.getDate()).padStart(2, "0")
+            ].join("-");
+        }
+
+        function timeKey(value) {
+            const date = value?.toDate ? value.toDate() : new Date(value);
+            if (Number.isNaN(date.getTime())) return "";
+            return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+        }
+
+        function appointmentDateTime(visit) {
+            return visit?.scheduledAt || visit?.date || visit?.visitScheduledAt;
+        }
+
+        function slotIsBooked(dateValue, timeValue, ignoredVisitId = "") {
+            return appointments.some((visit) => {
+                const status = normalizeStatus(visit.status, "scheduled");
+                if (visit.id === ignoredVisitId || status === "cancelled") return false;
+                return dateKey(appointmentDateTime(visit)) === dateValue && timeKey(appointmentDateTime(visit)) === timeValue;
+            });
+        }
+
+        async function queueEmail(to, subject, html) {
+            if (!to) return;
+            try {
+                await addDoc(collection(db, "mail"), {
+                    to,
+                    message: {
+                        subject,
+                        html,
+                        text: html.replace(/<[^>]+>/g, " ")
+                    },
+                    createdAt: serverTimestamp()
+                });
+            } catch (error) {
+                console.warn("Email queue write failed. Install Firebase Trigger Email or add a mail Cloud Function.", error);
+            }
+        }
+
+        function badgeClass(status) {
+            const normalized = normalizeStatus(status);
+            if (normalized === "approved" || normalized === "completed" || normalized === "adopted" || normalized === "visit completed") {
+                return "bg-green-100 text-green-800";
+            }
+            if (normalized === "rejected" || normalized === "cancelled") {
+                return "bg-red-100 text-red-800";
+            }
+            if (normalized === "reviewing" || normalized === "scheduled" || normalized === "visit scheduled") {
+                return "bg-blue-100 text-blue-800";
+            }
+            return "bg-yellow-100 text-yellow-800";
+        }
+
+        function statusBadge(status) {
+            const label = status || "Pending";
+            return `<span class="text-xs font-semibold px-3 py-1 rounded-full ${badgeClass(label)}">${escapeHtml(label)}</span>`;
+        }
+
+        function applicationActionButtons(app) {
+            const status = normalizeStatus(app.status);
+            const appId = escapeJsString(app.id);
+            const buttons = [
+                `<a href="application-details.html?id=${encodeURIComponent(app.id)}" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-xl transition-colors">View</a>`
+            ];
+
+            if (status === "pending") {
+                buttons.push(`<button type="button" onclick="updateApplicationStatus('${appId}', 'reviewing')" class="px-3 py-1.5 border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm font-medium rounded-xl transition-colors">Reviewing</button>`);
+            }
+
+            if (canScheduleVisit(app)) {
+                buttons.push(`<a href="schedule-visit.html?applicationId=${encodeURIComponent(app.id)}" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-xl transition-colors">Schedule Visit</a>`);
+            }
+
+            if (status === "visit completed") {
+                buttons.push(`<button type="button" onclick="updateApplicationStatus('${appId}', 'approved')" class="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-xl transition-colors">Approve</button>`);
+            }
+
+            if (!["approved", "rejected", "cancelled"].includes(status)) {
+                buttons.push(`<button type="button" onclick="updateApplicationStatus('${appId}', 'rejected')" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-xl transition-colors">Reject</button>`);
+            }
+
+            return buttons.join("");
+        }
+
+        function visitActionButtons(visit) {
+            const status = normalizeStatus(visit.status || "scheduled");
+            const visitId = escapeJsString(visit.id);
+
+            if (status === "completed") {
+                return `<p class="text-sm text-green-700 font-medium">Visit completed. Final application decision can now be made.</p>`;
+            }
+
+            if (status === "cancelled") {
+                return `<p class="text-sm text-red-700 font-medium">Visit cancelled. Reschedule from the application if needed.</p>`;
+            }
+
+            if (status === "reschedule requested") {
+                return `
+                    <button type="button" onclick="resolveVisitRequest('${visitId}', 'reschedule', 'approved')" class="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-xl">Approve Reschedule</button>
+                    <button type="button" onclick="resolveVisitRequest('${visitId}', 'reschedule', 'rejected')" class="px-3 py-1.5 border border-red-300 text-red-600 hover:bg-red-50 text-sm font-medium rounded-xl">Reject Request</button>
+                `;
+            }
+
+            if (status === "cancel requested") {
+                return `
+                    <button type="button" onclick="resolveVisitRequest('${visitId}', 'cancel', 'approved')" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-xl">Approve Cancel</button>
+                    <button type="button" onclick="resolveVisitRequest('${visitId}', 'cancel', 'rejected')" class="px-3 py-1.5 border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm font-medium rounded-xl">Keep Visit</button>
+                `;
+            }
+
+            return `
+                <button type="button" onclick="updateVisitStatus('${visitId}', 'completed')" class="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-xl">Mark Completed</button>
+                <button type="button" onclick="updateVisitStatus('${visitId}', 'cancelled')" class="px-3 py-1.5 border border-red-300 text-red-600 hover:bg-red-50 text-sm font-medium rounded-xl">Cancel</button>
+            `;
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#39;");
+        }
+
+        function escapeJsString(value) {
+            return escapeHtml(String(value ?? "")
+                .replace(/\\/g, "\\\\")
+                .replace(/'/g, "\\'")
+                .replace(/\r/g, "\\r")
+                .replace(/\n/g, "\\n"));
+        }
+
+        async function getCollectionItems(collectionName, maxDocs = 200) {
+            const snapshot = await getDocs(query(collection(db, collectionName), limit(maxDocs)));
+            return snapshot.docs.map((docSnap) => ({
+                id: docSnap.id,
+                ref: docSnap.ref,
+                ...docSnap.data()
+            }));
+        }
+
+        async function loadAdminDashboard() {
+            try {
+                const [petsData, applicationsData, appointmentsData] = await Promise.all([
+                    getCollectionItems("pets"),
+                    getCollectionItems("applications"),
+                    getCollectionItems("appointments")
+                ]);
+
+                pets = petsData;
+                applications = applicationsData.sort((a, b) => {
+                    const aDate = getTimestampMillis(a.createdAt || a.submittedAt || a.date);
+                    const bDate = getTimestampMillis(b.createdAt || b.submittedAt || b.date);
+                    return bDate - aDate;
+                });
+                appointments = appointmentsData.sort((a, b) => {
+                    const aDate = getTimestampMillis(a.createdAt || a.scheduledAt || a.date);
+                    const bDate = getTimestampMillis(b.createdAt || b.scheduledAt || b.date);
+                    return bDate - aDate;
+                });
+
+                updateStats();
+                renderRecentApplications();
+                renderAvailablePetsList();
+                renderApplicationsTable();
+                renderPetsGrid();
+                renderVisits();
+                renderCharts();
+
+                lucide.createIcons();
+            } catch (error) {
+                console.error("Admin dashboard loading error:", error);
+                alert("Unable to load admin dashboard data. Check your Firestore rules for admin permissions.");
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function updateStats() {
+            const available = pets.filter((pet) => normalizeStatus(pet.status, "available") === "available").length;
+            const adopted = pets.filter((pet) => normalizeStatus(pet.status) === "adopted").length;
+            const pendingApplications = applications.filter((app) => {
+                const status = normalizeStatus(app.status);
+                return status === "pending" || status === "reviewing" || status === "under review" || status === "visit scheduled" || status === "visit completed";
+            }).length;
+            const scheduledVisits = appointments.filter((visit) => {
+                const status = normalizeStatus(visit.status, "scheduled");
+                return status === "scheduled" || status === "pending";
+            }).length;
+
+            totalPetsCount.textContent = pets.length;
+            availablePetsText.textContent = `${available} available now`;
+            adoptedPetsCount.textContent = adopted;
+            pendingApplicationsCount.textContent = pendingApplications;
+            totalApplicationsText.textContent = `${applications.length} total applications`;
+            scheduledVisitsCount.textContent = scheduledVisits;
+        }
+
+        function renderRecentApplications() {
+            if (!applications.length) {
+                recentApplicationsList.innerHTML = `<p class="text-gray-500 text-sm">No applications yet.</p>`;
+                return;
+            }
+
+            recentApplicationsList.innerHTML = applications.slice(0, 5).map((app) => `
+                <div class="flex items-center justify-between gap-4 p-4 border rounded-lg hover:bg-gray-50">
+                    <div>
+                        <h4 class="font-semibold text-gray-900">${escapeHtml(getPersonName(app))}</h4>
+                        <p class="text-sm text-gray-500">${getPetName(app)} • ${formatDate(app.createdAt || app.submittedAt || app.date)}</p>
+                    </div>
+                    ${statusBadge(app.status)}
+                </div>
+            `).join("");
+        }
+
+        function renderAvailablePetsList() {
+            const availablePets = pets.filter((pet) => normalizeStatus(pet.status, "available") === "available").slice(0, 5);
+
+            if (!availablePets.length) {
+                availablePetsList.innerHTML = `<p class="text-gray-500 text-sm">No available animals found.</p>`;
+                return;
+            }
+
+            availablePetsList.innerHTML = availablePets.map((pet) => `
+                <div class="flex items-center justify-between gap-4 p-4 border rounded-lg hover:bg-gray-50">
+                    <div>
+                        <h4 class="font-semibold text-gray-900">${escapeHtml(pet.name || "Unnamed animal")}</h4>
+                        <p class="text-sm text-gray-500">${pet.breed || pet.type || "Pet"} • ${pet.age || "Age not set"}</p>
+                    </div>
+                    ${statusBadge(pet.status || "available")}
+                </div>
+            `).join("");
+        }
+
+        function renderApplicationsTable() {
+            const selectedStatus = applicationStatusFilter.value;
+            const searchTerm = applicationSearchInput.value.trim().toLowerCase();
+            const filteredApplications = applications.filter((app) => {
+                const status = normalizeStatus(app.status);
+                const haystack = [
+                    getPersonName(app),
+                    getPetName(app),
+                    app.email,
+                    app.applicantEmail,
+                    app.contactEmail,
+                    app.contactNumber,
+                    status
+                ].filter(Boolean).join(" ").toLowerCase();
+                return (selectedStatus === "all" || status === selectedStatus)
+                    && (!searchTerm || haystack.includes(searchTerm));
+            });
+
+            if (!filteredApplications.length) {
+                applicationsTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="py-8 text-center text-gray-500">No applications found.</td>
+                    </tr>
+                `;
+                return;
+            }
+
+            applicationsTableBody.innerHTML = filteredApplications.map((app) => `
+                <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                    <td class="py-4 px-4 text-gray-900 font-medium">${escapeHtml(getPersonName(app))}</td>
+                    <td class="py-4 px-4 text-gray-900">
+                        <a href="application-details.html?id=${encodeURIComponent(app.id)}" class="text-blue-600 hover:text-blue-700 font-medium">${escapeHtml(getPetName(app))}</a>
+                    </td>
+                    <td class="py-4 px-4 text-gray-500 text-sm">
+                        ${escapeHtml(app.email || app.contactEmail || app.contactNumber || "No contact")}
+                    </td>
+                    <td class="py-4 px-4">${statusBadge(app.status)}</td>
+                    <td class="py-4 px-4 text-gray-500 text-sm">${escapeHtml(formatDate(app.createdAt || app.submittedAt || app.date))}</td>
+                    <td class="py-4 px-4">
+                        <div class="flex flex-wrap gap-2">
+                            ${applicationActionButtons(app)}
+                        </div>
+                    </td>
+                </tr>
+            `).join("");
+        }
+
+        function renderPetsGrid() {
+            const selectedStatus = petStatusFilter.value;
+            const searchTerm = petSearchInput.value.trim().toLowerCase();
+
+            const filteredPets = pets.filter((pet) => {
+                const status = normalizeStatus(pet.status, "available");
+                const matchesStatus = selectedStatus === "all" || status === selectedStatus;
+                const haystack = [
+                    pet.name,
+                    pet.breed,
+                    pet.type,
+                    pet.size,
+                    pet.city
+                ].filter(Boolean).join(" ").toLowerCase();
+
+                return matchesStatus && (!searchTerm || haystack.includes(searchTerm));
+            });
+
+            if (!filteredPets.length) {
+                petsGrid.innerHTML = `<div class="col-span-full p-8 text-center text-gray-500 border border-gray-200 rounded-xl">No animals found.</div>`;
+                return;
+            }
+
+            petsGrid.innerHTML = filteredPets.map((pet) => {
+                const imageBlock = pet.imageUrl
+                    ? `<img src="${escapeHtml(pet.imageUrl)}" alt="${escapeHtml(pet.name || "Animal photo")}" class="w-full h-full object-cover">`
+                    : `<div class="h-full bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center">
+                            <i data-lucide="paw-print" class="w-16 h-16 text-blue-200"></i>
+                       </div>`;
+
+                return `
+                    <div class="border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-shadow bg-white">
+                        <div class="h-40 overflow-hidden">
+                            ${imageBlock}
+                        </div>
+                        <div class="p-5">
+                            <div class="flex items-start justify-between gap-3 mb-3">
+                                <div>
+                                    <h3 class="text-xl font-bold text-gray-900">${escapeHtml(pet.name || "Unnamed animal")}</h3>
+                                    <p class="text-gray-600 text-sm">${escapeHtml(pet.breed || pet.type || "Pet")}</p>
+                                </div>
+                                ${statusBadge(pet.status || "available")}
+                            </div>
+
+                            <div class="space-y-2 text-sm text-gray-500 mb-4">
+                                <p>Age: ${escapeHtml(pet.age || "Not specified")}</p>
+                                <p>Size: ${escapeHtml(pet.size || "Not specified")}</p>
+                                <p>Location: ${escapeHtml(pet.city || "Shelter")}</p>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2 mb-2">
+                                <a href="pet-details.html?id=${encodeURIComponent(pet.id)}" class="col-span-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium text-center">
+                                    View Details / Edit
+                                </a>
+                                <button type="button" onclick="updatePetStatus('${escapeJsString(pet.id)}', 'available')" class="px-3 py-2 border border-gray-300 hover:bg-gray-50 rounded-xl text-sm font-medium">Available</button>
+                                <button type="button" onclick="updatePetStatus('${escapeJsString(pet.id)}', 'adopted')" class="px-3 py-2 border border-gray-300 hover:bg-gray-50 rounded-xl text-sm font-medium">Adopted</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join("");
+
+            lucide.createIcons();
+        }
+
+        function renderVisits() {
+            if (!appointments.length) {
+                visitsList.innerHTML = `
+                    <div class="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-8 text-center">
+                        <i data-lucide="calendar-days" class="w-12 h-12 text-gray-300 mx-auto mb-3"></i>
+                        <p class="font-semibold text-gray-900">No visits yet</p>
+                        <p class="text-sm text-gray-500 mt-1">Scheduled visits and user change requests will appear here.</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            visitsList.innerHTML = appointments.map((visit) => `
+                <div class="p-5 border border-gray-200 rounded-xl hover:shadow-md transition-shadow">
+                    <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                        <div>
+                            <h4 class="font-semibold text-gray-900 text-lg">${escapeHtml(getPersonName(visit))}</h4>
+                            <p class="text-sm text-gray-500">${escapeHtml(visit.scheduleText || formatDate(visit.scheduledAt || visit.date))}</p>
+                            <p class="text-sm text-gray-500">${escapeHtml(visit.location || "HALAS Shelter Office")}</p>
+                            <p class="text-sm text-gray-500">${escapeHtml(visit.note || "No note added.")}</p>
+                            ${visit.requestNote ? `<p class="mt-2 text-sm text-amber-700 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2">${escapeHtml(visit.requestNote)}</p>` : ""}
+                        </div>
+                        ${statusBadge(visit.status || "scheduled")}
+                    </div>
+
+                    <div class="flex flex-wrap gap-2 mt-4 pt-4 border-t border-gray-100">
+                        ${visitActionButtons(visit)}
+                    </div>
+                </div>
+            `).join("");
+        }
+
+        function renderCharts() {
+            const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const appMonthly = Array(12).fill(0);
+            const adoptedMonthly = Array(12).fill(0);
+            const currentYear = new Date().getFullYear();
+
+            applications.forEach((app) => {
+                const rawDate = app.createdAt || app.submittedAt || app.date;
+                const date = rawDate?.toDate ? rawDate.toDate() : new Date(rawDate);
+                if (!Number.isNaN(date?.getTime?.()) && date.getFullYear() === currentYear) {
+                    appMonthly[date.getMonth()] += 1;
+                }
+            });
+
+            pets.forEach((pet) => {
+                const status = normalizeStatus(pet.status);
+                const rawDate = pet.adoptedAt || pet.updatedAt || pet.createdAt;
+                const date = rawDate?.toDate ? rawDate.toDate() : new Date(rawDate);
+                if (status === "adopted" && !Number.isNaN(date?.getTime?.()) && date.getFullYear() === currentYear) {
+                    adoptedMonthly[date.getMonth()] += 1;
+                }
+            });
+
+            const statusCounts = {
+                available: pets.filter((pet) => normalizeStatus(pet.status, "available") === "available").length,
+                adopted: pets.filter((pet) => normalizeStatus(pet.status) === "adopted").length,
+                pending: pets.filter((pet) => normalizeStatus(pet.status) === "pending").length
+            };
+
+            if (adoptionChart) adoptionChart.destroy();
+            if (statusChart) statusChart.destroy();
+
+            const ctxAdoption = document.getElementById("adoptionChart").getContext("2d");
+            adoptionChart = new Chart(ctxAdoption, {
+                type: "line",
+                data: {
+                    labels: months,
+                    datasets: [
+                        {
+                            label: "Applications",
+                            data: appMonthly,
+                            borderColor: "#2563eb",
+                            backgroundColor: "#2563eb",
+                            tension: 0.4,
+                            borderWidth: 2,
+                            pointRadius: 3
+                        },
+                        {
+                            label: "Adoptions",
+                            data: adoptedMonthly,
+                            borderColor: "#16a34a",
+                            backgroundColor: "#16a34a",
+                            tension: 0.4,
+                            borderWidth: 2,
+                            pointRadius: 3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: "top", labels: { usePointStyle: true, boxWidth: 8 } }
+                    },
+                    scales: {
+                        y: { beginAtZero: true },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            const ctxStatus = document.getElementById("statusChart").getContext("2d");
+            statusChart = new Chart(ctxStatus, {
+                type: "doughnut",
+                data: {
+                    labels: ["Available", "Adopted", "Pending"],
+                    datasets: [{
+                        data: [statusCounts.available, statusCounts.adopted, statusCounts.pending],
+                        backgroundColor: ["#10b981", "#6366f1", "#f59e0b"],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: "70%",
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            petStatusLegend.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <div class="w-3 h-3 rounded-full bg-emerald-500"></div>
+                    <span class="text-gray-500">Available: ${statusCounts.available}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="w-3 h-3 rounded-full bg-indigo-500"></div>
+                    <span class="text-gray-500">Adopted: ${statusCounts.adopted}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="w-3 h-3 rounded-full bg-amber-500"></div>
+                    <span class="text-gray-500">Pending: ${statusCounts.pending}</span>
+                </div>
+            `;
+        }
+
+        window.switchTab = function(tabId) {
+            document.querySelectorAll(".tab-content").forEach((section) => {
+                section.classList.add("hidden");
+            });
+
+            document.querySelectorAll("[data-admin-tab]").forEach((button) => {
+                const isActive = button.dataset.adminTab === tabId;
+                button.className = isActive
+                    ? "px-3 py-2 rounded-lg bg-blue-50 text-blue-700 font-semibold"
+                    : "px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium";
+            });
+
+            const section = document.getElementById(`content-${tabId}`);
+            if (section) {
+                section.classList.remove("hidden");
+            }
+
+            if (tabId === "pets") {
+                renderPetsGrid();
+            }
+
+            if (tabId === "applications") {
+                renderApplicationsTable();
+            }
+        };
+
+        window.loadAdminDashboard = loadAdminDashboard;
+
+        async function rejectCompetingApplications(applicationRecord) {
+            if (!applicationRecord?.petId) return;
+
+            const snapshot = await getDocs(query(
+                collection(db, "applications"),
+                where("petId", "==", applicationRecord.petId)
+            ));
+
+            const updates = snapshot.docs
+                .filter((docSnap) => docSnap.id !== applicationRecord.id)
+                .filter((docSnap) => {
+                    const status = normalizeStatus(docSnap.data().status);
+                    return !["approved", "rejected", "cancelled"].includes(status);
+                })
+                .map(async (docSnap) => {
+                    const data = docSnap.data();
+
+                    await updateDoc(doc(db, "applications", docSnap.id), {
+                        status: "rejected",
+                        closedReason: "Another application for this pet was approved.",
+                        updatedAt: serverTimestamp()
+                    });
+
+                    const userId = data.userId || data.applicantId;
+                    if (userId) {
+                        await addDoc(collection(db, "notifications"), {
+                            userId,
+                            title: "Application Closed",
+                            message: `Your application for ${getPetName(data)} was closed because another adoption was approved.`,
+                            type: "application",
+                            status: "unread",
+                            applicationId: docSnap.id,
+                            petId: data.petId || "",
+                            createdAt: serverTimestamp(),
+                            updatedAt: serverTimestamp()
+                        });
+                    }
+                });
+
+            await Promise.all(updates);
+        }
+
+        window.updateApplicationStatus = async function(applicationId, status) {
+            if (!applicationId) return;
+
+            try {
+                const applicationRecord = applications.find((app) => app.id === applicationId);
+                const currentStatus = normalizeStatus(applicationRecord?.status);
+
+                if (isFinalStatus(currentStatus)) {
+                    alert("This application already has a final decision.");
+                    return;
+                }
+
+                if (status === "reviewing" && currentStatus !== "pending") {
+                    alert("Only pending applications can be marked under review.");
+                    return;
+                }
+
+                if (status === "approved" && normalizeStatus(applicationRecord?.status) !== "visit completed") {
+                    alert("Complete the visit before approving this application.");
+                    return;
+                }
+
+                const petName = getPetName(applicationRecord);
+                const applicantName = getPersonName(applicationRecord);
+                const confirmationMessage = status === "approved"
+                    ? `Approve ${applicantName}'s application for ${petName}? This will mark the pet as adopted and reject other active applications for this pet.`
+                    : status === "rejected"
+                        ? `Reject ${applicantName}'s application for ${petName}? The applicant will be notified.`
+                        : `Mark ${applicantName}'s application for ${petName} as ${status}?`;
+
+                const confirmed = await showConfirm(
+                    status === "approved" ? "Approve Application?" : status === "rejected" ? "Reject Application?" : "Update Application?",
+                    confirmationMessage,
+                    status === "approved" ? "Approve" : status === "rejected" ? "Reject" : "Update",
+                    status === "approved" ? "green" : status === "rejected" ? "red" : "blue"
+                );
+                if (!confirmed) return;
+
+                await updateDoc(doc(db, "applications", applicationId), {
+                    status,
+                    updatedAt: serverTimestamp()
+                });
+
+                if (status === "approved" && applicationRecord?.petId) {
+                    await updateDoc(doc(db, "pets", applicationRecord.petId), {
+                        status: "adopted",
+                        adoptedAt: serverTimestamp(),
+                        updatedAt: serverTimestamp()
+                    });
+
+                    await rejectCompetingApplications(applicationRecord);
+                }
+
+                if (applicationRecord?.userId || applicationRecord?.applicantId) {
+                    const userId = applicationRecord.userId || applicationRecord.applicantId;
+                    const notificationTitle = status === "approved"
+                        ? "Application Approved"
+                        : status === "rejected"
+                            ? "Application Rejected"
+                            : "Application Updated";
+
+                    await addDoc(collection(db, "notifications"), {
+                        userId,
+                        title: notificationTitle,
+                        message: `Your application for ${petName} is now ${status}.`,
+                        type: "application",
+                        status: "unread",
+                        applicationId,
+                        petId: applicationRecord.petId || "",
+                        createdAt: serverTimestamp(),
+                        updatedAt: serverTimestamp()
+                    });
+
+                    await queueEmail(
+                        applicationRecord.applicantEmail || applicationRecord.email,
+                        notificationTitle,
+                        `<p>Your application for <strong>${petName}</strong> is now <strong>${status}</strong>.</p>`
+                    );
+                }
+
+                await loadAdminDashboard();
+                switchTab("applications");
+            } catch (error) {
+                console.error("Application update error:", error);
+                alert("Could not update application. Check admin Firestore permissions.");
+            }
+        };
+
+        window.updatePetStatus = async function(petId, status) {
+            if (!petId) return;
+
+            try {
+                const petRecord = pets.find((pet) => pet.id === petId);
+                const petName = petRecord?.name || "this animal";
+                if (status === "adopted") {
+                    const hasApprovedApplication = applications.some((app) => app.petId === petId && normalizeStatus(app.status) === "approved");
+                    if (!hasApprovedApplication) {
+                        alert("Pets should be marked adopted only after an application is approved.");
+                        return;
+                    }
+                }
+                const confirmed = await showConfirm(
+                    "Update Animal Status?",
+                    `Mark ${petName} as ${status}?`,
+                    "Update",
+                    status === "adopted" ? "green" : "blue"
+                );
+                if (!confirmed) return;
+
+                await updateDoc(doc(db, "pets", petId), {
+                    status,
+                    updatedAt: serverTimestamp()
+                });
+
+                await loadAdminDashboard();
+                switchTab("pets");
+            } catch (error) {
+                console.error("Pet update error:", error);
+                alert("Could not update animal status. Check admin Firestore permissions.");
+            }
+        };
+
+        window.updateVisitStatus = async function(visitId, status) {
+            if (!visitId) return;
+
+            try {
+                const visitRecord = appointments.find((visit) => visit.id === visitId);
+                const actionText = status === "completed"
+                    ? `mark the visit for ${getPetName(visitRecord)} as completed`
+                    : status === "cancelled"
+                        ? `cancel the visit for ${getPetName(visitRecord)}`
+                        : `mark the visit for ${getPetName(visitRecord)} as ${status}`;
+
+                const confirmed = await showConfirm(
+                    status === "completed" ? "Mark Visit Completed?" : "Cancel Visit?",
+                    `Are you sure you want to ${actionText}?`,
+                    status === "completed" ? "Complete" : "Cancel Visit",
+                    status === "completed" ? "green" : "red"
+                );
+                if (!confirmed) return;
+
+                await updateDoc(doc(db, "appointments", visitId), {
+                    status,
+                    updatedAt: serverTimestamp()
+                });
+
+                if (visitRecord?.applicationId) {
+                    const applicationStatus = status === "completed"
+                        ? "visit completed"
+                        : status === "cancelled"
+                            ? "reviewing"
+                            : null;
+
+                    if (applicationStatus) {
+                        await updateDoc(doc(db, "applications", visitRecord.applicationId), {
+                            status: applicationStatus,
+                            visitCompletedAt: status === "completed" ? serverTimestamp() : null,
+                            updatedAt: serverTimestamp()
+                        });
+
+                        if (visitRecord.userId || visitRecord.applicantId) {
+                            const notificationTitle = status === "completed" ? "Visit Completed" : "Visit Cancelled";
+                            const notificationMessage = status === "completed"
+                                ? `Your visit for ${getPetName(visitRecord)} has been marked completed. The shelter will make a final decision next.`
+                                : `Your visit for ${getPetName(visitRecord)} was cancelled. The shelter may contact you to reschedule.`;
+
+                            await addDoc(collection(db, "notifications"), {
+                                userId: visitRecord.userId || visitRecord.applicantId,
+                                title: notificationTitle,
+                                message: notificationMessage,
+                                type: "appointment",
+                                status: "unread",
+                                applicationId: visitRecord.applicationId,
+                                petId: visitRecord.petId || "",
+                                createdAt: serverTimestamp(),
+                                updatedAt: serverTimestamp()
+                            });
+
+                            await queueEmail(visitRecord.email || visitRecord.applicantEmail, notificationTitle, `<p>${notificationMessage}</p>`);
+                        }
+                    }
+                }
+
+                await loadAdminDashboard();
+                switchTab("visits");
+            } catch (error) {
+                console.error("Visit update error:", error);
+                alert("Could not update visit. Check admin Firestore permissions.");
+            }
+        };
+
+        window.resolveVisitRequest = async function(visitId, requestType, decision) {
+            const visitRecord = appointments.find((visit) => visit.id === visitId);
+            if (!visitRecord) return;
+
+            const petName = getPetName(visitRecord);
+            const userId = visitRecord.userId || visitRecord.applicantId;
+            const email = visitRecord.email || visitRecord.applicantEmail;
+            const updates = {
+                requestStatus: decision,
+                requestResolvedAt: serverTimestamp(),
+                updatedAt: serverTimestamp()
+            };
+            let notificationTitle = "Visit Request Updated";
+            let notificationMessage = `Your visit request for ${petName} was ${decision}.`;
+
+            if (requestType === "cancel" && decision === "approved") {
+                const confirmed = await showConfirm(
+                    "Approve Cancellation?",
+                    `Approve the cancellation request for ${petName}?`,
+                    "Approve",
+                    "red"
+                );
+                if (!confirmed) return;
+                updates.status = "cancelled";
+                notificationTitle = "Visit Cancelled";
+                notificationMessage = `Your cancellation request for ${petName} was approved.`;
+            } else if (requestType === "cancel") {
+                const confirmed = await showConfirm(
+                    "Keep Visit Scheduled?",
+                    "Reject the cancellation request and keep the visit scheduled?",
+                    "Keep Visit",
+                    "blue"
+                );
+                if (!confirmed) return;
+                updates.status = "scheduled";
+                notificationTitle = "Cancellation Request Rejected";
+                notificationMessage = `Your cancellation request for ${petName} was rejected. Your visit remains scheduled.`;
+            } else if (requestType === "reschedule" && decision === "approved") {
+                const reschedule = await showRescheduleModal(petName);
+                if (!reschedule) return;
+                const { dateValue, timeValue } = reschedule;
+                const scheduledAt = new Date(`${dateValue}T${timeValue}`);
+                if (Number.isNaN(scheduledAt.getTime()) || scheduledAt.getTime() < Date.now()) {
+                    alert("Please enter a valid future date and time.");
+                    return;
+                }
+                if (slotIsBooked(dateValue, timeValue, visitId)) {
+                    alert("That date and time already has a scheduled visit.");
+                    return;
+                }
+
+                const scheduleText = formatDateTime(scheduledAt);
+                const confirmed = await showConfirm(
+                    "Approve Reschedule?",
+                    `Approve reschedule request and move the visit to ${scheduleText}?`,
+                    "Approve",
+                    "green"
+                );
+                if (!confirmed) return;
+                updates.status = "scheduled";
+                updates.scheduledAt = scheduledAt;
+                updates.scheduleText = scheduleText;
+                notificationTitle = "Visit Rescheduled";
+                notificationMessage = `Your visit for ${petName} was rescheduled for ${scheduleText}.`;
+            } else {
+                const confirmed = await showConfirm(
+                    "Reject Reschedule?",
+                    `Reject the reschedule request for ${petName}?`,
+                    "Reject",
+                    "red"
+                );
+                if (!confirmed) return;
+                updates.status = "scheduled";
+                notificationTitle = "Reschedule Request Rejected";
+                notificationMessage = `Your reschedule request for ${petName} was rejected. Your original visit remains scheduled.`;
+            }
+
+            try {
+                await updateDoc(doc(db, "appointments", visitId), updates);
+
+                if (requestType === "cancel" && decision === "approved" && visitRecord.applicationId) {
+                    await updateDoc(doc(db, "applications", visitRecord.applicationId), {
+                        status: "reviewing",
+                        updatedAt: serverTimestamp()
+                    });
+                }
+
+                if (userId) {
+                    await addDoc(collection(db, "notifications"), {
+                        userId,
+                        title: notificationTitle,
+                        message: notificationMessage,
+                        type: "appointment",
+                        status: "unread",
+                        applicationId: visitRecord.applicationId || "",
+                        petId: visitRecord.petId || "",
+                        createdAt: serverTimestamp(),
+                        updatedAt: serverTimestamp()
+                    });
+                }
+
+                await queueEmail(email, notificationTitle, `<p>${notificationMessage}</p>`);
+                await loadAdminDashboard();
+                switchTab("visits");
+            } catch (error) {
+                console.error("Visit request update error:", error);
+                alert("Could not update this visit request. Check Firestore permissions.");
+            }
+        };
+
+        confirmCancelBtn.addEventListener("click", () => closeConfirm(false));
+        confirmActionBtn.addEventListener("click", () => closeConfirm(true));
+        confirmModal.addEventListener("click", (event) => {
+            if (event.target === confirmModal) closeConfirm(false);
+        });
+
+        rescheduleCancelBtn.addEventListener("click", () => closeReschedule(null));
+        rescheduleModal.addEventListener("click", (event) => {
+            if (event.target === rescheduleModal) closeReschedule(null);
+        });
+        rescheduleActionBtn.addEventListener("click", () => {
+            const dateValue = rescheduleDateInput.value;
+            const timeValue = rescheduleTimeInput.value;
+            const scheduledAt = new Date(`${dateValue}T${timeValue}`);
+
+            if (!dateValue || !timeValue || Number.isNaN(scheduledAt.getTime()) || scheduledAt.getTime() < Date.now()) {
+                rescheduleError.classList.remove("hidden");
+                return;
+            }
+
+            closeReschedule({ dateValue, timeValue });
+        });
+
+        applicationStatusFilter.addEventListener("change", renderApplicationsTable);
+        applicationSearchInput.addEventListener("input", renderApplicationsTable);
+        petStatusFilter.addEventListener("change", renderPetsGrid);
+        petSearchInput.addEventListener("input", renderPetsGrid);
+
+        logoutBtn.addEventListener("click", async () => {
+            await signOut(auth);
+            window.location.href = "../admin-login.html";
+        });
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = "../admin-login.html";
+                return;
+            }
+
+            try {
+                const userRef = doc(db, "users", user.uid);
+                const userSnap = await getDoc(userRef);
+
+                if (!userSnap.exists()) {
+                    await signOut(auth);
+                    window.location.href = "../admin-login.html";
+                    return;
+                }
+
+                const userData = userSnap.data();
+                const role = String(userData.role || "user").trim().toLowerCase();
+
+                if (role !== "admin") {
+                    window.location.href = "../user/dashboard.html";
+                    return;
+                }
+
+                currentAdmin = user;
+                const adminName = [userData.firstName, userData.lastName].filter(Boolean).join(" ") || user.email || "Admin";
+                adminWelcome.textContent = `Welcome, ${adminName}`;
+
+                await loadAdminDashboard();
+            } catch (error) {
+                console.error("Admin access check error:", error);
+                alert("Unable to verify admin access. Check Firestore rules.");
+                window.location.href = "../admin-login.html";
+            }
+        });
+
+        lucide.createIcons();
+    </script>
+    <script src="../mobile-nav.js"></script>
+</body>
+</html>
+
+
+
+

@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adoption Application - Healed And Loved Animal Sanctuary (HALAS)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-50 min-h-screen text-gray-900">
+    <nav class="sticky top-0 z-50 border-b border-gray-200 bg-white/95 backdrop-blur">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            <a href="dashboard.html" class="font-bold text-2xl text-blue-600">
+                <span>HALAS</span>
+            </a>
+
+            <div class="hidden md:flex items-center gap-1">
+                <a href="dashboard.html" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Dashboard</a>
+                <a href="browse.html" class="px-3 py-2 rounded-lg bg-blue-50 text-blue-700 font-semibold">Browse</a>
+                <a href="saved-pets.html" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Saved</a>
+                <a href="messages.html" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Messages</a>
+                <a href="profile.html" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Profile</a>
+                <button id="logoutBtn" type="button" class="inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-200 hover:bg-gray-50 text-gray-700 font-medium rounded-xl">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                    Log Out
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <a id="backToPetLink" href="browse.html" class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium mb-6 transition-colors text-sm">
+            <i data-lucide="chevron-left" class="w-4 h-4"></i>
+            Back to Pet Details
+        </a>
+
+        <div class="grid lg:grid-cols-3 gap-8">
+            <section class="lg:col-span-2 space-y-6">
+                <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-6 sm:p-8">
+                    <p class="text-sm font-semibold text-blue-600 mb-2">Adoption Application</p>
+                    <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900">Apply to Adopt</h1>
+                    <p class="text-gray-500 mt-3 max-w-2xl">Tell us about your home, schedule, and care plan so the shelter team can review whether this adoption is a good fit.</p>
+                </div>
+
+                <form id="applicationForm" class="space-y-6">
+                    <section class="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+                        <div class="flex items-center gap-3 mb-5">
+                            <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600">
+                                <i data-lucide="user" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-xl font-bold text-gray-900">Applicant Details</h2>
+                                <p class="text-sm text-gray-500">We prefill these from your profile when available.</p>
+                            </div>
+                        </div>
+
+                        <div class="grid sm:grid-cols-2 gap-5">
+                            <div>
+                                <label for="fullName" class="block text-sm font-medium text-gray-700">Full Name</label>
+                                <input id="fullName" name="fullName" type="text" required class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
+                                <input id="email" name="email" type="email" required class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label for="contactNumber" class="block text-sm font-medium text-gray-700">Contact Number</label>
+                                <input id="contactNumber" name="contactNumber" type="tel" required class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label for="address" class="block text-sm font-medium text-gray-700">Complete Address</label>
+                                <input id="address" name="address" type="text" required class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+                        <div class="flex items-center gap-3 mb-5">
+                            <div class="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center text-green-600">
+                                <i data-lucide="home" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-xl font-bold text-gray-900">Home Environment</h2>
+                                <p class="text-sm text-gray-500">Help us understand where the pet will live.</p>
+                            </div>
+                        </div>
+
+                        <div class="grid sm:grid-cols-2 gap-5">
+                            <div>
+                                <label for="homeType" class="block text-sm font-medium text-gray-700">Home Type</label>
+                                <select id="homeType" name="homeType" required class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                                    <option value="">Select home type</option>
+                                    <option value="House">House</option>
+                                    <option value="Apartment">Apartment</option>
+                                    <option value="Condo">Condo</option>
+                                    <option value="Dormitory">Dormitory</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="ownership" class="block text-sm font-medium text-gray-700">Housing Status</label>
+                                <select id="ownership" name="ownership" required class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                                    <option value="">Select status</option>
+                                    <option value="Own">Own</option>
+                                    <option value="Rent">Rent</option>
+                                    <option value="Living with family">Living with family</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="currentPets" class="block text-sm font-medium text-gray-700">Current Pets</label>
+                                <input id="currentPets" name="currentPets" type="text" placeholder="Example: 1 vaccinated dog" class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label for="children" class="block text-sm font-medium text-gray-700">Children at Home</label>
+                                <input id="children" name="children" type="text" placeholder="Example: None, or ages 8 and 12" class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                        </div>
+
+                        <div class="mt-5">
+                            <label for="householdNotes" class="block text-sm font-medium text-gray-700">Household Notes</label>
+                            <textarea id="householdNotes" name="householdNotes" rows="4" class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Describe your household routine, yard or outdoor access, and who will help care for the pet."></textarea>
+                        </div>
+                    </section>
+
+                    <section class="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+                        <div class="flex items-center gap-3 mb-5">
+                            <div class="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center text-amber-600">
+                                <i data-lucide="heart-handshake" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-xl font-bold text-gray-900">Care Plan</h2>
+                                <p class="text-sm text-gray-500">Share how you plan to support this pet long term.</p>
+                            </div>
+                        </div>
+
+                        <div class="grid sm:grid-cols-2 gap-5">
+                            <div>
+                                <label for="petExperience" class="block text-sm font-medium text-gray-700">Pet Care Experience</label>
+                                <select id="petExperience" name="petExperience" required class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                                    <option value="">Select experience</option>
+                                    <option value="First-time adopter">First-time adopter</option>
+                                    <option value="Some experience">Some experience</option>
+                                    <option value="Experienced adopter">Experienced adopter</option>
+                                    <option value="Foster or rescue experience">Foster or rescue experience</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="dailySchedule" class="block text-sm font-medium text-gray-700">Daily Schedule</label>
+                                <select id="dailySchedule" name="dailySchedule" required class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                                    <option value="">Select schedule</option>
+                                    <option value="Mostly home">Mostly home</option>
+                                    <option value="Standard work or school day">Standard work or school day</option>
+                                    <option value="Long hours away">Long hours away</option>
+                                    <option value="Flexible schedule">Flexible schedule</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid sm:grid-cols-2 gap-5 mt-5">
+                            <div>
+                                <label for="adoptionReason" class="block text-sm font-medium text-gray-700">Why do you want to adopt?</label>
+                                <textarea id="adoptionReason" name="adoptionReason" rows="5" required class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                            </div>
+                            <div>
+                                <label for="carePlan" class="block text-sm font-medium text-gray-700">Care and Adjustment Plan</label>
+                                <textarea id="carePlan" name="carePlan" rows="5" required class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Food, exercise, vet care, training, and how you will help the pet settle in."></textarea>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+                        <div class="flex items-center gap-3 mb-5">
+                            <div class="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600">
+                                <i data-lucide="calendar-clock" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-xl font-bold text-gray-900">Visit Availability</h2>
+                                <p class="text-sm text-gray-500">Tell the shelter when you are usually available for a visit or interview.</p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-5">
+                            <div>
+                                <p class="block text-sm font-medium text-gray-700 mb-2">Preferred Visit Days</p>
+                                <div id="preferredVisitDays" class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                                    <label class="visit-option flex items-center gap-3 rounded-lg border border-gray-200 bg-white p-3 cursor-pointer hover:border-blue-300">
+                                        <input type="checkbox" value="Monday" class="visit-checkbox h-4 w-4 text-blue-600 focus:ring-blue-500">
+                                        <span class="font-medium text-gray-800">Monday</span>
+                                    </label>
+                                    <label class="visit-option flex items-center gap-3 rounded-lg border border-gray-200 bg-white p-3 cursor-pointer hover:border-blue-300">
+                                        <input type="checkbox" value="Tuesday" class="visit-checkbox h-4 w-4 text-blue-600 focus:ring-blue-500">
+                                        <span class="font-medium text-gray-800">Tuesday</span>
+                                    </label>
+                                    <label class="visit-option flex items-center gap-3 rounded-lg border border-gray-200 bg-white p-3 cursor-pointer hover:border-blue-300">
+                                        <input type="checkbox" value="Wednesday" class="visit-checkbox h-4 w-4 text-blue-600 focus:ring-blue-500">
+                                        <span class="font-medium text-gray-800">Wednesday</span>
+                                    </label>
+                                    <label class="visit-option flex items-center gap-3 rounded-lg border border-gray-200 bg-white p-3 cursor-pointer hover:border-blue-300">
+                                        <input type="checkbox" value="Thursday" class="visit-checkbox h-4 w-4 text-blue-600 focus:ring-blue-500">
+                                        <span class="font-medium text-gray-800">Thursday</span>
+                                    </label>
+                                    <label class="visit-option flex items-center gap-3 rounded-lg border border-gray-200 bg-white p-3 cursor-pointer hover:border-blue-300">
+                                        <input type="checkbox" value="Friday" class="visit-checkbox h-4 w-4 text-blue-600 focus:ring-blue-500">
+                                        <span class="font-medium text-gray-800">Friday</span>
+                                    </label>
+                                    <label class="visit-option flex items-center gap-3 rounded-lg border border-gray-200 bg-white p-3 cursor-pointer hover:border-blue-300">
+                                        <input type="checkbox" value="Saturday" class="visit-checkbox h-4 w-4 text-blue-600 focus:ring-blue-500">
+                                        <span class="font-medium text-gray-800">Saturday</span>
+                                    </label>
+                                    <label class="visit-option flex items-center gap-3 rounded-lg border border-gray-200 bg-white p-3 cursor-pointer hover:border-blue-300">
+                                        <input type="checkbox" value="Sunday" class="visit-checkbox h-4 w-4 text-blue-600 focus:ring-blue-500">
+                                        <span class="font-medium text-gray-800">Sunday</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div>
+                                <p class="block text-sm font-medium text-gray-700 mb-2">Preferred Time of Day</p>
+                                <div id="preferredVisitTimes" class="grid sm:grid-cols-2 gap-3">
+                                    <label class="visit-option flex items-start gap-3 rounded-lg border border-gray-200 bg-white p-4 cursor-pointer hover:border-blue-300">
+                                        <input type="checkbox" value="Morning" class="visit-checkbox mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500">
+                                        <span>
+                                            <span class="block font-semibold text-gray-900">Morning</span>
+                                            <span class="block text-xs text-gray-500">9:00 AM - 12:00 PM</span>
+                                        </span>
+                                    </label>
+                                    <label class="visit-option flex items-start gap-3 rounded-lg border border-gray-200 bg-white p-4 cursor-pointer hover:border-blue-300">
+                                        <input type="checkbox" value="Midday" class="visit-checkbox mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500">
+                                        <span>
+                                            <span class="block font-semibold text-gray-900">Midday</span>
+                                            <span class="block text-xs text-gray-500">12:00 PM - 2:00 PM</span>
+                                        </span>
+                                    </label>
+                                    <label class="visit-option flex items-start gap-3 rounded-lg border border-gray-200 bg-white p-4 cursor-pointer hover:border-blue-300">
+                                        <input type="checkbox" value="Afternoon" class="visit-checkbox mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500">
+                                        <span>
+                                            <span class="block font-semibold text-gray-900">Afternoon</span>
+                                            <span class="block text-xs text-gray-500">2:00 PM - 5:00 PM</span>
+                                        </span>
+                                    </label>
+                                    <label class="visit-option flex items-start gap-3 rounded-lg border border-gray-200 bg-white p-4 cursor-pointer hover:border-blue-300">
+                                        <input type="checkbox" value="Evening" class="visit-checkbox mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500">
+                                        <span>
+                                            <span class="block font-semibold text-gray-900">Evening</span>
+                                            <span class="block text-xs text-gray-500">After 5:00 PM</span>
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid sm:grid-cols-2 gap-5 mt-5">
+                            <div>
+                                <label for="unavailableDatePicker" class="block text-sm font-medium text-gray-700">Unavailable Dates</label>
+                                <div class="mt-1 flex gap-2">
+                                    <input id="unavailableDatePicker" type="date" class="px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <button id="addUnavailableDateBtn" type="button" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium">Add</button>
+                                </div>
+                                <div id="unavailableDatesList" class="mt-3 flex flex-wrap gap-2">
+                                    <span class="text-sm text-gray-500">No unavailable dates added.</span>
+                                </div>
+                                <textarea id="unavailableVisitDates" name="unavailableVisitDates" class="hidden"></textarea>
+                            </div>
+                            <div>
+                                <label for="visitAvailabilityNotes" class="block text-sm font-medium text-gray-700">Availability Notes</label>
+                                <textarea id="visitAvailabilityNotes" name="visitAvailabilityNotes" rows="4" class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Example: I am available after 2 PM on weekdays."></textarea>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+                        <label class="flex gap-3 items-start cursor-pointer">
+                            <input id="agreement" type="checkbox" required class="mt-1 w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <span class="text-sm text-gray-600">I confirm that the information provided is accurate, and I understand that shelter staff may contact me for clarification or a home interview before approval.</span>
+                        </label>
+
+                        <div class="flex flex-col sm:flex-row gap-3 mt-6">
+                            <button id="submitBtn" type="submit" class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors">
+                                <i data-lucide="send" class="w-4 h-4"></i>
+                                Submit Application
+                            </button>
+                            <a id="cancelLink" href="browse.html" class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium rounded-xl transition-colors">
+                                Cancel
+                            </a>
+                        </div>
+                    </section>
+                </form>
+            </section>
+
+            <aside class="space-y-6">
+                <section class="bg-white border border-gray-200 rounded-xl shadow-sm p-6 lg:sticky lg:top-24">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4">Selected Pet</h2>
+                    <div id="petCard" class="space-y-4">
+                        <div class="h-44 rounded-lg bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center text-blue-300">
+                            <i data-lucide="paw-print" class="w-16 h-16"></i>
+                        </div>
+                        <div>
+                            <p id="petName" class="text-2xl font-bold text-gray-900">Loading...</p>
+                            <p id="petMeta" class="text-gray-500 text-sm mt-1">Pet details</p>
+                        </div>
+                        <p id="petStatus" class="inline-flex px-3 py-1 rounded-full bg-gray-100 text-gray-600 text-xs font-semibold">Checking status</p>
+                    </div>
+                </section>
+
+                <section class="rounded-xl border border-amber-200 bg-amber-50/70 p-6">
+                    <div class="flex gap-3 items-start">
+                        <i data-lucide="info" class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5"></i>
+                        <div>
+                            <h3 class="font-bold text-amber-900 text-sm mb-1">Review Process</h3>
+                            <p class="text-xs text-amber-800 leading-relaxed">Applications are saved as pending for staff review. You can update your profile anytime to keep your details current.</p>
+                        </div>
+                    </div>
+                </section>
+            </aside>
+        </div>
+    </main>
+
+    <div id="loadingOverlay" class="hidden fixed inset-0 bg-black/40 z-[100] flex items-center justify-center px-4">
+        <div class="bg-white rounded-xl shadow-xl p-8 text-center max-w-sm w-full">
+            <div class="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+            <h2 id="loadingTitle" class="text-xl font-bold text-gray-900">Submitting...</h2>
+            <p id="loadingText" class="text-gray-600 text-sm mt-2">Please wait while we save your application.</p>
+        </div>
+    </div>
+
+    <div id="messageModal" class="hidden fixed inset-0 bg-black/40 z-[110] flex items-center justify-center px-4">
+        <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+            <div id="messageIcon" class="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="info" class="w-7 h-7 text-blue-600"></i>
+            </div>
+            <h2 id="messageTitle" class="text-2xl font-bold text-gray-900 text-center mb-2">Message</h2>
+            <p id="messageText" class="text-gray-600 text-center mb-6">Message content</p>
+            <button id="messageCloseBtn" type="button" class="w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors">OK</button>
+        </div>
+    </div>
+
+    <div id="confirmModal" class="hidden fixed inset-0 bg-black/40 z-[115] flex items-center justify-center px-4">
+        <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+            <div class="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="clipboard-check" class="w-7 h-7 text-blue-600"></i>
+            </div>
+            <h2 id="confirmTitle" class="text-2xl font-bold text-gray-900 text-center mb-2">Submit Application?</h2>
+            <p id="confirmText" class="text-gray-600 text-center mb-6">Please confirm before submitting.</p>
+            <div class="grid grid-cols-2 gap-3">
+                <button id="confirmCancelBtn" type="button" class="px-6 py-3 border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium rounded-xl transition-colors">Cancel</button>
+                <button id="confirmSubmitBtn" type="button" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors">Submit</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+        import {
+            addDoc,
+            collection,
+            doc,
+            getDoc,
+            getDocs,
+            query,
+            serverTimestamp,
+            where
+        } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+        import { auth, db } from "../firebase-app.js";
+
+        const params = new URLSearchParams(window.location.search);
+        const petId = params.get("petId") || params.get("id");
+
+        const applicationForm = document.getElementById("applicationForm");
+        const submitBtn = document.getElementById("submitBtn");
+        const logoutBtn = document.getElementById("logoutBtn");
+        const loadingOverlay = document.getElementById("loadingOverlay");
+        const loadingTitle = document.getElementById("loadingTitle");
+        const loadingText = document.getElementById("loadingText");
+        const messageModal = document.getElementById("messageModal");
+        const messageIcon = document.getElementById("messageIcon");
+        const messageTitle = document.getElementById("messageTitle");
+        const messageText = document.getElementById("messageText");
+        const messageCloseBtn = document.getElementById("messageCloseBtn");
+        const confirmModal = document.getElementById("confirmModal");
+        const confirmTitle = document.getElementById("confirmTitle");
+        const confirmText = document.getElementById("confirmText");
+        const confirmCancelBtn = document.getElementById("confirmCancelBtn");
+        const confirmSubmitBtn = document.getElementById("confirmSubmitBtn");
+        const backToPetLink = document.getElementById("backToPetLink");
+        const cancelLink = document.getElementById("cancelLink");
+        const unavailableDatePicker = document.getElementById("unavailableDatePicker");
+        const addUnavailableDateBtn = document.getElementById("addUnavailableDateBtn");
+        const unavailableDatesList = document.getElementById("unavailableDatesList");
+        const unavailableVisitDates = document.getElementById("unavailableVisitDates");
+
+        let currentUser = null;
+        let currentProfile = {};
+        let currentPet = null;
+        let redirectAfterMessage = null;
+        let confirmResolver = null;
+        let unavailableDates = [];
+
+        if (petId) {
+            const detailsUrl = `pet-details.html?id=${encodeURIComponent(petId)}`;
+            backToPetLink.href = detailsUrl;
+            cancelLink.href = detailsUrl;
+        }
+
+        const today = new Date();
+        unavailableDatePicker.min = [
+            today.getFullYear(),
+            String(today.getMonth() + 1).padStart(2, "0"),
+            String(today.getDate()).padStart(2, "0")
+        ].join("-");
+
+        function inputValue(id) {
+            return document.getElementById(id).value.trim();
+        }
+
+        function selectedValues(id) {
+            const element = document.getElementById(id);
+            if (!element) return [];
+            if (element.selectedOptions) {
+                return Array.from(element.selectedOptions).map((option) => option.value);
+            }
+            return Array.from(element.querySelectorAll("input[type='checkbox']:checked")).map((input) => input.value);
+        }
+
+        function setInputValue(id, value) {
+            document.getElementById(id).value = value || "";
+        }
+
+        function formatFullName(data, fallbackEmail) {
+            const middle = data.middleInitial || data.middleName || "";
+            return `${data.firstName || ""} ${middle} ${data.lastName || ""}`.replace(/\s+/g, " ").trim() || data.fullName || fallbackEmail || "";
+        }
+
+        function calculateProfileCompletion(data) {
+            const requiredFields = [
+                "lastName",
+                "firstName",
+                "email",
+                "contactNumber",
+                "address",
+                "city",
+                "province",
+                "zipCode",
+                "homeType",
+                "ownership",
+                "currentPets",
+                "children",
+                "householdNotes",
+                "preferredPet",
+                "preferredAge",
+                "preferredSize",
+                "adoptionReason"
+            ];
+
+            const completed = requiredFields.filter((field) => {
+                const value = data?.[field];
+                return value !== undefined && value !== null && String(value).trim() !== "";
+            }).length;
+
+            return Math.round((completed / requiredFields.length) * 100);
+        }
+
+        function profileIsComplete() {
+            return calculateProfileCompletion(currentProfile) >= 100;
+        }
+
+        function showLoading(title, text) {
+            loadingTitle.textContent = title;
+            loadingText.textContent = text;
+            loadingOverlay.classList.remove("hidden");
+            submitBtn.disabled = true;
+            submitBtn.classList.add("opacity-70", "cursor-not-allowed");
+        }
+
+        function hideLoading() {
+            loadingOverlay.classList.add("hidden");
+            submitBtn.disabled = false;
+            submitBtn.classList.remove("opacity-70", "cursor-not-allowed");
+        }
+
+        function showMessage(type, title, text, redirectUrl = null) {
+            redirectAfterMessage = redirectUrl;
+            messageTitle.textContent = title;
+            messageText.textContent = text;
+
+            if (type === "success") {
+                messageIcon.className = "w-14 h-14 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-4";
+                messageIcon.innerHTML = '<i data-lucide="check" class="w-7 h-7 text-green-600"></i>';
+            } else if (type === "error") {
+                messageIcon.className = "w-14 h-14 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-4";
+                messageIcon.innerHTML = '<i data-lucide="x" class="w-7 h-7 text-red-600"></i>';
+            } else {
+                messageIcon.className = "w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center mx-auto mb-4";
+                messageIcon.innerHTML = '<i data-lucide="info" class="w-7 h-7 text-blue-600"></i>';
+            }
+
+            messageModal.classList.remove("hidden");
+            lucide.createIcons();
+        }
+
+        function showConfirm(title, text, confirmLabel = "Submit") {
+            confirmTitle.textContent = title;
+            confirmText.textContent = text;
+            confirmSubmitBtn.textContent = confirmLabel;
+            confirmModal.classList.remove("hidden");
+            lucide.createIcons();
+
+            return new Promise((resolve) => {
+                confirmResolver = resolve;
+            });
+        }
+
+        function closeConfirm(value) {
+            confirmModal.classList.add("hidden");
+            if (confirmResolver) {
+                confirmResolver(value);
+                confirmResolver = null;
+            }
+        }
+
+        function updateVisitOptionStyles() {
+            document.querySelectorAll(".visit-option").forEach((label) => {
+                const input = label.querySelector("input[type='checkbox']");
+                const checked = input?.checked;
+                label.classList.toggle("border-blue-500", checked);
+                label.classList.toggle("bg-blue-50", checked);
+                label.classList.toggle("ring-2", checked);
+                label.classList.toggle("ring-blue-100", checked);
+            });
+        }
+
+        function formatDateForList(value) {
+            const date = new Date(`${value}T00:00`);
+            if (Number.isNaN(date.getTime())) return value;
+            return date.toLocaleDateString([], {
+                year: "numeric",
+                month: "short",
+                day: "numeric"
+            });
+        }
+
+        function renderUnavailableDates() {
+            unavailableVisitDates.value = unavailableDates.join("\n");
+
+            if (!unavailableDates.length) {
+                unavailableDatesList.innerHTML = `<span class="text-sm text-gray-500">No unavailable dates added.</span>`;
+                return;
+            }
+
+            unavailableDatesList.innerHTML = unavailableDates.map((date) => `
+                <button type="button" data-date="${date}" class="remove-unavailable-date inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 border border-blue-100 text-sm font-medium">
+                    ${formatDateForList(date)}
+                    <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                </button>
+            `).join("");
+            lucide.createIcons();
+        }
+
+        function fillProfile(data, user) {
+            setInputValue("fullName", formatFullName(data, user.email));
+            setInputValue("email", data.email || user.email);
+            setInputValue("contactNumber", data.contactNumber);
+            setInputValue("address", data.address || data.completeAddress);
+            setInputValue("homeType", data.homeType);
+            setInputValue("ownership", data.ownership);
+            setInputValue("currentPets", data.currentPets);
+            setInputValue("children", data.children);
+            setInputValue("householdNotes", data.householdNotes);
+            setInputValue("adoptionReason", data.adoptionReason);
+        }
+
+        function renderPet(pet) {
+            const name = pet.name || pet.animalName || "Selected Pet";
+            const breed = pet.breed || "Mixed Breed";
+            const type = pet.type || pet.animalType || "Animal";
+            const status = pet.status || "Available";
+            const imageUrl = pet.imageUrl || pet.photoUrl || pet.image;
+
+            document.title = `Apply for ${name} - Healed And Loved Animal Sanctuary (HALAS)`;
+            document.getElementById("petName").textContent = name;
+            document.getElementById("petMeta").textContent = [breed, type].filter(Boolean).join(" - ");
+            document.getElementById("petStatus").textContent = status;
+
+            if (imageUrl) {
+                const imageContainer = document.getElementById("petCard").firstElementChild;
+                imageContainer.textContent = "";
+
+                const image = document.createElement("img");
+                image.src = imageUrl;
+                image.alt = `${name} photo`;
+                image.className = "w-full h-full object-cover rounded-lg";
+                imageContainer.appendChild(image);
+            }
+        }
+
+        async function loadPet() {
+            if (!petId) {
+                showMessage("error", "Pet Required", "Please choose a pet before starting an application.", "browse.html");
+                applicationForm.classList.add("hidden");
+                return;
+            }
+
+            const petSnap = await getDoc(doc(db, "pets", petId));
+            if (!petSnap.exists()) {
+                showMessage("error", "Pet Not Found", "This pet record may have been removed.", "browse.html");
+                applicationForm.classList.add("hidden");
+                return;
+            }
+
+            currentPet = { id: petSnap.id, ...petSnap.data() };
+            renderPet(currentPet);
+        }
+
+        async function loadProfile(user) {
+            const userSnap = await getDoc(doc(db, "users", user.uid));
+            currentProfile = userSnap.exists() ? userSnap.data() : { email: user.email };
+            fillProfile(currentProfile, user);
+        }
+
+        function collectApplicationData() {
+            const petName = currentPet?.name || currentPet?.animalName || "Selected Pet";
+            const applicantName = inputValue("fullName");
+
+            return {
+                userId: currentUser.uid,
+                applicantId: currentUser.uid,
+                applicantName: applicantName,
+                adopterName: applicantName,
+                applicantEmail: inputValue("email"),
+                email: inputValue("email"),
+                contactNumber: inputValue("contactNumber"),
+                address: inputValue("address"),
+
+                petId: petId,
+                petName: petName,
+                petType: currentPet?.type || currentPet?.animalType || "",
+                petBreed: currentPet?.breed || "",
+
+                homeType: inputValue("homeType"),
+                ownership: inputValue("ownership"),
+                currentPets: inputValue("currentPets"),
+                children: inputValue("children"),
+                householdNotes: inputValue("householdNotes"),
+                petExperience: inputValue("petExperience"),
+                dailySchedule: inputValue("dailySchedule"),
+                adoptionReason: inputValue("adoptionReason"),
+                carePlan: inputValue("carePlan"),
+                preferredVisitDays: selectedValues("preferredVisitDays"),
+                preferredVisitTimes: selectedValues("preferredVisitTimes"),
+                unavailableVisitDates: inputValue("unavailableVisitDates"),
+                visitAvailabilityNotes: inputValue("visitAvailabilityNotes"),
+
+                status: "pending",
+                createdAt: serverTimestamp(),
+                updatedAt: serverTimestamp()
+            };
+        }
+
+        async function hasActiveApplicationForPet() {
+            const applicationsQuery = query(
+                collection(db, "applications"),
+                where("userId", "==", currentUser.uid)
+            );
+            const snapshot = await getDocs(applicationsQuery);
+
+            return snapshot.docs.some((docSnap) => {
+                const data = docSnap.data();
+                const status = String(data.status || "pending").trim().toLowerCase();
+                const isClosed = status === "approved" || status === "rejected" || status === "cancelled";
+                return data.petId === petId && !isClosed;
+            });
+        }
+
+        logoutBtn.addEventListener("click", async () => {
+            await signOut(auth);
+            window.location.href = "../login.html";
+        });
+
+        messageCloseBtn.addEventListener("click", () => {
+            messageModal.classList.add("hidden");
+            if (redirectAfterMessage) {
+                window.location.href = redirectAfterMessage;
+            }
+        });
+
+        confirmCancelBtn.addEventListener("click", () => closeConfirm(false));
+        confirmSubmitBtn.addEventListener("click", () => closeConfirm(true));
+        confirmModal.addEventListener("click", (event) => {
+            if (event.target === confirmModal) closeConfirm(false);
+        });
+
+        document.querySelectorAll(".visit-checkbox").forEach((input) => {
+            input.addEventListener("change", updateVisitOptionStyles);
+        });
+
+        addUnavailableDateBtn.addEventListener("click", () => {
+            const value = unavailableDatePicker.value;
+            if (!value) {
+                showMessage("info", "Choose a Date", "Please choose a date before adding it to your unavailable dates.");
+                return;
+            }
+
+            if (new Date(`${value}T00:00`).getTime() < new Date().setHours(0, 0, 0, 0)) {
+                showMessage("info", "Past Date", "Please choose today or a future date.");
+                return;
+            }
+
+            if (!unavailableDates.includes(value)) {
+                unavailableDates.push(value);
+                unavailableDates.sort();
+                renderUnavailableDates();
+            }
+
+            unavailableDatePicker.value = "";
+        });
+
+        unavailableDatesList.addEventListener("click", (event) => {
+            const button = event.target.closest(".remove-unavailable-date");
+            if (!button) return;
+            unavailableDates = unavailableDates.filter((date) => date !== button.dataset.date);
+            renderUnavailableDates();
+        });
+
+        applicationForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            if (!currentUser || !currentPet) {
+                showMessage("error", "Unable to Submit", "Please reload the page and try again.");
+                return;
+            }
+
+            if (!profileIsComplete()) {
+                showMessage("info", "Complete Your Profile First", "Please complete your profile before submitting an adoption application.", "profile.html");
+                return;
+            }
+
+            if (!selectedValues("preferredVisitDays").length) {
+                showMessage("info", "Visit Day Required", "Please choose at least one preferred visit day.");
+                return;
+            }
+
+            if (!selectedValues("preferredVisitTimes").length) {
+                showMessage("info", "Visit Time Required", "Please choose at least one preferred time of day.");
+                return;
+            }
+
+            const petName = currentPet.name || "this pet";
+            const confirmed = await showConfirm(
+                "Submit Application?",
+                `Send your adoption application for ${petName} to the shelter for review?`,
+                "Submit"
+            );
+            if (!confirmed) return;
+
+            showLoading("Submitting application...", "Please wait while we save your application.");
+
+            try {
+                const duplicateApplication = await hasActiveApplicationForPet();
+                if (duplicateApplication) {
+                    hideLoading();
+                    showMessage("info", "Application Already Submitted", "You already have an active application for this pet. You can review it from your dashboard.", "application.html");
+                    return;
+                }
+
+                await addDoc(collection(db, "applications"), collectApplicationData());
+                hideLoading();
+                showMessage("success", "Application Submitted", "Your adoption application has been sent for review.", "dashboard.html");
+            } catch (error) {
+                console.error("Application submit error:", error);
+                hideLoading();
+                showMessage("error", "Submission Failed", "Unable to save your application. Please check your Firestore rules and try again.");
+            }
+        });
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = "../login.html";
+                return;
+            }
+
+            currentUser = user;
+            showLoading("Loading application...", "Please wait while we prepare the form.");
+
+            try {
+                await Promise.all([loadProfile(user), loadPet()]);
+                const duplicateApplication = await hasActiveApplicationForPet();
+                if (duplicateApplication) {
+                    applicationForm.classList.add("hidden");
+                    showMessage("info", "Application Already Submitted", "You already have an active application for this pet. You can review it from your applications page.", "application.html");
+                } else if (!profileIsComplete()) {
+                    applicationForm.classList.add("hidden");
+                    showMessage("info", "Complete Your Profile First", "Your profile needs to be complete before you can apply for adoption.", "profile.html");
+                }
+            } catch (error) {
+                console.error("Application page load error:", error);
+                showMessage("error", "Load Failed", "Unable to load the application page. Please try again.", "browse.html");
+            } finally {
+                hideLoading();
+                lucide.createIcons();
+            }
+        });
+
+        renderUnavailableDates();
+        updateVisitOptionStyles();
+        lucide.createIcons();
+    </script>
+    <script src="../mobile-nav.js"></script>
+</body>
+</html>
+
+
+
+
+
+

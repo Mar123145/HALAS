@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Details - HALAS Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-50 min-h-screen text-gray-900">
+    <nav class="sticky top-0 z-50 border-b border-gray-200 bg-white/95 backdrop-blur">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            <a href="dashboard.html" class="font-bold text-2xl text-blue-600">
+                <span>HALAS</span>
+            </a>
+
+            <div class="hidden md:flex items-center gap-1">
+                <a href="dashboard.html" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Dashboard</a>
+                <a href="add-pet.html" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Add Animal</a>
+                <a href="schedule-visit.html" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Schedule Visit</a>
+                <a href="messages.html" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Messages</a>
+                <button id="logoutBtn" type="button" class="inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-200 hover:bg-gray-50 text-gray-700 font-medium rounded-xl"><i data-lucide="log-out" class="w-4 h-4"></i>Log Out</button>
+            </div>
+        </div>
+    </nav>
+
+    <div id="loadingOverlay" class="fixed inset-0 bg-white z-[120] flex items-center justify-center px-4">
+        <div class="text-center">
+            <div class="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+            <h2 class="text-xl font-bold text-gray-900">Loading application...</h2>
+            <p class="text-gray-600 text-sm mt-2">Checking admin access and loading the request.</p>
+        </div>
+    </div>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <a href="dashboard.html" class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium mb-6">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            Back to Admin Dashboard
+        </a>
+
+        <section id="applicationHeader" class="bg-white border border-gray-200 rounded-xl shadow-sm p-6 sm:p-8 mb-8">
+            <p class="text-gray-500 font-medium mb-2">Application Review</p>
+            <h1 id="pageTitle" class="text-4xl font-bold">Application Details</h1>
+            <p id="pageSubtitle" class="text-gray-500 mt-2 max-w-2xl">Review applicant answers before making a decision.</p>
+        </section>
+
+        <div id="errorState" class="hidden bg-white border border-red-200 rounded-xl shadow-sm p-10 text-center">
+            <i data-lucide="alert-circle" class="w-16 h-16 text-red-300 mx-auto mb-4"></i>
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">Application not found</h2>
+            <p class="text-gray-600 mb-6">The record may have been removed or the link is incorrect.</p>
+            <a href="dashboard.html" class="inline-flex items-center justify-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl">Back to Dashboard</a>
+        </div>
+
+        <div id="detailsContent" class="hidden grid lg:grid-cols-3 gap-8">
+            <section class="lg:col-span-2 space-y-6">
+                <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-5">Applicant Details</h2>
+                    <div id="applicantDetails" class="grid md:grid-cols-2 gap-4"></div>
+                </div>
+
+                <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-5">Home Environment</h2>
+                    <div id="homeDetails" class="grid md:grid-cols-2 gap-4"></div>
+                </div>
+
+                <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-5">Care Plan</h2>
+                    <div id="careDetails" class="space-y-4"></div>
+                </div>
+            </section>
+
+            <aside class="space-y-6">
+                <section class="bg-white border border-gray-200 rounded-xl shadow-sm p-6 lg:sticky lg:top-24">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4">Decision</h2>
+                    <div id="statusBadge" class="mb-5"></div>
+                    <div id="decisionActions" class="space-y-3"></div>
+                </section>
+
+                <section class="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4">Pet</h2>
+                    <div id="petDetails" class="space-y-3 text-sm text-gray-600"></div>
+                </section>
+            </aside>
+        </div>
+    </main>
+
+    <div id="confirmModal" class="hidden fixed inset-0 bg-black/40 z-[130] flex items-center justify-center px-4">
+        <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+            <div class="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="clipboard-check" class="w-7 h-7 text-blue-600"></i>
+            </div>
+            <h2 id="confirmTitle" class="text-2xl font-bold text-gray-900 text-center mb-2">Confirm Action</h2>
+            <p id="confirmText" class="text-gray-600 text-center mb-6">Please confirm this action.</p>
+            <div class="grid grid-cols-2 gap-3">
+                <button id="confirmCancelBtn" type="button" class="px-5 py-3 border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium rounded-xl">Cancel</button>
+                <button id="confirmActionBtn" type="button" class="px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+        import {
+            getFirestore,
+            addDoc,
+            collection,
+            doc,
+            getDoc,
+            getDocs,
+            query,
+            serverTimestamp,
+            updateDoc,
+            where
+        } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+        import { firebaseConfig } from "../firebase-config.js";
+
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const params = new URLSearchParams(window.location.search);
+        const applicationId = params.get("id") || params.get("applicationId");
+
+        const loadingOverlay = document.getElementById("loadingOverlay");
+        const logoutBtn = document.getElementById("logoutBtn");
+        const errorState = document.getElementById("errorState");
+        const detailsContent = document.getElementById("detailsContent");
+        const pageTitle = document.getElementById("pageTitle");
+        const pageSubtitle = document.getElementById("pageSubtitle");
+        const applicantDetails = document.getElementById("applicantDetails");
+        const homeDetails = document.getElementById("homeDetails");
+        const careDetails = document.getElementById("careDetails");
+        const petDetails = document.getElementById("petDetails");
+        const statusBadge = document.getElementById("statusBadge");
+        const decisionActions = document.getElementById("decisionActions");
+        const confirmModal = document.getElementById("confirmModal");
+        const confirmTitle = document.getElementById("confirmTitle");
+        const confirmText = document.getElementById("confirmText");
+        const confirmCancelBtn = document.getElementById("confirmCancelBtn");
+        const confirmActionBtn = document.getElementById("confirmActionBtn");
+
+        let currentAdmin = null;
+        let currentApplication = null;
+        let confirmResolver = null;
+
+        function hideLoading() {
+            loadingOverlay.classList.add("hidden");
+        }
+
+        function normalizeStatus(status) {
+            return String(status || "pending").trim().toLowerCase();
+        }
+
+        function badgeClass(status) {
+            const normalized = normalizeStatus(status);
+            if (normalized === "approved" || normalized === "visit completed") return "bg-green-100 text-green-700";
+            if (normalized === "rejected" || normalized === "cancelled") return "bg-red-100 text-red-700";
+            if (normalized === "reviewing" || normalized === "visit scheduled") return "bg-blue-100 text-blue-700";
+            return "bg-yellow-100 text-yellow-700";
+        }
+
+        function renderDecisionActions(appRecord) {
+            const status = normalizeStatus(appRecord.status);
+            const actions = [];
+
+            if (status === "pending") {
+                actions.push(`<button type="button" onclick="updateStatus('reviewing')" class="w-full px-5 py-3 border border-gray-300 hover:bg-gray-50 rounded-xl font-medium">Mark Reviewing</button>`);
+            }
+
+            if (status === "reviewing" || status === "under review") {
+                actions.push(`<a href="schedule-visit.html?applicationId=${encodeURIComponent(applicationId)}" class="block text-center w-full px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium">Schedule Visit</a>`);
+            }
+
+            if (status === "visit completed") {
+                actions.push(`<button type="button" onclick="updateStatus('approved')" class="w-full px-5 py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl font-medium">Approve Application</button>`);
+            }
+
+            if (!["approved", "rejected", "cancelled"].includes(status)) {
+                actions.push(`<button type="button" onclick="updateStatus('rejected')" class="w-full px-5 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-medium">Reject Application</button>`);
+            }
+
+            if (!actions.length) {
+                actions.push(`<p class="text-sm text-gray-500 text-center">This application has a final decision.</p>`);
+            }
+
+            decisionActions.innerHTML = actions.join("");
+        }
+
+        function item(label, value) {
+            return `
+                <div class="rounded-lg bg-gray-50 border border-gray-100 p-4">
+                    <p class="text-xs uppercase text-gray-400 font-semibold mb-1">${label}</p>
+                    <p class="font-medium text-gray-900 whitespace-pre-wrap">${value || "Not set"}</p>
+                </div>
+            `;
+        }
+
+        function listValue(value, fallback = "Not set") {
+            if (Array.isArray(value)) return value.length ? value.join(", ") : fallback;
+            return value || fallback;
+        }
+
+        function getApplicantName(appRecord) {
+            return appRecord.applicantName || appRecord.adopterName || appRecord.fullName || "Applicant";
+        }
+
+        function getPetName(appRecord) {
+            return appRecord.petName || "Selected pet";
+        }
+
+        function showConfirm(title, text, actionLabel = "Confirm", tone = "blue") {
+            confirmTitle.textContent = title;
+            confirmText.textContent = text;
+            confirmActionBtn.textContent = actionLabel;
+            confirmActionBtn.className = tone === "red"
+                ? "px-5 py-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-xl"
+                : tone === "green"
+                    ? "px-5 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-xl"
+                    : "px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl";
+            confirmModal.classList.remove("hidden");
+            lucide.createIcons();
+
+            return new Promise((resolve) => {
+                confirmResolver = resolve;
+            });
+        }
+
+        function closeConfirm(value) {
+            confirmModal.classList.add("hidden");
+            if (confirmResolver) {
+                confirmResolver(value);
+                confirmResolver = null;
+            }
+        }
+
+        function isFinalStatus(status) {
+            return ["approved", "rejected", "cancelled"].includes(normalizeStatus(status));
+        }
+
+        async function queueEmail(to, subject, html) {
+            if (!to) return;
+            try {
+                await addDoc(collection(db, "mail"), {
+                    to,
+                    message: {
+                        subject,
+                        html,
+                        text: html.replace(/<[^>]+>/g, " ")
+                    },
+                    createdAt: serverTimestamp()
+                });
+            } catch (error) {
+                console.warn("Email queue write failed. Install Firebase Trigger Email or add a mail Cloud Function.", error);
+            }
+        }
+
+        async function rejectCompetingApplications(appRecord) {
+            if (!appRecord.petId) return;
+
+            const snapshot = await getDocs(query(
+                collection(db, "applications"),
+                where("petId", "==", appRecord.petId)
+            ));
+
+            const updates = snapshot.docs
+                .filter((docSnap) => docSnap.id !== applicationId)
+                .filter((docSnap) => {
+                    const status = normalizeStatus(docSnap.data().status);
+                    return !["approved", "rejected", "cancelled"].includes(status);
+                })
+                .map(async (docSnap) => {
+                    const data = docSnap.data();
+                    await updateDoc(doc(db, "applications", docSnap.id), {
+                        status: "rejected",
+                        closedReason: "Another application for this pet was approved.",
+                        updatedAt: serverTimestamp()
+                    });
+
+                    if (data.userId || data.applicantId) {
+                        await addDoc(collection(db, "notifications"), {
+                            userId: data.userId || data.applicantId,
+                            title: "Application Closed",
+                            message: `Your application for ${getPetName(data)} was closed because another adoption was approved.`,
+                            type: "application",
+                            status: "unread",
+                            applicationId: docSnap.id,
+                            petId: data.petId || "",
+                            createdAt: serverTimestamp(),
+                            updatedAt: serverTimestamp()
+                        });
+                    }
+                });
+
+            await Promise.all(updates);
+        }
+
+        async function notifyApplicant(appRecord, status) {
+            const userId = appRecord.userId || appRecord.applicantId;
+            if (!userId) return;
+
+            await addDoc(collection(db, "notifications"), {
+                userId,
+                title: status === "approved" ? "Application Approved" : status === "rejected" ? "Application Rejected" : "Application Updated",
+                message: `Your application for ${getPetName(appRecord)} is now ${status}.`,
+                type: "application",
+                status: "unread",
+                applicationId,
+                petId: appRecord.petId || "",
+                createdAt: serverTimestamp(),
+                updatedAt: serverTimestamp()
+            });
+
+            await queueEmail(
+                appRecord.applicantEmail || appRecord.email,
+                status === "approved" ? "Application Approved" : status === "rejected" ? "Application Rejected" : "Application Updated",
+                `<p>Your application for <strong>${getPetName(appRecord)}</strong> is now <strong>${status}</strong>.</p>`
+            );
+        }
+
+        window.updateStatus = async function(status) {
+            if (!currentApplication) return;
+
+            try {
+                const currentStatus = normalizeStatus(currentApplication.status);
+                if (isFinalStatus(currentStatus)) {
+                    alert("This application already has a final decision.");
+                    return;
+                }
+
+                if (status === "reviewing" && currentStatus !== "pending") {
+                    alert("Only pending applications can be marked under review.");
+                    return;
+                }
+
+                if (status === "approved" && normalizeStatus(currentApplication.status) !== "visit completed") {
+                    alert("Complete the visit before approving this application.");
+                    return;
+                }
+
+                const applicantName = getApplicantName(currentApplication);
+                const petName = getPetName(currentApplication);
+                const confirmationMessage = status === "approved"
+                    ? `Approve ${applicantName}'s application for ${petName}? This will mark the pet as adopted and reject other active applications for this pet.`
+                    : status === "rejected"
+                        ? `Reject ${applicantName}'s application for ${petName}? The applicant will be notified.`
+                        : `Mark ${applicantName}'s application for ${petName} as ${status}?`;
+
+                const confirmed = await showConfirm(
+                    status === "approved" ? "Approve Application?" : status === "rejected" ? "Reject Application?" : "Update Application?",
+                    confirmationMessage,
+                    status === "approved" ? "Approve" : status === "rejected" ? "Reject" : "Update",
+                    status === "approved" ? "green" : status === "rejected" ? "red" : "blue"
+                );
+                if (!confirmed) return;
+
+                await updateDoc(doc(db, "applications", applicationId), {
+                    status,
+                    updatedAt: serverTimestamp()
+                });
+
+                if (status === "approved" && currentApplication.petId) {
+                    await updateDoc(doc(db, "pets", currentApplication.petId), {
+                        status: "adopted",
+                        adoptedAt: serverTimestamp(),
+                        updatedAt: serverTimestamp()
+                    });
+                    await rejectCompetingApplications(currentApplication);
+                }
+
+                await notifyApplicant(currentApplication, status);
+                currentApplication.status = status;
+                renderApplication();
+            } catch (error) {
+                console.error("Application status update error:", error);
+                alert("Unable to update application. Check Firestore rules.");
+            }
+        };
+
+        function renderApplication() {
+            const appRecord = currentApplication;
+            const applicantName = getApplicantName(appRecord);
+            const petName = getPetName(appRecord);
+
+            document.title = `${applicantName} - ${petName} | HALAS Admin`;
+            pageTitle.textContent = petName;
+            pageSubtitle.textContent = `${applicantName}'s adoption application`;
+            statusBadge.innerHTML = `<span class="inline-flex px-4 py-2 rounded-full text-sm font-semibold ${badgeClass(appRecord.status)}">${appRecord.status || "pending"}</span>`;
+            renderDecisionActions(appRecord);
+
+            applicantDetails.innerHTML = [
+                item("Applicant", applicantName),
+                item("Email", appRecord.applicantEmail || appRecord.email),
+                item("Contact Number", appRecord.contactNumber),
+                item("Address", appRecord.address)
+            ].join("");
+
+            homeDetails.innerHTML = [
+                item("Home Type", appRecord.homeType),
+                item("Housing Status", appRecord.ownership),
+                item("Current Pets", appRecord.currentPets),
+                item("Children at Home", appRecord.children),
+                item("Household Notes", appRecord.householdNotes)
+            ].join("");
+
+            careDetails.innerHTML = [
+                item("Pet Experience", appRecord.petExperience),
+                item("Daily Schedule", appRecord.dailySchedule),
+                item("Preferred Visit Days", listValue(appRecord.preferredVisitDays)),
+                item("Preferred Visit Times", listValue(appRecord.preferredVisitTimes)),
+                item("Unavailable Visit Dates", appRecord.unavailableVisitDates),
+                item("Availability Notes", appRecord.visitAvailabilityNotes),
+                item("Adoption Reason", appRecord.adoptionReason),
+                item("Care and Adjustment Plan", appRecord.carePlan)
+            ].join("");
+
+            petDetails.innerHTML = [
+                item("Pet Name", petName),
+                item("Pet Type", appRecord.petType),
+                item("Breed", appRecord.petBreed),
+                appRecord.petId ? `<a href="pet-details.html?id=${encodeURIComponent(appRecord.petId)}" class="block text-center px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium">View Animal Record</a>` : ""
+            ].join("");
+        }
+
+        async function loadApplication() {
+            if (!applicationId) {
+                errorState.classList.remove("hidden");
+                return;
+            }
+
+            const appSnap = await getDoc(doc(db, "applications", applicationId));
+            if (!appSnap.exists()) {
+                errorState.classList.remove("hidden");
+                return;
+            }
+
+            currentApplication = { id: appSnap.id, ...appSnap.data() };
+            renderApplication();
+            detailsContent.classList.remove("hidden");
+        }
+
+        logoutBtn.addEventListener("click", async () => {
+            await signOut(auth);
+            window.location.href = "../admin-login.html";
+        });
+
+        confirmCancelBtn.addEventListener("click", () => closeConfirm(false));
+        confirmActionBtn.addEventListener("click", () => closeConfirm(true));
+        confirmModal.addEventListener("click", (event) => {
+            if (event.target === confirmModal) closeConfirm(false);
+        });
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = "../admin-login.html";
+                return;
+            }
+
+            try {
+                const userSnap = await getDoc(doc(db, "users", user.uid));
+                const role = userSnap.exists() ? String(userSnap.data().role || "user").toLowerCase() : "user";
+
+                if (role !== "admin") {
+                    window.location.href = "../user/dashboard.html";
+                    return;
+                }
+
+                currentAdmin = user;
+                await loadApplication();
+            } catch (error) {
+                console.error("Application details load error:", error);
+                errorState.classList.remove("hidden");
+            } finally {
+                hideLoading();
+                lucide.createIcons();
+            }
+        });
+
+        lucide.createIcons();
+    </script>
+    <script src="../mobile-nav.js"></script>
+</body>
+</html>
+
+
+
+

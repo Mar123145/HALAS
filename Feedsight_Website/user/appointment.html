@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appointments - Healed And Loved Animal Sanctuary (HALAS)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-50 min-h-screen text-gray-900">
+    <nav class="sticky top-0 z-50 border-b border-gray-200 bg-white/95 backdrop-blur">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            <a href="dashboard.html" class="font-bold text-2xl text-blue-600">
+                <span>HALAS</span>
+            </a>
+
+            <div class="hidden md:flex items-center gap-1">
+                <a href="dashboard.html" class="px-3 py-2 rounded-lg bg-blue-50 text-blue-700 font-semibold">Dashboard</a>
+                <a href="browse.html" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Browse</a>
+                <a href="saved-pets.html" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Saved</a>
+                <a href="messages.html" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Messages</a>
+                <a href="profile.html" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Profile</a>
+                <button id="logoutBtn" type="button" class="inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-200 hover:bg-gray-50 text-gray-700 font-medium rounded-xl">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                    Log Out
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <section class="bg-white border border-gray-200 rounded-xl shadow-sm p-6 sm:p-8 mb-6">
+            <p class="text-gray-500 font-medium mb-2">Shelter Visits</p>
+            <h1 class="text-4xl font-bold">Appointments</h1>
+            <p class="text-gray-500 mt-2 max-w-2xl">See your scheduled home visits, shelter meetings, and assessment details.</p>
+        </section>
+
+        <section id="appointmentsList" class="space-y-6">
+            <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-10 text-center">
+                <div class="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+                <p class="text-gray-600">Loading appointments...</p>
+            </div>
+        </section>
+    </main>
+
+    <div id="requestModal" class="hidden fixed inset-0 bg-black/40 z-[110] flex items-center justify-center px-4">
+        <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+            <div class="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="calendar-clock" class="w-7 h-7 text-blue-600"></i>
+            </div>
+            <h2 id="requestTitle" class="text-2xl font-bold text-gray-900 text-center mb-2">Visit Request</h2>
+            <p id="requestText" class="text-gray-600 text-center mb-4">Send a request to the shelter.</p>
+            <label for="requestNoteInput" class="block text-sm font-medium text-gray-700 mb-2">Reason or preferred schedule</label>
+            <textarea id="requestNoteInput" rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Write your reason or preferred new schedule."></textarea>
+            <p id="requestError" class="hidden text-sm text-red-600 mt-2">Please enter a short note.</p>
+            <div class="grid grid-cols-2 gap-3 mt-5">
+                <button id="requestCancelBtn" type="button" class="px-5 py-3 border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium rounded-xl">Cancel</button>
+                <button id="requestSendBtn" type="button" class="px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl">Send Request</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+        import {
+            getFirestore,
+            addDoc,
+            collection,
+            doc,
+            getDocs,
+            query,
+            serverTimestamp,
+            updateDoc,
+            where
+        } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+        import { firebaseConfig } from "../firebase-config.js";
+
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const logoutBtn = document.getElementById("logoutBtn");
+        const appointmentsList = document.getElementById("appointmentsList");
+        const requestModal = document.getElementById("requestModal");
+        const requestTitle = document.getElementById("requestTitle");
+        const requestText = document.getElementById("requestText");
+        const requestNoteInput = document.getElementById("requestNoteInput");
+        const requestError = document.getElementById("requestError");
+        const requestCancelBtn = document.getElementById("requestCancelBtn");
+        const requestSendBtn = document.getElementById("requestSendBtn");
+        let currentUser = null;
+        let userAppointments = [];
+        let requestResolver = null;
+
+        function normalizeStatus(status) {
+            return String(status || "scheduled").trim().toLowerCase();
+        }
+
+        function timestampMillis(value) {
+            if (!value) return 0;
+            if (value.toDate) return value.toDate().getTime();
+            const parsed = new Date(value);
+            return Number.isNaN(parsed.getTime()) ? 0 : parsed.getTime();
+        }
+
+        function formatDateTime(value) {
+            if (!value) return "Not set";
+            const date = value.toDate ? value.toDate() : new Date(value);
+            if (Number.isNaN(date.getTime())) return String(value);
+            return date.toLocaleString([], {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+                hour: "numeric",
+                minute: "2-digit"
+            });
+        }
+
+        function badgeClass(status) {
+            const normalized = normalizeStatus(status);
+            if (normalized === "completed") return "bg-green-100 text-green-700";
+            if (normalized === "cancelled") return "bg-red-100 text-red-700";
+            if (normalized.includes("requested")) return "bg-amber-100 text-amber-700";
+            if (normalized === "scheduled") return "bg-blue-100 text-blue-700";
+            return "bg-yellow-100 text-yellow-700";
+        }
+
+        function canRequestChange(status) {
+            return normalizeStatus(status) === "scheduled";
+        }
+
+        function openRequestModal(type, petName) {
+            requestTitle.textContent = type === "reschedule" ? "Request Reschedule" : "Request Cancellation";
+            requestText.textContent = type === "reschedule"
+                ? `Tell the shelter when you would prefer to visit ${petName}.`
+                : `Tell the shelter why you want to cancel the visit for ${petName}.`;
+            requestNoteInput.value = "";
+            requestError.classList.add("hidden");
+            requestModal.classList.remove("hidden");
+            requestNoteInput.focus();
+            lucide.createIcons();
+
+            return new Promise((resolve) => {
+                requestResolver = resolve;
+            });
+        }
+
+        function closeRequestModal(value) {
+            requestModal.classList.add("hidden");
+            if (requestResolver) {
+                requestResolver(value);
+                requestResolver = null;
+            }
+        }
+
+        function renderAppointments(appointments) {
+            if (!appointments.length) {
+                appointmentsList.innerHTML = `
+                    <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-12 text-center">
+                        <i data-lucide="calendar-days" class="w-16 h-16 text-gray-300 mx-auto mb-4"></i>
+                        <h2 class="text-2xl font-bold text-gray-900 mb-2">No appointments yet</h2>
+                        <p class="text-gray-600 mb-6">When the shelter schedules a visit, it will appear here.</p>
+                        <a href="application.html" class="inline-flex items-center justify-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors">View Applications</a>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            appointmentsList.innerHTML = appointments.map((visit) => {
+                const status = visit.status || "scheduled";
+                const petName = visit.petName || "Selected pet";
+                const schedule = visit.scheduleText || formatDateTime(visit.scheduledAt || visit.date);
+                const petLink = visit.petId ? `pet-details.html?id=${encodeURIComponent(visit.petId)}` : "browse.html";
+
+                return `
+                    <article class="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+                        <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-5">
+                            <div>
+                                <div class="flex flex-wrap items-center gap-3 mb-2">
+                                    <h2 class="text-2xl font-bold text-gray-900">${petName}</h2>
+                                    <span class="px-3 py-1 rounded-full text-xs font-semibold ${badgeClass(status)}">${status}</span>
+                                </div>
+                                <p class="text-gray-500">${schedule}</p>
+                            </div>
+                            <a href="${petLink}" class="inline-flex items-center justify-center px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium">View Pet</a>
+                        </div>
+
+                        <div class="grid md:grid-cols-3 gap-4 mt-6">
+                            <div class="rounded-lg bg-blue-50 p-4">
+                                <p class="text-sm text-gray-500">Location</p>
+                                <p class="font-semibold text-gray-900">${visit.location || "HALAS Shelter Office"}</p>
+                            </div>
+                            <div class="rounded-lg bg-green-50 p-4">
+                                <p class="text-sm text-gray-500">Applicant</p>
+                                <p class="font-semibold text-gray-900">${visit.applicantName || visit.adopterName || "Applicant"}</p>
+                            </div>
+                            <div class="rounded-lg bg-amber-50 p-4">
+                                <p class="text-sm text-gray-500">Contact</p>
+                                <p class="font-semibold text-gray-900">${visit.contactNumber || visit.email || "Not set"}</p>
+                            </div>
+                        </div>
+
+                        <div class="mt-5">
+                            <h3 class="font-semibold text-gray-900 mb-1">Notes</h3>
+                            <p class="text-sm text-gray-600 whitespace-pre-wrap">${visit.note || "No visit notes have been added yet."}</p>
+                        </div>
+
+                        ${visit.requestNote ? `
+                            <div class="mt-5 rounded-lg bg-amber-50 border border-amber-100 p-4">
+                                <h3 class="font-semibold text-amber-900 mb-1">Your Request</h3>
+                                <p class="text-sm text-amber-800 whitespace-pre-wrap">${visit.requestNote}</p>
+                            </div>
+                        ` : ""}
+
+                        ${canRequestChange(status) ? `
+                            <div class="flex flex-wrap gap-3 mt-5 pt-5 border-t border-gray-100">
+                                <button type="button" onclick="requestVisitChange('${visit.id}', 'reschedule')" class="inline-flex items-center justify-center px-4 py-2 border border-blue-300 text-blue-700 hover:bg-blue-50 rounded-xl font-medium text-sm">Request Reschedule</button>
+                                <button type="button" onclick="requestVisitChange('${visit.id}', 'cancel')" class="inline-flex items-center justify-center px-4 py-2 border border-red-300 text-red-600 hover:bg-red-50 rounded-xl font-medium text-sm">Request Cancel</button>
+                            </div>
+                        ` : ""}
+                    </article>
+                `;
+            }).join("");
+
+            lucide.createIcons();
+        }
+
+        async function loadAppointments(user) {
+            const snapshot = await getDocs(query(
+                collection(db, "appointments"),
+                where("userId", "==", user.uid)
+            ));
+
+            const appointments = snapshot.docs.map((docSnap) => ({
+                id: docSnap.id,
+                ...docSnap.data()
+            })).sort((a, b) => timestampMillis(a.scheduledAt || a.date) - timestampMillis(b.scheduledAt || b.date));
+
+            userAppointments = appointments;
+            renderAppointments(appointments);
+        }
+
+        window.requestVisitChange = async function(visitId, type) {
+            const visit = userAppointments.find((item) => item.id === visitId);
+            if (!visit || !currentUser) return;
+
+            if (!canRequestChange(visit.status)) {
+                alert("A request is already pending or this visit can no longer be changed.");
+                return;
+            }
+
+            const petName = visit.petName || "this pet";
+            const requestNote = await openRequestModal(type, petName);
+            if (!requestNote) return;
+
+            const nextStatus = type === "reschedule" ? "reschedule requested" : "cancel requested";
+
+            try {
+                await updateDoc(doc(db, "appointments", visitId), {
+                    status: nextStatus,
+                    requestType: type,
+                    requestStatus: "pending",
+                    requestNote: requestNote.trim(),
+                    requestedAt: serverTimestamp(),
+                    updatedAt: serverTimestamp()
+                });
+
+                await addDoc(collection(db, "notifications"), {
+                    userId: currentUser.uid,
+                    audience: "admin",
+                    title: type === "reschedule" ? "Reschedule Request" : "Cancellation Request",
+                    message: `${currentUser.email || "An adopter"} requested to ${type} the visit for ${petName}.`,
+                    type: "appointment",
+                    status: "unread",
+                    appointmentId: visitId,
+                    applicationId: visit.applicationId || "",
+                    petId: visit.petId || "",
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp()
+                });
+
+                await loadAppointments(currentUser);
+            } catch (error) {
+                console.error("Visit change request error:", error);
+                alert("Unable to send your request. Please try again or message the shelter.");
+            }
+        };
+
+        requestCancelBtn.addEventListener("click", () => closeRequestModal(null));
+        requestModal.addEventListener("click", (event) => {
+            if (event.target === requestModal) closeRequestModal(null);
+        });
+        requestSendBtn.addEventListener("click", () => {
+            const note = requestNoteInput.value.trim();
+            if (!note) {
+                requestError.classList.remove("hidden");
+                return;
+            }
+            closeRequestModal(note);
+        });
+
+        logoutBtn.addEventListener("click", async () => {
+            await signOut(auth);
+            window.location.href = "../login.html";
+        });
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = "../login.html";
+                return;
+            }
+
+            try {
+                currentUser = user;
+                await loadAppointments(user);
+            } catch (error) {
+                console.error("Appointment load error:", error);
+                appointmentsList.innerHTML = `
+                    <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-12 text-center">
+                        <i data-lucide="alert-circle" class="w-16 h-16 text-red-300 mx-auto mb-4"></i>
+                        <h2 class="text-2xl font-bold text-gray-900 mb-2">Unable to load appointments</h2>
+                        <p class="text-gray-600">Please check your Firestore rules and try again.</p>
+                    </div>
+                `;
+                lucide.createIcons();
+            }
+        });
+
+        lucide.createIcons();
+    </script>
+    <script src="../mobile-nav.js"></script>
+</body>
+</html>
+
+
+
+
+

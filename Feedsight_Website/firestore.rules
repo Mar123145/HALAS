@@ -1,0 +1,97 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
+    }
+
+    function ownsExistingRecord() {
+      return isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    function ownsNewRecord() {
+      return isSignedIn() && request.resource.data.userId == request.auth.uid;
+    }
+
+    function changedOnly(keys) {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(keys);
+    }
+
+    function validVisitChangeRequest() {
+      return ownsExistingRecord()
+        && resource.data.status == "scheduled"
+        && request.resource.data.status in ["reschedule requested", "cancel requested"]
+        && request.resource.data.requestStatus == "pending"
+        && request.resource.data.requestType in ["reschedule", "cancel"]
+        && changedOnly([
+          "status",
+          "requestType",
+          "requestStatus",
+          "requestNote",
+          "requestedAt",
+          "updatedAt"
+        ]);
+    }
+
+    match /users/{userId} {
+      allow create: if isSignedIn() && request.auth.uid == userId;
+      allow read, update: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      allow delete: if false;
+    }
+
+    match /pets/{petId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /applications/{applicationId} {
+      allow create: if ownsNewRecord();
+      allow read: if isAdmin() || ownsExistingRecord();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /savedPets/{savedPetId} {
+      allow create: if ownsNewRecord();
+      allow read: if isAdmin() || ownsExistingRecord();
+      allow update: if isAdmin()
+        || (ownsExistingRecord() && request.resource.data.userId == request.auth.uid);
+      allow delete: if isAdmin() || ownsExistingRecord();
+    }
+
+    match /appointments/{appointmentId} {
+      allow create: if isAdmin();
+      allow read: if isAdmin() || ownsExistingRecord();
+      allow update: if isAdmin() || validVisitChangeRequest();
+      allow delete: if isAdmin();
+    }
+
+    match /notifications/{notificationId} {
+      allow create: if isAdmin() || (ownsNewRecord() && request.resource.data.audience == "admin");
+      allow read: if isAdmin() || ownsExistingRecord();
+      allow update: if isAdmin()
+        || (ownsExistingRecord() && request.resource.data.userId == request.auth.uid);
+      allow delete: if isAdmin();
+    }
+
+    match /mail/{mailId} {
+      allow create, read: if isAdmin();
+      allow update, delete: if false;
+    }
+
+    match /messages/{messageId} {
+      allow create: if ownsNewRecord() || isAdmin();
+      allow read: if isAdmin() || ownsExistingRecord();
+      allow update: if isAdmin()
+        || (ownsExistingRecord() && request.resource.data.userId == request.auth.uid);
+      allow delete: if isAdmin() || ownsExistingRecord();
+    }
+  }
+}

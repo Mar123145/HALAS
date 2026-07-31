@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages - HALAS Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-50 min-h-screen text-gray-900">
+    <div id="loadingOverlay" class="fixed inset-0 bg-white z-[120] flex items-center justify-center px-4">
+        <div class="text-center">
+            <div class="w-12 h-12 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+            <h2 class="text-xl font-bold text-gray-900">Loading messages...</h2>
+            <p class="text-gray-500 text-sm mt-2">Checking admin access and loading adopter conversations.</p>
+        </div>
+    </div>
+
+    <div class="min-h-screen lg:grid lg:grid-cols-[260px_minmax(0,1fr)]">
+        <aside class="hidden lg:sticky lg:top-0 lg:h-screen lg:flex flex-col border-r border-gray-200 bg-white/95 px-5 py-6">
+            <a href="dashboard.html" class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600">
+                    <i data-lucide="paw-print" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <p class="text-xl font-bold text-blue-600">HALAS</p>
+                    <p class="text-xs text-gray-500">Adoption Management</p>
+                </div>
+            </a>
+
+            <nav class="mt-10 space-y-2">
+                <a href="dashboard.html" class="flex items-center gap-3 rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-50 font-medium">
+                    <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                    Dashboard
+                </a>
+                <a href="add-pet.html" class="flex items-center gap-3 rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-50 font-medium">
+                    <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                    Add Animal
+                </a>
+                <a href="messages.html" class="flex items-center gap-3 rounded-xl px-4 py-3 bg-blue-50 text-blue-600 font-semibold border-l-4 border-blue-600">
+                    <i data-lucide="messages-square" class="w-5 h-5"></i>
+                    Messages
+                </a>
+            </nav>
+
+            <div class="mt-auto space-y-4">
+                <div class="rounded-2xl bg-gradient-to-br from-amber-50 to-indigo-50 border border-gray-100 p-5">
+                    <div class="w-11 h-11 rounded-full bg-white shadow-sm flex items-center justify-center text-blue-600 mb-3">
+                        <i data-lucide="heart-handshake" class="w-5 h-5"></i>
+                    </div>
+                    <p class="font-semibold text-gray-900">Every reply helps adopters feel guided.</p>
+                    <p class="text-sm text-gray-500 mt-2">Keep conversations clear and friendly.</p>
+                </div>
+                <button id="logoutBtn" type="button" class="w-full inline-flex items-center justify-center gap-2 px-4 py-3 border border-gray-200 hover:bg-gray-50 text-gray-700 font-medium rounded-xl transition-colors">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                    Log Out
+                </button>
+            </div>
+        </aside>
+
+        <main class="min-w-0">
+            <header class="sticky top-0 z-40 bg-slate-50/95 backdrop-blur border-b border-gray-200">
+                <div class="px-4 sm:px-6 lg:px-8 py-4 flex flex-col xl:flex-row xl:items-center gap-4">
+                    <div class="flex items-center justify-between gap-4">
+                        <div>
+                            <a href="dashboard.html" class="inline-flex items-center gap-2 text-sm text-blue-600 font-medium lg:hidden mb-1">
+                                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                                Dashboard
+                            </a>
+                            <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900">Messages</h1>
+                        </div>
+                        <button id="mobileLogoutBtn" type="button" class="lg:hidden inline-flex items-center justify-center w-11 h-11 rounded-xl border border-gray-200 bg-white text-gray-600">
+                            <i data-lucide="log-out" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+
+                    <div class="xl:ml-auto flex flex-col sm:flex-row sm:items-center gap-3 w-full xl:w-auto">
+                        <div class="relative w-full xl:w-[460px]">
+                            <i data-lucide="search" class="w-5 h-5 text-gray-400 absolute left-4 top-3.5"></i>
+                            <input id="searchInput" type="text" placeholder="Search conversations..." class="w-full pl-12 pr-4 py-3 bg-white border border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div class="hidden sm:flex items-center gap-3 rounded-xl bg-white border border-gray-200 px-3 py-2">
+                            <div id="adminAvatar" class="w-10 h-10 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold">A</div>
+                            <div class="min-w-0">
+                                <p id="adminName" class="font-semibold text-gray-900 leading-tight">Admin</p>
+                                <p id="adminEmail" class="text-xs text-gray-500 truncate max-w-[190px]">Shelter Admin</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <section class="px-4 sm:px-6 lg:px-8 py-6">
+                <div class="grid xl:grid-cols-[390px_minmax(0,1fr)] gap-5 min-h-[calc(100vh-130px)]">
+                    <aside class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden flex flex-col min-h-[520px] xl:sticky xl:top-[104px] xl:max-h-[calc(100vh-128px)]">
+                        <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between gap-3">
+                            <div class="flex items-center gap-2">
+                                <h2 class="text-xl font-bold text-gray-900">Inbox</h2>
+                                <span id="messageCount" class="px-2.5 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-bold">0</span>
+                            </div>
+                            <i data-lucide="message-circle" class="w-5 h-5 text-blue-600"></i>
+                        </div>
+                        <div id="inboxList" class="overflow-y-auto divide-y divide-gray-100">
+                            <div class="p-5 text-gray-500">Loading messages...</div>
+                        </div>
+                    </aside>
+
+                    <section id="conversationPanel" class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden min-h-[620px] flex flex-col">
+                        <div class="flex-1 flex items-center justify-center p-10 text-center">
+                            <div>
+                                <i data-lucide="messages-square" class="w-16 h-16 text-gray-300 mx-auto mb-4"></i>
+                                <h2 class="text-2xl font-bold text-gray-900">Select a conversation</h2>
+                                <p class="text-gray-500 mt-2">Choose a message from the inbox to view and reply.</p>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="messageModal" class="hidden fixed inset-0 bg-black/40 z-[130] flex items-center justify-center px-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 text-center">
+            <div id="messageIconWrap" class="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-4">
+                <i id="messageIcon" data-lucide="alert-circle" class="w-7 h-7 text-red-600"></i>
+            </div>
+            <h2 id="messageTitle" class="text-2xl font-bold text-gray-900 mb-2">Something went wrong</h2>
+            <p id="messageText" class="text-gray-600 mb-6">Please try again.</p>
+            <button id="messageCloseBtn" type="button" class="w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors">OK</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+        import {
+            getFirestore,
+            addDoc,
+            collection,
+            doc,
+            getDoc,
+            onSnapshot,
+            query,
+            serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+        import { firebaseConfig } from "../firebase-config.js";
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const loadingOverlay = document.getElementById("loadingOverlay");
+        const logoutBtn = document.getElementById("logoutBtn");
+        const mobileLogoutBtn = document.getElementById("mobileLogoutBtn");
+        const inboxList = document.getElementById("inboxList");
+        const conversationPanel = document.getElementById("conversationPanel");
+        const searchInput = document.getElementById("searchInput");
+        const messageCount = document.getElementById("messageCount");
+        const adminAvatar = document.getElementById("adminAvatar");
+        const adminName = document.getElementById("adminName");
+        const adminEmail = document.getElementById("adminEmail");
+        const messageModal = document.getElementById("messageModal");
+        const messageTitle = document.getElementById("messageTitle");
+        const messageText = document.getElementById("messageText");
+        const messageCloseBtn = document.getElementById("messageCloseBtn");
+
+        let currentAdmin = null;
+        let messages = [];
+        let selectedConversationId = "";
+        let unsubscribeMessages = null;
+        const replyDrafts = new Map();
+
+        function hideLoading() {
+            loadingOverlay.classList.add("hidden");
+        }
+
+        function escapeHtml(value) {
+            return String(value || "")
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
+        }
+
+        function timestampMillis(value) {
+            if (!value) return 0;
+            if (value.toDate) return value.toDate().getTime();
+            const parsed = new Date(value);
+            return Number.isNaN(parsed.getTime()) ? 0 : parsed.getTime();
+        }
+
+        function toDate(value) {
+            if (!value) return null;
+            const date = value.toDate ? value.toDate() : new Date(value);
+            return Number.isNaN(date.getTime()) ? null : date;
+        }
+
+        function formatTime(value) {
+            const date = toDate(value);
+            if (!date) return "Just now";
+            return date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+        }
+
+        function formatDate(value) {
+            const date = toDate(value);
+            if (!date) return "Today";
+            return date.toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" });
+        }
+
+        function shortDate(value) {
+            const date = toDate(value);
+            if (!date) return "Now";
+            const today = new Date();
+            const yesterday = new Date();
+            yesterday.setDate(today.getDate() - 1);
+            if (date.toDateString() === today.toDateString()) return formatTime(value);
+            if (date.toDateString() === yesterday.toDateString()) return "Yesterday";
+            return date.toLocaleDateString([], { month: "short", day: "numeric" });
+        }
+
+        function formatSentAt(value) {
+            const date = toDate(value);
+            if (!date) return "Sending...";
+            const today = new Date();
+            const yesterday = new Date();
+            yesterday.setDate(today.getDate() - 1);
+            const time = date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+            if (date.toDateString() === today.toDateString()) return `Today at ${time}`;
+            if (date.toDateString() === yesterday.toDateString()) return `Yesterday at ${time}`;
+            return `${date.toLocaleDateString([], { month: "short", day: "numeric" })} at ${time}`;
+        }
+
+        function dateKey(value) {
+            const date = toDate(value);
+            return date ? date.toDateString() : "pending";
+        }
+
+        function initials(value) {
+            return String(value || "A")
+                .split(/\s+|@/)
+                .filter(Boolean)
+                .slice(0, 2)
+                .map((part) => part[0]?.toUpperCase())
+                .join("") || "A";
+        }
+
+        function looksLikeEmail(value) {
+            return String(value || "").includes("@");
+        }
+
+        function rawSenderName(item) {
+            return item.applicantName || item.adopterName || item.fullName || item.senderName || item.name || "";
+        }
+
+        function buildNameLookup() {
+            const lookup = new Map();
+
+            messages.forEach((item) => {
+                const keys = [item.userId, item.email].filter(Boolean);
+                const candidate = String(rawSenderName(item) || "").trim();
+                if (candidate && !looksLikeEmail(candidate)) {
+                    keys.forEach((key) => lookup.set(key, candidate));
+                }
+            });
+
+            return lookup;
+        }
+
+        function senderName(item, nameLookup = new Map()) {
+            return nameLookup.get(item.userId) || nameLookup.get(item.email) || rawSenderName(item) || item.email || "Adopter";
+        }
+
+        function latestPreview(item) {
+            return item.latestText || item.reply || item.message || "No message content.";
+        }
+
+        function messageUserKey(item) {
+            return item.applicationId || item.userId || item.email || item.id;
+        }
+
+        function messageSenderRole(item) {
+            return item.senderRole || item.role || "user";
+        }
+
+        function buildConversations() {
+            const groups = new Map();
+            const nameLookup = buildNameLookup();
+
+            messages.forEach((item) => {
+                const key = messageUserKey(item);
+                const resolvedName = senderName(item, nameLookup);
+                if (!groups.has(key)) {
+                    groups.set(key, {
+                        id: key,
+                        userId: item.userId || "",
+                        email: item.email || "",
+                        name: resolvedName,
+                        subject: item.petName ? `${item.petName} application` : item.subject || "Conversation",
+                        applicationId: item.applicationId || "",
+                        applicationStatus: item.applicationStatus || "",
+                        petId: item.petId || "",
+                        petName: item.petName || "",
+                        latestAt: item.updatedAt || item.createdAt,
+                        latestText: "",
+                        items: []
+                    });
+                }
+
+                const group = groups.get(key);
+                if (!group.userId && item.userId) group.userId = item.userId;
+                if (!group.email && item.email) group.email = item.email;
+                if (looksLikeEmail(group.name) && !looksLikeEmail(resolvedName)) group.name = resolvedName;
+                if (!group.applicationId && item.applicationId) group.applicationId = item.applicationId;
+                if (!group.applicationStatus && item.applicationStatus) group.applicationStatus = item.applicationStatus;
+                if (!group.petId && item.petId) group.petId = item.petId;
+                if (!group.petName && item.petName) group.petName = item.petName;
+                if (item.subject && group.subject === "Conversation") group.subject = item.subject;
+                if (item.petName && !group.subject.includes(item.petName)) group.subject = `${item.petName} application`;
+
+                const createdAt = item.createdAt || item.updatedAt;
+                group.items.push({
+                    id: item.id,
+                    role: messageSenderRole(item),
+                    text: item.message || "",
+                    createdAt,
+                    subject: item.subject || group.subject
+                });
+
+                if (item.reply) {
+                    group.items.push({
+                        id: `${item.id}-reply`,
+                        role: "admin",
+                        text: item.reply,
+                        createdAt: item.repliedAt || item.updatedAt || createdAt,
+                        subject: item.subject || group.subject
+                    });
+                }
+            });
+
+            return Array.from(groups.values()).map((group) => {
+                group.items = group.items
+                    .filter((item) => item.text)
+                    .sort((a, b) => timestampMillis(a.createdAt) - timestampMillis(b.createdAt));
+
+                const latest = group.items[group.items.length - 1];
+                if (latest) {
+                    group.latestAt = latest.createdAt;
+                    group.latestText = latest.text;
+                }
+
+                return group;
+            }).sort((a, b) => timestampMillis(b.latestAt) - timestampMillis(a.latestAt));
+        }
+
+        function filteredConversations() {
+            const searchTerm = searchInput.value.trim().toLowerCase();
+
+            return buildConversations().filter((item) => {
+                const haystack = [
+                    item.subject,
+                    item.latestText,
+                    item.email,
+                    item.name,
+                    item.petName,
+                    item.applicationStatus,
+                    item.applicationId
+                ].filter(Boolean).join(" ").toLowerCase();
+
+                return !searchTerm || haystack.includes(searchTerm);
+            });
+        }
+
+        function showMessage(title, text) {
+            messageTitle.textContent = title;
+            messageText.textContent = text;
+            messageModal.classList.remove("hidden");
+            lucide.createIcons();
+        }
+
+        function renderEmptyConversation() {
+            conversationPanel.innerHTML = `
+                <div class="flex-1 flex items-center justify-center p-10 text-center">
+                    <div>
+                        <i data-lucide="messages-square" class="w-16 h-16 text-gray-300 mx-auto mb-4"></i>
+                        <h2 class="text-2xl font-bold text-gray-900">No conversation selected</h2>
+                        <p class="text-gray-500 mt-2">Choose a message from the inbox to view and reply.</p>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        function renderInbox() {
+            const items = filteredConversations();
+            messageCount.textContent = items.length;
+
+            if (!items.length) {
+                inboxList.innerHTML = `
+                    <div class="p-8 text-center">
+                        <i data-lucide="inbox" class="w-12 h-12 text-gray-300 mx-auto mb-3"></i>
+                        <p class="font-semibold text-gray-900">No messages found</p>
+                        <p class="text-sm text-gray-500 mt-1">Try another search or filter.</p>
+                    </div>
+                `;
+                selectedConversationId = "";
+                renderEmptyConversation();
+                lucide.createIcons();
+                return;
+            }
+
+            if (!items.some((item) => item.id === selectedConversationId)) {
+                selectedConversationId = items[0].id;
+            }
+
+            inboxList.innerHTML = items.map((item) => {
+                const selected = item.id === selectedConversationId;
+                return `
+                    <button type="button" data-conversation-id="${escapeHtml(item.id)}" class="message-row w-full text-left p-4 transition-colors ${selected ? "bg-blue-50" : "bg-white hover:bg-gray-50"}">
+                        <div class="flex gap-3">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-100 to-amber-100 text-blue-700 flex items-center justify-center font-bold flex-shrink-0">
+                                ${escapeHtml(initials(item.name))}
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <div class="flex items-start justify-between gap-3">
+                                    <p class="font-bold text-gray-900 truncate">${escapeHtml(item.name)}</p>
+                                    <span class="text-xs text-gray-500 flex-shrink-0">${escapeHtml(shortDate(item.latestAt))}</span>
+                                </div>
+                                <p class="text-sm text-blue-600 font-medium truncate">${escapeHtml(item.subject || "Message")}</p>
+                                ${item.applicationId ? `<p class="text-xs text-indigo-600 font-medium mt-0.5 truncate">${escapeHtml(item.petName || "Linked application")}</p>` : ""}
+                                <div class="flex items-center gap-2 mt-1">
+                                    <p class="text-sm text-gray-500 truncate flex-1">${escapeHtml(latestPreview(item))}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </button>
+                `;
+            }).join("");
+
+            inboxList.querySelectorAll(".message-row").forEach((button) => {
+                button.addEventListener("click", () => {
+                    selectedConversationId = button.dataset.conversationId;
+                    renderInbox();
+                    renderConversation();
+                });
+            });
+
+            renderConversation();
+            lucide.createIcons();
+        }
+
+        function renderConversation() {
+            const item = buildConversations().find((conversation) => conversation.id === selectedConversationId);
+            if (!item) {
+                renderEmptyConversation();
+                return;
+            }
+
+            const name = item.name;
+            const subject = item.subject || "Message";
+            const createdAt = item.items[0]?.createdAt || item.latestAt;
+            const applicationLink = item.applicationId ? `application-details.html?id=${encodeURIComponent(item.applicationId)}` : "";
+            const bubbles = [];
+            let previousDateKey = "";
+
+            item.items.forEach((entry) => {
+                const currentDateKey = dateKey(entry.createdAt);
+                if (currentDateKey !== previousDateKey) {
+                    bubbles.push(`
+                        <div class="flex justify-center">
+                            <span class="px-4 py-1 rounded-full bg-white border border-gray-200 text-xs font-medium text-gray-500 shadow-sm">${escapeHtml(formatDate(entry.createdAt))}</span>
+                        </div>
+                    `);
+                    previousDateKey = currentDateKey;
+                }
+
+                const isAdmin = entry.role === "admin";
+                bubbles.push(isAdmin ? `
+                    <div class="flex items-end gap-3 justify-end">
+                        <div class="max-w-[78%] rounded-2xl rounded-br-sm bg-blue-50 border border-blue-100 px-5 py-4 shadow-sm">
+                            <p class="text-gray-800 whitespace-pre-wrap">${escapeHtml(entry.text)}</p>
+                            <p class="text-xs text-blue-600 mt-2 text-right">${escapeHtml(formatSentAt(entry.createdAt))}</p>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-bold flex-shrink-0">
+                            ${escapeHtml(initials(currentAdmin?.email || "Admin"))}
+                        </div>
+                    </div>
+                ` : `
+                    <div class="flex items-end gap-3">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-100 to-amber-100 text-blue-700 flex items-center justify-center text-sm font-bold flex-shrink-0">
+                            ${escapeHtml(initials(name))}
+                        </div>
+                        <div class="max-w-[78%] rounded-2xl rounded-bl-sm bg-white border border-gray-200 px-5 py-4 shadow-sm">
+                            <p class="text-gray-800 whitespace-pre-wrap">${escapeHtml(entry.text)}</p>
+                            <p class="text-xs text-gray-400 mt-2">${escapeHtml(formatSentAt(entry.createdAt))}</p>
+                        </div>
+                    </div>
+                `);
+            });
+
+            conversationPanel.innerHTML = `
+                <div class="border-b border-gray-200 p-5">
+                    <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-5">
+                        <div class="flex gap-4">
+                            <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-100 to-amber-100 text-blue-700 flex items-center justify-center text-2xl font-bold flex-shrink-0">
+                                ${escapeHtml(initials(name))}
+                            </div>
+                            <div>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <h2 class="text-2xl font-bold text-gray-900">${escapeHtml(name)}</h2>
+                                    <i data-lucide="message-circle-heart" class="w-5 h-5 text-blue-600"></i>
+                                </div>
+                                <p class="text-sm text-gray-500 mt-1">${escapeHtml(item.email || "No email provided")}</p>
+                                <p class="inline-flex items-center mt-3 px-3 py-1 rounded-full border border-blue-200 bg-blue-50 text-blue-600 text-sm font-semibold">
+                                    ${escapeHtml(subject)}
+                                </p>
+                                ${item.applicationId ? `
+                                    <div class="mt-4 rounded-xl border border-indigo-100 bg-indigo-50 p-3 text-sm">
+                                        <p class="text-xs uppercase tracking-wide text-indigo-400 font-bold">Linked application</p>
+                                        <p class="font-semibold text-indigo-950 mt-1">${escapeHtml(item.petName || "Selected pet")}</p>
+                                        <p class="text-indigo-700 mt-1">${escapeHtml(item.applicationStatus || "Status not set")}</p>
+                                    </div>
+                                ` : ""}
+                            </div>
+                        </div>
+                        <div class="lg:min-w-[220px]">
+                            <p class="text-xs uppercase tracking-wide text-gray-400 font-bold">Started</p>
+                            <p class="mt-1 text-sm font-semibold text-gray-800">${escapeHtml(formatDate(createdAt))}</p>
+                            ${applicationLink ? `<a href="${applicationLink}" class="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg"><i data-lucide="external-link" class="w-4 h-4"></i> View Application</a>` : ""}
+                        </div>
+                    </div>
+                </div>
+
+                <div id="conversationMessages" class="flex-1 overflow-y-auto p-5 sm:p-8 bg-gradient-to-b from-white to-gray-50">
+                    <div class="space-y-6">${bubbles.join("")}</div>
+                </div>
+
+                <div class="border-t border-gray-200 p-4 bg-white">
+                    <form id="replyForm" class="flex flex-col sm:flex-row gap-3">
+                        <textarea id="replyInput" rows="1" class="min-h-[52px] flex-1 resize-none px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Type a message...">${escapeHtml(replyDrafts.get(item.id) || "")}</textarea>
+                        <div class="flex gap-3">
+                            <button id="sendReplyBtn" type="submit" class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold">
+                                <i data-lucide="send" class="w-5 h-5"></i>
+                                Send
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            `;
+
+            const replyInput = document.getElementById("replyInput");
+            const conversationMessages = document.getElementById("conversationMessages");
+            replyInput.addEventListener("input", () => replyDrafts.set(item.id, replyInput.value));
+            document.getElementById("replyForm").addEventListener("submit", (event) => replyToConversation(event, item.id));
+            conversationMessages.scrollTop = conversationMessages.scrollHeight;
+            lucide.createIcons();
+        }
+
+        function renderMessages() {
+            renderInbox();
+        }
+
+        function subscribeMessages() {
+            if (unsubscribeMessages) unsubscribeMessages();
+
+            unsubscribeMessages = onSnapshot(query(collection(db, "messages")), (snapshot) => {
+                messages = snapshot.docs.map((docSnap) => ({
+                    id: docSnap.id,
+                    ...docSnap.data()
+                })).sort((a, b) => timestampMillis(b.updatedAt || b.createdAt) - timestampMillis(a.updatedAt || a.createdAt));
+                renderMessages();
+                hideLoading();
+            }, (error) => {
+                console.error("Admin messages load error:", error);
+                showMessage("Unable to Load Messages", "Check Firestore rules, then return to the dashboard.");
+                hideLoading();
+            });
+        }
+
+        async function replyToConversation(event, conversationId) {
+            event.preventDefault();
+            const record = buildConversations().find((item) => item.id === conversationId);
+            const replyInput = document.getElementById("replyInput");
+            const reply = replyInput.value.trim();
+
+            if (!record || !reply) return;
+
+            try {
+                const messageRecord = {
+                    userId: record.userId,
+                    email: record.email || "",
+                    subject: record.subject || "Conversation",
+                    message: reply,
+                    senderRole: "admin",
+                    senderId: currentAdmin.uid,
+                    senderName: currentAdmin.displayName || currentAdmin.email || "Admin",
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp()
+                };
+
+                if (record.applicationId) {
+                    Object.assign(messageRecord, {
+                        applicationId: record.applicationId,
+                        applicationStatus: record.applicationStatus || "",
+                        petId: record.petId || "",
+                        petName: record.petName || "",
+                        applicantName: record.name || "",
+                        applicantEmail: record.email || ""
+                    });
+                }
+
+                await addDoc(collection(db, "messages"), messageRecord);
+                replyDrafts.set(conversationId, "");
+
+                if (record.userId) {
+                    await addDoc(collection(db, "notifications"), {
+                        userId: record.userId,
+                        title: "Shelter Message",
+                        message: `The shelter sent you a message about ${record.subject || "your conversation"}.`,
+                        type: "message",
+                        status: "unread",
+                        applicationId: record.applicationId || "",
+                        petId: record.petId || "",
+                        createdAt: serverTimestamp(),
+                        updatedAt: serverTimestamp()
+                    });
+                }
+
+            } catch (error) {
+                console.error("Reply error:", error);
+                showMessage("Unable to Send Reply", "Check Firestore rules and try again.");
+            }
+        }
+
+        async function handleLogout() {
+            await signOut(auth);
+            window.location.href = "../admin-login.html";
+        }
+
+        logoutBtn.addEventListener("click", handleLogout);
+        mobileLogoutBtn.addEventListener("click", handleLogout);
+        searchInput.addEventListener("input", renderMessages);
+        messageCloseBtn.addEventListener("click", () => messageModal.classList.add("hidden"));
+        messageModal.addEventListener("click", (event) => {
+            if (event.target === messageModal) messageModal.classList.add("hidden");
+        });
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                if (unsubscribeMessages) unsubscribeMessages();
+                window.location.href = "../admin-login.html";
+                return;
+            }
+
+            try {
+                const userSnap = await getDoc(doc(db, "users", user.uid));
+                const role = userSnap.exists() ? String(userSnap.data().role || "user").toLowerCase() : "user";
+
+                if (role !== "admin") {
+                    window.location.href = "../user/dashboard.html";
+                    return;
+                }
+
+                currentAdmin = user;
+                adminEmail.textContent = user.email || "Shelter Admin";
+                adminAvatar.textContent = initials(user.email || "Admin");
+                adminName.textContent = user.displayName || "Admin";
+                subscribeMessages();
+            } catch (error) {
+                console.error("Admin messages load error:", error);
+                showMessage("Unable to Load Messages", "Check Firestore rules, then return to the dashboard.");
+                hideLoading();
+                lucide.createIcons();
+            }
+        });
+
+        lucide.createIcons();
+    </script>
+    <script src="../mobile-nav.js"></script>
+</body>
+</html>
+
+

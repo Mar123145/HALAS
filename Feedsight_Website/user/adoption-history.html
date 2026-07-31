@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adoption History - Healed And Loved Animal Sanctuary (HALAS)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-50 min-h-screen text-gray-900">
+    <nav class="sticky top-0 z-50 border-b border-gray-200 bg-white/95 backdrop-blur">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            <a href="dashboard.html" class="font-bold text-2xl text-blue-600">
+                <span>HALAS</span>
+            </a>
+
+            <div class="hidden md:flex items-center gap-1">
+                <a href="dashboard.html" class="px-3 py-2 rounded-lg bg-blue-50 text-blue-700 font-semibold">Dashboard</a>
+                <a href="browse.html" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Browse</a>
+                <a href="saved-pets.html" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Saved</a>
+                <a href="messages.html" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Messages</a>
+                <a href="profile.html" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Profile</a>
+                <button id="logoutBtn" type="button" class="inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-200 hover:bg-gray-50 text-gray-700 font-medium rounded-xl">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                    Log Out
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <section class="bg-white border border-gray-200 rounded-xl shadow-sm p-6 sm:p-8 mb-6">
+            <p class="text-gray-500 font-medium mb-2">Your Records</p>
+            <h1 class="text-4xl font-bold">Adoption History</h1>
+            <p class="text-gray-500 mt-2 max-w-2xl">Review submitted, approved, rejected, and completed adoption applications.</p>
+        </section>
+
+        <section id="historyList" class="space-y-5">
+            <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-10 text-center">
+                <div class="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+                <p class="text-gray-600">Loading adoption history...</p>
+            </div>
+        </section>
+    </main>
+
+    <script type="module">
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+        import { collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+        import { app, db } from "../firebase-app.js";
+
+        const auth = getAuth(app);
+        const logoutBtn = document.getElementById("logoutBtn");
+        const historyList = document.getElementById("historyList");
+
+        function timestampMillis(value) {
+            if (!value) return 0;
+            if (value.toDate) return value.toDate().getTime();
+            const parsed = new Date(value);
+            return Number.isNaN(parsed.getTime()) ? 0 : parsed.getTime();
+        }
+
+        function formatDate(value) {
+            const millis = timestampMillis(value);
+            return millis ? new Date(millis).toLocaleDateString() : "Not set";
+        }
+
+        function normalizeStatus(status) {
+            return String(status || "pending").trim().toLowerCase();
+        }
+
+        function badgeClass(status) {
+            const normalized = normalizeStatus(status);
+            if (normalized === "approved" || normalized === "visit completed") return "bg-green-100 text-green-700";
+            if (normalized === "rejected" || normalized === "cancelled") return "bg-red-100 text-red-700";
+            if (normalized === "visit scheduled" || normalized === "reviewing" || normalized === "under review") return "bg-blue-100 text-blue-700";
+            return "bg-yellow-100 text-yellow-700";
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#39;");
+        }
+
+        function renderHistory(applications) {
+            if (!applications.length) {
+                historyList.innerHTML = `
+                    <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-12 text-center">
+                        <i data-lucide="history" class="w-16 h-16 text-gray-300 mx-auto mb-4"></i>
+                        <h2 class="text-2xl font-bold text-gray-900 mb-2">No adoption history yet</h2>
+                        <p class="text-gray-600 mb-6">Your submitted applications and decisions will appear here.</p>
+                        <a href="browse.html" class="inline-flex items-center justify-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl">Browse Pets</a>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            historyList.innerHTML = applications.map((item) => {
+                const petName = item.petName || "Selected pet";
+                const petLink = item.petId ? `pet-details.html?id=${encodeURIComponent(item.petId)}` : "browse.html";
+                const status = item.status || "pending";
+
+                return `
+                    <article class="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+                        <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+                            <div>
+                                <div class="flex flex-wrap items-center gap-3 mb-2">
+                                    <h2 class="text-2xl font-bold text-gray-900">${escapeHtml(petName)}</h2>
+                                    <span class="px-3 py-1 rounded-full text-xs font-semibold ${badgeClass(status)}">${escapeHtml(status)}</span>
+                                </div>
+                                <p class="text-sm text-gray-500">Submitted: ${formatDate(item.createdAt || item.submittedAt || item.date)}</p>
+                                <p class="text-sm text-gray-500">Last updated: ${formatDate(item.updatedAt)}</p>
+                            </div>
+                            <a href="${petLink}" class="inline-flex items-center justify-center px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium">View Pet</a>
+                        </div>
+                        <div class="mt-5 grid md:grid-cols-3 gap-4">
+                            <div class="rounded-lg bg-gray-50 border border-gray-100 p-4">
+                                <p class="text-xs uppercase text-gray-400 font-semibold">Applicant</p>
+                                <p class="font-semibold text-gray-900">${escapeHtml(item.applicantName || item.adopterName || "Applicant")}</p>
+                            </div>
+                            <div class="rounded-lg bg-gray-50 border border-gray-100 p-4">
+                                <p class="text-xs uppercase text-gray-400 font-semibold">Pet Type</p>
+                                <p class="font-semibold text-gray-900">${escapeHtml(item.petType || "Not set")}</p>
+                            </div>
+                            <div class="rounded-lg bg-gray-50 border border-gray-100 p-4">
+                                <p class="text-xs uppercase text-gray-400 font-semibold">Breed</p>
+                                <p class="font-semibold text-gray-900">${escapeHtml(item.petBreed || "Not set")}</p>
+                            </div>
+                        </div>
+                    </article>
+                `;
+            }).join("");
+            lucide.createIcons();
+        }
+
+        async function loadHistory(user) {
+            const snapshot = await getDocs(query(
+                collection(db, "applications"),
+                where("userId", "==", user.uid)
+            ));
+            const applications = snapshot.docs.map((docSnap) => ({
+                id: docSnap.id,
+                ...docSnap.data()
+            })).sort((a, b) => timestampMillis(b.updatedAt || b.createdAt) - timestampMillis(a.updatedAt || a.createdAt));
+            renderHistory(applications);
+        }
+
+        logoutBtn.addEventListener("click", async () => {
+            await signOut(auth);
+            window.location.href = "../login.html";
+        });
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = "../login.html";
+                return;
+            }
+
+            try {
+                await loadHistory(user);
+            } catch (error) {
+                console.error("History load error:", error);
+                historyList.innerHTML = `
+                    <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-12 text-center">
+                        <i data-lucide="alert-circle" class="w-16 h-16 text-red-300 mx-auto mb-4"></i>
+                        <h2 class="text-2xl font-bold text-gray-900 mb-2">Unable to load history</h2>
+                        <p class="text-gray-600">Please check your Firestore rules and try again.</p>
+                    </div>
+                `;
+                lucide.createIcons();
+            }
+        });
+
+        lucide.createIcons();
+    </script>
+    <script src="../mobile-nav.js"></script>
+</body>
+</html>
+
+

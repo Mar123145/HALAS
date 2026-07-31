@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pet Details | Healed And Loved Animal Sanctuary (HALAS)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body class="bg-slate-50 text-gray-900 font-sans min-h-screen">
+    <nav class="sticky top-0 z-50 border-b border-gray-200 bg-white/95 backdrop-blur">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            <a href="dashboard.html" class="font-bold text-2xl text-blue-600">
+                <span>HALAS</span>
+            </a>
+
+            <div class="hidden md:flex items-center gap-1">
+                <a href="dashboard.html" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Dashboard</a>
+                <a href="browse.html" class="px-3 py-2 rounded-lg bg-blue-50 text-blue-700 font-semibold">Browse</a>
+                <a href="saved-pets.html" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Saved</a>
+                <a href="messages.html" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Messages</a>
+                <a href="profile.html" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Profile</a>
+                <button id="logoutBtn" type="button" class="inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-200 hover:bg-gray-50 text-gray-700 font-medium rounded-xl">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                    Log Out
+                </button>
+            </div>
+        </div>
+    </nav>
+
+  <main class="min-h-screen">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <a href="browse.html" class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium mb-6 transition-colors text-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4" viewBox="0 0 24 24">
+          <path d="m15 18-6-6 6-6" />
+        </svg>
+        Back to Browse
+      </a>
+
+      <!-- Loading State -->
+      <section id="loadingState" class="bg-white border border-gray-200 rounded-xl p-8 text-center shadow-sm">
+        <p class="text-gray-500">Loading pet details...</p>
+      </section>
+
+      <!-- Error State -->
+      <section id="errorState" class="hidden bg-white border border-red-200 rounded-xl p-8 text-center shadow-sm">
+        <h2 class="text-xl font-bold text-red-600 mb-2">Pet not found</h2>
+        <p class="text-gray-500 mb-5">This pet record may have been removed or the link is incorrect.</p>
+        <a href="browse.html" class="inline-block px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium">
+          Return to Browse
+        </a>
+      </section>
+
+      <!-- Details Content -->
+      <section id="detailsContent" class="hidden grid lg:grid-cols-3 gap-8">
+        <!-- Main Content -->
+        <div class="lg:col-span-2 space-y-6">
+          <!-- Pet Image -->
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <div id="petImageWrapper" class="h-80 sm:h-96 bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center">
+              <img id="petImage" src="" alt="Pet photo" class="hidden w-full h-full object-cover" />
+              <div id="imagePlaceholder" class="text-center text-blue-600/60">
+                <svg xmlns="http://www.w3.org/2000/svg" width="88" height="88" fill="none" stroke="currentColor"
+                  stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-3" viewBox="0 0 24 24">
+                  <circle cx="11" cy="4" r="2" />
+                  <circle cx="18" cy="8" r="2" />
+                  <circle cx="20" cy="17" r="2" />
+                  <circle cx="5" cy="10" r="2" />
+                  <path d="M11 14c-1.7 0-3 1.3-3 3 0 2 2 3 4 3s4-1 4-3c0-1.7-1.3-3-3-3Z" />
+                </svg>
+                <p class="text-sm font-medium">No photo available</p>
+              </div>
+            </div>
+            <div id="petGalleryThumbs" class="hidden grid grid-cols-4 gap-3 p-4 border-t border-gray-100"></div>
+          </div>
+
+          <!-- Basic Information -->
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sm:p-8">
+            <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-5">
+              <div>
+                <p id="petStatus" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold mb-3"></p>
+                <h1 id="petName" class="text-4xl font-bold tracking-tight text-gray-900">Pet Name</h1>
+                <p id="petBreedType" class="text-lg text-gray-500 mt-1">Breed - Type</p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6 pb-6 border-b border-gray-200">
+              <div>
+                <p class="text-xs font-medium text-gray-400 uppercase tracking-wider">Age</p>
+                <p id="petAge" class="font-semibold text-gray-900 mt-0.5">Not specified</p>
+              </div>
+              <div>
+                <p class="text-xs font-medium text-gray-400 uppercase tracking-wider">Gender</p>
+                <p id="petGender" class="font-semibold text-gray-900 mt-0.5">Not specified</p>
+              </div>
+              <div>
+                <p class="text-xs font-medium text-gray-400 uppercase tracking-wider">Size</p>
+                <p id="petSize" class="font-semibold text-gray-900 mt-0.5">Not specified</p>
+              </div>
+              <div>
+                <p class="text-xs font-medium text-gray-400 uppercase tracking-wider">Weight</p>
+                <p id="petWeight" class="font-semibold text-gray-900 mt-0.5">Not specified</p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2 text-gray-500 text-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-gray-400" viewBox="0 0 24 24">
+                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+              <span id="petLocation">Location not specified</span>
+            </div>
+          </div>
+
+          <!-- About -->
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h2 id="aboutTitle" class="text-xl font-bold text-gray-900 mb-4">About this Animal</h2>
+            <p id="petDescription" class="text-gray-600 text-sm leading-relaxed whitespace-pre-wrap">
+              No description has been added yet.
+            </p>
+          </div>
+
+          <!-- Physical Details -->
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">Physical Details</h2>
+            <div id="physicalDetails" class="grid sm:grid-cols-2 gap-4"></div>
+          </div>
+
+          <!-- Health Information -->
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">Health Information</h2>
+            <div id="healthDetails" class="grid sm:grid-cols-2 gap-4"></div>
+          </div>
+
+          <!-- Rescue / Care Notes -->
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">Rescue & Care Notes</h2>
+            <div id="careDetails" class="space-y-4"></div>
+          </div>
+        </div>
+
+        <!-- Sidebar -->
+        <aside class="space-y-6">
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 lg:sticky lg:top-24">
+            <h3 class="text-2xl font-bold text-gray-900 mb-2">Interested in adopting?</h3>
+            <p id="applicationMessage" class="text-gray-500 text-sm mb-6">
+              Review this pet's details, then start an adoption application.
+            </p>
+
+            <a id="applyBtn" href="#" class="block w-full text-center px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl shadow-sm transition-colors text-sm mb-3">
+              Start Application
+            </a>
+
+            <a href="browse.html" class="block w-full text-center px-4 py-2.5 border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium rounded-xl shadow-sm transition-colors text-sm">
+              Browse More Pets
+            </a>
+          </div>
+
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h4 class="font-bold text-gray-900 mb-4">Quick Info</h4>
+            <div id="quickInfo" class="space-y-4"></div>
+          </div>
+
+          <div class="rounded-xl border border-amber-200 bg-amber-50/50 p-6">
+            <div class="flex gap-3 items-start">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" x2="12" y1="8" y2="12" />
+                <line x1="12" x2="12" y1="16" y2="16" />
+              </svg>
+              <div>
+                <h4 class="font-bold text-amber-900 text-sm mb-1">Reminder</h4>
+                <p class="text-xs text-amber-800 leading-relaxed">
+                  Some health or care notes may need a shelter staff explanation during the adoption process.
+                </p>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </section>
+    </div>
+  </main>
+
+  <script type="module">
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+    import { collection, doc, getDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+    import { auth, db } from "../firebase-app.js";
+
+    const params = new URLSearchParams(window.location.search);
+    const petId = params.get("id");
+
+    const loadingState = document.getElementById("loadingState");
+    const errorState = document.getElementById("errorState");
+    const detailsContent = document.getElementById("detailsContent");
+    const logoutBtn = document.getElementById("logoutBtn");
+    let currentUser = null;
+    let existingApplication = null;
+
+    function getField(pet, keys, fallback = "") {
+      for (const key of keys) {
+        if (pet[key] !== undefined && pet[key] !== null && String(pet[key]).trim() !== "") {
+          return pet[key];
+        }
+      }
+      return fallback;
+    }
+
+    function formatDate(value) {
+      if (!value) return "";
+      let dateValue = value;
+
+      if (value.toDate && typeof value.toDate === "function") {
+        dateValue = value.toDate();
+      } else if (typeof value === "string") {
+        dateValue = new Date(value);
+      }
+
+      if (dateValue instanceof Date && !isNaN(dateValue)) {
+        return dateValue.toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric"
+        });
+      }
+
+      return String(value);
+    }
+
+    function showValue(value, fallback = "Not specified") {
+      return value || fallback;
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function normalizeImageUrls(pet) {
+      const images = Array.isArray(pet.imageUrls) ? pet.imageUrls : [];
+      return [pet.imageUrl, pet.photoUrl, pet.image, ...images]
+        .filter(Boolean)
+        .filter((url, index, list) => list.indexOf(url) === index);
+    }
+
+    function setMainImage(url, name) {
+      const img = document.getElementById("petImage");
+      img.src = url;
+      img.alt = `${name} photo`;
+      img.classList.remove("hidden");
+      document.getElementById("imagePlaceholder").classList.add("hidden");
+    }
+
+    function renderGallery(imageUrls, name) {
+      if (!imageUrls.length) return;
+
+      setMainImage(imageUrls[0], name);
+
+      const thumbs = document.getElementById("petGalleryThumbs");
+      if (imageUrls.length < 2) return;
+
+      thumbs.classList.remove("hidden");
+      thumbs.innerHTML = imageUrls.map((url, index) => `
+        <button type="button" data-image-url="${escapeHtml(url)}" class="gallery-thumb aspect-square rounded-lg overflow-hidden border ${index === 0 ? "border-blue-500 ring-2 ring-blue-100" : "border-gray-200"}">
+          <img src="${escapeHtml(url)}" alt="${escapeHtml(name)} gallery photo ${index + 1}" class="w-full h-full object-cover">
+        </button>
+      `).join("");
+
+      thumbs.querySelectorAll(".gallery-thumb").forEach((button) => {
+        button.addEventListener("click", () => {
+          setMainImage(button.dataset.imageUrl, name);
+          thumbs.querySelectorAll(".gallery-thumb").forEach((item) => item.classList.remove("border-blue-500", "ring-2", "ring-blue-100"));
+          button.classList.add("border-blue-500", "ring-2", "ring-blue-100");
+        });
+      });
+    }
+
+    function addInfoItem(container, label, value) {
+      if (!value) return;
+
+      const item = document.createElement("div");
+      item.className = "rounded-lg border border-gray-100 bg-gray-50 p-4";
+
+      const labelEl = document.createElement("p");
+      labelEl.className = "text-xs font-medium text-gray-400 uppercase tracking-wider";
+      labelEl.textContent = label;
+
+      const valueEl = document.createElement("p");
+      valueEl.className = "font-medium text-gray-900 mt-1 whitespace-pre-wrap";
+      valueEl.textContent = value;
+
+      item.append(labelEl, valueEl);
+
+      container.appendChild(item);
+    }
+
+    function addCareNote(container, label, value) {
+      if (!value) return;
+
+      const item = document.createElement("div");
+      item.className = "rounded-lg border border-gray-100 bg-gray-50 p-4";
+
+      const labelEl = document.createElement("p");
+      labelEl.className = "text-xs font-medium text-gray-400 uppercase tracking-wider mb-1";
+      labelEl.textContent = label;
+
+      const valueEl = document.createElement("p");
+      valueEl.className = "text-gray-700 text-sm leading-relaxed whitespace-pre-wrap";
+      valueEl.textContent = value;
+
+      item.append(labelEl, valueEl);
+
+      container.appendChild(item);
+    }
+
+    function setStatusBadge(status) {
+      const badge = document.getElementById("petStatus");
+      const normalized = String(status || "Available").toLowerCase();
+
+      badge.textContent = status || "Available";
+
+      if (normalized.includes("available") && !normalized.includes("not")) {
+        badge.className = "inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold mb-3 bg-green-100 text-green-700";
+      } else if (normalized.includes("pending") || normalized.includes("reserved")) {
+        badge.className = "inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold mb-3 bg-amber-100 text-amber-700";
+      } else {
+        badge.className = "inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold mb-3 bg-gray-100 text-gray-600";
+      }
+    }
+
+    function isClosedApplication(status) {
+      return ["approved", "rejected", "cancelled", "adopted"].includes(String(status || "").trim().toLowerCase());
+    }
+
+    async function loadExistingApplicationForPet() {
+      if (!currentUser || !petId) return null;
+
+      const applicationsQuery = query(
+        collection(db, "applications"),
+        where("userId", "==", currentUser.uid)
+      );
+      const snapshot = await getDocs(applicationsQuery);
+      const match = snapshot.docs
+        .map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }))
+        .find((item) => String(item.petId || "") === String(petId) && !isClosedApplication(item.status));
+
+      return match || null;
+    }
+
+    function setupApplicationButton(status) {
+      const applyBtn = document.getElementById("applyBtn");
+      const message = document.getElementById("applicationMessage");
+      const normalized = String(status || "").toLowerCase();
+      const canApply = normalized === "" || (normalized.includes("available") && !normalized.includes("not"));
+
+      if (existingApplication) {
+        applyBtn.href = "application.html";
+        applyBtn.textContent = "View Your Application";
+        applyBtn.className = "block w-full text-center px-4 py-2.5 bg-gray-900 hover:bg-gray-800 text-white font-medium rounded-xl shadow-sm transition-colors text-sm mb-3";
+        message.textContent = "You already submitted an active application for this animal.";
+      } else if (canApply) {
+        applyBtn.href = `apply.html?petId=${encodeURIComponent(petId)}`;
+        applyBtn.textContent = "Start Application";
+        applyBtn.className = "block w-full text-center px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl shadow-sm transition-colors text-sm mb-3";
+        message.textContent = "Review this pet's details, then start an adoption application.";
+      } else {
+        applyBtn.removeAttribute("href");
+        applyBtn.textContent = "Currently Not Available";
+        applyBtn.className = "block w-full text-center px-4 py-2.5 bg-gray-300 text-gray-600 font-medium rounded-xl shadow-sm text-sm mb-3 cursor-not-allowed";
+        message.textContent = "This pet is not currently open for new adoption applications.";
+      }
+    }
+
+    function renderEmptyMessage(container, message) {
+      if (container.children.length > 0) return;
+      const empty = document.createElement("p");
+      empty.className = "text-gray-500 text-sm";
+      empty.textContent = message;
+      container.appendChild(empty);
+    }
+
+    async function loadPetDetails() {
+      if (!petId) {
+        loadingState.classList.add("hidden");
+        errorState.classList.remove("hidden");
+        return;
+      }
+
+      try {
+        const petRef = doc(db, "pets", petId);
+        const petSnap = await getDoc(petRef);
+
+        if (!petSnap.exists()) {
+          loadingState.classList.add("hidden");
+          errorState.classList.remove("hidden");
+          return;
+        }
+
+        const pet = petSnap.data();
+        existingApplication = await loadExistingApplicationForPet();
+
+        const name = getField(pet, ["name", "animalName"], "Unnamed Pet");
+        const breed = getField(pet, ["breed"], "Mixed Breed");
+        const type = getField(pet, ["type", "animalType"], "");
+        const gender = getField(pet, ["gender"], "");
+        const age = getField(pet, ["age"], "");
+        const location = getField(pet, ["location", "city"], "");
+        const description = getField(pet, ["description", "about"], "");
+        const status = getField(pet, ["status"], "Available");
+
+        const size = getField(pet, ["heightOrSize", "heightSize", "size"], "");
+        const weight = getField(pet, ["weight", "weightKg"], "");
+        const colorMarkings = getField(pet, ["colorMarkings", "color", "markings"], "");
+        const bodyConditionScore = getField(pet, ["bodyConditionScore"], "");
+        const displayScore = bodyConditionScore ? `${bodyConditionScore}/9` : "";
+
+        const healthStatus = getField(pet, ["healthStatus", "currentHealthStatus"], "");
+        const vaccinationStatus = getField(pet, ["vaccinationStatus"], "");
+        const medicalConditions = getField(pet, ["medicalConditions", "existingMedicalConditions"], "");
+        const allergies = getField(pet, ["allergies"], "");
+        const medications = getField(pet, ["medications", "currentMedications"], "");
+        const lastVetVisit = formatDate(getField(pet, ["lastVetVisit"], ""));
+        const nextVetAppointment = formatDate(getField(pet, ["nextVetAppointment"], ""));
+
+        const rescueDate = formatDate(getField(pet, ["rescueDate"], ""));
+        const behaviorNotes = getField(pet, ["behaviorNotes"], "");
+        const specialCareNotes = getField(pet, ["specialCareNotes", "traumaSpecialCareNotes", "traumaOrSpecialCareNotes"], "");
+
+        const imageUrls = normalizeImageUrls(pet);
+
+        document.title = `${name} | Healed And Loved Animal Sanctuary (HALAS)`;
+        document.getElementById("petName").textContent = name;
+        document.getElementById("petBreedType").textContent = [breed, type].filter(Boolean).join(" - ");
+        document.getElementById("petAge").textContent = showValue(age);
+        document.getElementById("petGender").textContent = showValue(gender);
+        document.getElementById("petSize").textContent = showValue(size);
+        document.getElementById("petWeight").textContent = weight ? `${weight} kg` : "Not specified";
+        document.getElementById("petLocation").textContent = showValue(location, "Location not specified");
+        document.getElementById("aboutTitle").textContent = `About ${name}`;
+        document.getElementById("petDescription").textContent = showValue(description, "No description has been added yet.");
+
+        setStatusBadge(status);
+        setupApplicationButton(status);
+
+        renderGallery(imageUrls, name);
+
+        const physicalDetails = document.getElementById("physicalDetails");
+        addInfoItem(physicalDetails, "Type", type);
+        addInfoItem(physicalDetails, "Breed", breed);
+        addInfoItem(physicalDetails, "Date of Birth", formatDate(getField(pet, ["dateOfBirth", "birthDate"], "")));
+        addInfoItem(physicalDetails, "Weight", weight ? `${weight} kg` : "");
+        addInfoItem(physicalDetails, "Height / Size", size);
+        addInfoItem(physicalDetails, "Color / Markings", colorMarkings);
+        addInfoItem(physicalDetails, "Body Condition Score", displayScore);
+        renderEmptyMessage(physicalDetails, "No physical details have been added yet.");
+
+        const healthDetails = document.getElementById("healthDetails");
+        addInfoItem(healthDetails, "Current Health Status", healthStatus);
+        addInfoItem(healthDetails, "Vaccination Status", vaccinationStatus);
+        addInfoItem(healthDetails, "Existing Medical Conditions", medicalConditions);
+        addInfoItem(healthDetails, "Allergies", allergies);
+        addInfoItem(healthDetails, "Current Medications", medications);
+        addInfoItem(healthDetails, "Last Vet Visit", lastVetVisit);
+        addInfoItem(healthDetails, "Next Vet Appointment", nextVetAppointment);
+        renderEmptyMessage(healthDetails, "No health information has been added yet.");
+
+        const careDetails = document.getElementById("careDetails");
+        addCareNote(careDetails, "Rescue Date", rescueDate);
+        addCareNote(careDetails, "Behavior Notes", behaviorNotes);
+        addCareNote(careDetails, "Trauma or Special Care Notes", specialCareNotes);
+        renderEmptyMessage(careDetails, "No rescue or care notes have been added yet.");
+
+        const quickInfo = document.getElementById("quickInfo");
+        addInfoItem(quickInfo, "Status", status);
+        addInfoItem(quickInfo, "Location", location);
+        addInfoItem(quickInfo, "Type", type);
+        addInfoItem(quickInfo, "Breed", breed);
+        addInfoItem(quickInfo, "Gender", gender);
+        renderEmptyMessage(quickInfo, "No quick information available.");
+
+        loadingState.classList.add("hidden");
+        detailsContent.classList.remove("hidden");
+      } catch (error) {
+        console.error("Error loading pet details:", error);
+        loadingState.classList.add("hidden");
+        errorState.classList.remove("hidden");
+      }
+    }
+
+    logoutBtn.addEventListener("click", async () => {
+      await signOut(auth);
+      window.location.href = "../login.html";
+    });
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "../login.html";
+        return;
+      }
+
+      currentUser = user;
+      await loadPetDetails();
+    });
+  </script>
+    <script src="../mobile-nav.js"></script>
+</body>
+</html>
+
+
+
+
+
+

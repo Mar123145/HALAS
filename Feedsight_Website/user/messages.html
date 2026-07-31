@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages - Healed And Loved Animal Sanctuary (HALAS)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-50 min-h-screen text-gray-900">
+    <nav class="sticky top-0 z-50 border-b border-gray-200 bg-white/95 backdrop-blur">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            <a href="dashboard.html" class="font-bold text-2xl text-blue-600">
+                <span>HALAS</span>
+            </a>
+
+            <div class="hidden md:flex items-center gap-1">
+                <a href="dashboard.html" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Dashboard</a>
+                <a href="browse.html" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Browse</a>
+                <a href="saved-pets.html" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Saved</a>
+                <a href="messages.html" class="px-3 py-2 rounded-lg bg-blue-50 text-blue-700 font-semibold">Messages</a>
+                <a href="profile.html" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Profile</a>
+                <button id="logoutBtn" type="button" class="inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-200 hover:bg-gray-50 text-gray-700 font-medium rounded-xl">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                    Log Out
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid lg:grid-cols-[minmax(0,1fr)_320px] gap-8">
+            <section class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden min-h-[calc(100vh-180px)] flex flex-col">
+                <div class="border-b border-gray-200 p-5 sm:p-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div class="flex items-center gap-4">
+                            <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-100 to-indigo-100 text-blue-700 flex items-center justify-center">
+                                <i data-lucide="messages-square" class="w-7 h-7"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-semibold text-blue-600">Shelter Support</p>
+                                <h1 class="text-3xl font-bold text-gray-900">Messages</h1>
+                                <p class="text-sm text-gray-500 mt-1">Chat with the shelter team about applications, visits, and adoption questions.</p>
+                            </div>
+                        </div>
+                        <button id="refreshBtn" type="button" class="inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 hover:bg-gray-50 rounded-lg font-medium text-gray-700">
+                            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                            Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <div id="messagesList" class="flex-1 overflow-y-auto space-y-4 bg-gradient-to-b from-white to-gray-50 p-5 sm:p-8">
+                    <p class="text-gray-500">Loading messages...</p>
+                </div>
+
+                <div class="border-t border-gray-200 bg-white p-4 sm:p-5">
+                    <form id="messageForm" class="space-y-3">
+                        <div id="applicationSelectWrap" class="hidden rounded-xl border border-blue-100 bg-blue-50 p-3">
+                            <label for="applicationSelect" class="block text-xs font-semibold uppercase text-blue-600 mb-1">Conversation</label>
+                            <select id="applicationSelect" class="w-full border border-blue-200 rounded-lg bg-white px-3 py-2 text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">General support</option>
+                            </select>
+                        </div>
+                        <div class="relative">
+                            <i data-lucide="tag" class="w-4 h-4 text-gray-400 absolute left-3 top-3"></i>
+                            <input id="subject" type="text" placeholder="Topic, optional" class="pl-9 pr-4 py-2.5 w-full border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <textarea id="message" rows="2" required placeholder="Type your message..." class="min-h-[52px] flex-1 resize-none px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                            <button id="sendBtn" type="submit" class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors">
+                                <i data-lucide="send" class="w-5 h-5"></i>
+                                Send
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <aside class="space-y-6">
+                <div id="applicationContext" class="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
+                    <div class="w-12 h-12 bg-indigo-50 rounded-full flex items-center justify-center mb-4">
+                        <i data-lucide="clipboard-list" class="w-6 h-6 text-indigo-600"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-gray-900 mb-2">Linked Application</h2>
+                    <p class="text-sm text-gray-600">Loading your active applications...</p>
+                </div>
+
+                <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
+                    <div class="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center mb-4">
+                        <i data-lucide="message-circle" class="w-6 h-6 text-blue-600"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-gray-900 mb-2">Conversation Tips</h2>
+                    <p class="text-sm text-gray-600">Mention the pet name, application date, or visit schedule when your question is about a specific adoption step.</p>
+                </div>
+
+                <div class="bg-amber-50 border border-amber-200 rounded-2xl p-6">
+                    <h2 class="text-xl font-bold text-amber-900 mb-2">Shelter Replies</h2>
+                    <p class="text-sm text-amber-800">Replies from the shelter appear in this same conversation, so you can continue without starting over.</p>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <div id="messageModal" class="hidden fixed inset-0 bg-black/40 z-[120] flex items-center justify-center px-4">
+        <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6 text-center">
+            <div class="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="alert-circle" class="w-7 h-7 text-red-600"></i>
+            </div>
+            <h2 id="modalTitle" class="text-2xl font-bold text-gray-900 mb-2">Unable to Send Message</h2>
+            <p id="modalText" class="text-gray-600 mb-6">Please try again.</p>
+            <button id="modalCloseBtn" type="button" class="w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors">OK</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+        import {
+            getFirestore,
+            addDoc,
+            collection,
+            doc,
+            getDoc,
+            getDocs,
+            onSnapshot,
+            query,
+            serverTimestamp,
+            where
+        } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+        import { firebaseConfig } from "../firebase-config.js";
+
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const logoutBtn = document.getElementById("logoutBtn");
+        const messageForm = document.getElementById("messageForm");
+        const applicationSelectWrap = document.getElementById("applicationSelectWrap");
+        const applicationSelect = document.getElementById("applicationSelect");
+        const applicationContext = document.getElementById("applicationContext");
+        const subjectInput = document.getElementById("subject");
+        const messageInput = document.getElementById("message");
+        const sendBtn = document.getElementById("sendBtn");
+        const refreshBtn = document.getElementById("refreshBtn");
+        const messagesList = document.getElementById("messagesList");
+        const messageModal = document.getElementById("messageModal");
+        const modalTitle = document.getElementById("modalTitle");
+        const modalText = document.getElementById("modalText");
+        const modalCloseBtn = document.getElementById("modalCloseBtn");
+
+        let currentUser = null;
+        let currentUserProfile = null;
+        let activeApplications = [];
+        let allMessages = [];
+        let applicationSelectorInitialized = false;
+        let unsubscribeMessages = null;
+
+        function timestampMillis(value) {
+            if (!value) return 0;
+            if (value.toDate) return value.toDate().getTime();
+            const parsed = new Date(value);
+            return Number.isNaN(parsed.getTime()) ? 0 : parsed.getTime();
+        }
+
+        function formatDate(value) {
+            const date = toDate(value);
+            if (!date) return "Today";
+            const today = new Date();
+            const yesterday = new Date();
+            yesterday.setDate(today.getDate() - 1);
+            if (date.toDateString() === today.toDateString()) return "Today";
+            if (date.toDateString() === yesterday.toDateString()) return "Yesterday";
+            return date.toLocaleDateString([], { month: "long", day: "numeric", year: "numeric" });
+        }
+
+        function toDate(value) {
+            if (!value) return null;
+            const date = value.toDate ? value.toDate() : new Date(value);
+            return Number.isNaN(date.getTime()) ? null : date;
+        }
+
+        function formatSentAt(value) {
+            const date = toDate(value);
+            if (!date) return "Sending...";
+            const today = new Date();
+            const yesterday = new Date();
+            yesterday.setDate(today.getDate() - 1);
+            const time = date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+            if (date.toDateString() === today.toDateString()) return `Today at ${time}`;
+            if (date.toDateString() === yesterday.toDateString()) return `Yesterday at ${time}`;
+            return `${date.toLocaleDateString([], { month: "short", day: "numeric" })} at ${time}`;
+        }
+
+        function dateKey(value) {
+            const date = toDate(value);
+            return date ? date.toDateString() : "pending";
+        }
+
+        function escapeHtml(value) {
+            return String(value || "")
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
+        }
+
+        function messageRole(item) {
+            return item.senderRole || item.role || "user";
+        }
+
+        function profileDisplayName(profile, fallbackEmail = "") {
+            const middle = profile?.middleName || profile?.middleInitial || "";
+            const middleText = middle ? `${middle.charAt(0)}.` : "";
+            const fromParts = [profile?.firstName, middleText, profile?.lastName]
+                .filter(Boolean)
+                .join(" ")
+                .replace(/\s+/g, " ")
+                .trim();
+            return profile?.fullName || fromParts || profile?.displayName || profile?.name || fallbackEmail || "Adopter";
+        }
+
+        function currentDisplayName() {
+            return profileDisplayName(currentUserProfile, currentUser?.displayName || currentUser?.email || "Adopter");
+        }
+
+        function normalizeStatus(status) {
+            return String(status || "pending").trim().toLowerCase();
+        }
+
+        function isOngoingApplication(app) {
+            return !["approved", "rejected", "cancelled", "adopted"].includes(normalizeStatus(app.status));
+        }
+
+        function appUpdatedMillis(app) {
+            return timestampMillis(app.updatedAt || app.createdAt);
+        }
+
+        function applicationLabel(app) {
+            return `${app.petName || "Application"} - ${app.status || "pending"}`;
+        }
+
+        function selectedApplication() {
+            return activeApplications.find((app) => app.id === applicationSelect.value) || null;
+        }
+
+        function selectedConversationMessages() {
+            const selectedAppId = applicationSelect.value;
+            return allMessages.filter((item) => {
+                const itemAppId = item.applicationId || "";
+                return selectedAppId ? itemAppId === selectedAppId : !itemAppId;
+            });
+        }
+
+        function messageEntries(messages) {
+            return messages.flatMap((item) => {
+                const entries = [];
+                if (item.message) {
+                    entries.push({
+                        role: messageRole(item),
+                        text: item.message,
+                        at: item.createdAt || item.updatedAt,
+                        subject: item.subject || "Conversation"
+                    });
+                }
+                if (item.reply) {
+                    entries.push({
+                        role: "admin",
+                        text: item.reply,
+                        at: item.repliedAt || item.updatedAt || item.createdAt,
+                        subject: item.subject || "Conversation"
+                    });
+                }
+                return entries;
+            }).sort((a, b) => timestampMillis(a.at) - timestampMillis(b.at));
+        }
+
+        function showMessage(title, text) {
+            modalTitle.textContent = title;
+            modalText.textContent = text;
+            messageModal.classList.remove("hidden");
+            lucide.createIcons();
+        }
+
+        function renderApplicationSelector() {
+            applicationSelectWrap.classList.remove("hidden");
+            const previousValue = applicationSelect.value;
+            const options = [`<option value="">General support</option>`].concat(activeApplications.map((app) => {
+                return `<option value="${escapeHtml(app.id)}">${escapeHtml(applicationLabel(app))}</option>`;
+            }));
+            applicationSelect.innerHTML = options.join("");
+
+            if (applicationSelectorInitialized && previousValue === "") {
+                applicationSelect.value = "";
+            } else if (previousValue && activeApplications.some((app) => app.id === previousValue)) {
+                applicationSelect.value = previousValue;
+            } else if (activeApplications.length) {
+                applicationSelect.value = activeApplications[0].id;
+            }
+
+            applicationSelectorInitialized = true;
+            renderApplicationContext();
+        }
+
+        function renderApplicationContext() {
+            const app = selectedApplication();
+
+            if (!app) {
+                applicationContext.innerHTML = `
+                    <div class="w-12 h-12 bg-indigo-50 rounded-full flex items-center justify-center mb-4">
+                        <i data-lucide="message-circle" class="w-6 h-6 text-indigo-600"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-gray-900 mb-2">General Support</h2>
+                    <p class="text-sm text-gray-600">This conversation is not attached to a specific adoption application.</p>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            applicationContext.innerHTML = `
+                <div class="w-12 h-12 bg-indigo-50 rounded-full flex items-center justify-center mb-4">
+                    <i data-lucide="clipboard-list" class="w-6 h-6 text-indigo-600"></i>
+                </div>
+                <h2 class="text-xl font-bold text-gray-900 mb-2">Linked Application</h2>
+                <div class="space-y-3 text-sm">
+                    <div>
+                        <p class="text-gray-500">Pet</p>
+                        <p class="font-semibold text-gray-900">${escapeHtml(app.petName || "Selected pet")}</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-500">Status</p>
+                        <p class="font-semibold text-blue-600">${escapeHtml(app.status || "pending")}</p>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        function setSending(isSending) {
+            sendBtn.disabled = isSending;
+            sendBtn.classList.toggle("opacity-70", isSending);
+            sendBtn.classList.toggle("cursor-not-allowed", isSending);
+            sendBtn.innerHTML = isSending
+                ? `<span class="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"></span> Sending...`
+                : `<i data-lucide="send" class="w-5 h-5"></i> Send`;
+            lucide.createIcons();
+        }
+
+        function renderMessages() {
+            const app = selectedApplication();
+            const entries = messageEntries(selectedConversationMessages());
+            if (!entries.length) {
+                messagesList.innerHTML = `
+                    <div class="h-full min-h-[360px] flex items-center justify-center text-center">
+                        <div>
+                            <i data-lucide="inbox" class="w-14 h-14 text-gray-300 mx-auto mb-4"></i>
+                            <h2 class="text-xl font-bold text-gray-900">No messages yet</h2>
+                            <p class="text-gray-500 mt-2">Send a message to start ${app ? `the conversation about ${escapeHtml(app.petName || "this application")}` : "a general support conversation"}.</p>
+                        </div>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            const bubbles = [];
+            let previousDateKey = "";
+
+            entries.forEach((item) => {
+                const currentDateKey = dateKey(item.at);
+                if (currentDateKey !== previousDateKey) {
+                    bubbles.push(`
+                        <div class="flex justify-center">
+                            <span class="px-4 py-1 rounded-full bg-white border border-gray-200 text-xs font-medium text-gray-500 shadow-sm">${escapeHtml(formatDate(item.at))}</span>
+                        </div>
+                    `);
+                    previousDateKey = currentDateKey;
+                }
+
+                const isAdmin = item.role === "admin";
+                bubbles.push(`
+                    <article class="flex ${isAdmin ? "justify-start" : "justify-end"}">
+                        <div class="max-w-[82%] rounded-2xl ${isAdmin ? "rounded-bl-sm bg-white border border-gray-200" : "rounded-br-sm bg-blue-50 border border-blue-100"} px-5 py-4 shadow-sm">
+                            <p class="text-xs font-semibold ${isAdmin ? "text-gray-500" : "text-blue-600"} mb-1">${isAdmin ? "Shelter" : "You"}</p>
+                            <p class="text-sm text-gray-800 whitespace-pre-wrap">${escapeHtml(item.text)}</p>
+                            <p class="text-xs ${isAdmin ? "text-gray-400" : "text-blue-600"} mt-2">${escapeHtml(formatSentAt(item.at))}</p>
+                        </div>
+                    </article>
+                `);
+            });
+
+            messagesList.innerHTML = `
+                <div class="flex justify-center">
+                    <span class="px-4 py-1 rounded-full bg-gray-50 border text-xs font-medium text-gray-500">${escapeHtml(app ? `${app.petName || "Application"} conversation` : "General conversation")}</span>
+                </div>
+            ` + bubbles.join("");
+            messagesList.scrollTop = messagesList.scrollHeight;
+        }
+
+        function subscribeMessages() {
+            if (!currentUser) return;
+            if (unsubscribeMessages) unsubscribeMessages();
+
+            unsubscribeMessages = onSnapshot(query(
+                collection(db, "messages"),
+                where("userId", "==", currentUser.uid)
+            ), (snapshot) => {
+                allMessages = snapshot.docs.map((docSnap) => ({
+                    id: docSnap.id,
+                    ...docSnap.data()
+                })).sort((a, b) => timestampMillis(a.createdAt || a.updatedAt) - timestampMillis(b.createdAt || b.updatedAt));
+
+                renderMessages();
+            }, (error) => {
+                console.error("Message load error:", error);
+                messagesList.innerHTML = `<p class="text-red-500">Unable to load messages. Check your Firestore rules for the messages collection.</p>`;
+            });
+        }
+
+        async function loadApplications() {
+            if (!currentUser) return;
+
+            try {
+                const snapshot = await getDocs(query(
+                    collection(db, "applications"),
+                    where("userId", "==", currentUser.uid)
+                ));
+
+                activeApplications = snapshot.docs
+                    .map((docSnap) => ({
+                        id: docSnap.id,
+                        ...docSnap.data()
+                    }))
+                    .filter(isOngoingApplication)
+                    .sort((a, b) => appUpdatedMillis(b) - appUpdatedMillis(a));
+
+                renderApplicationSelector();
+            } catch (error) {
+                console.error("Application load error:", error);
+                activeApplications = [];
+                renderApplicationSelector();
+            }
+        }
+
+        async function loadUserProfile() {
+            if (!currentUser) return;
+
+            try {
+                const userSnap = await getDoc(doc(db, "users", currentUser.uid));
+                currentUserProfile = userSnap.exists() ? userSnap.data() : null;
+            } catch (error) {
+                console.warn("Profile load error:", error);
+                currentUserProfile = null;
+            }
+        }
+
+        async function refreshMessagesPage() {
+            await loadApplications();
+            subscribeMessages();
+        }
+
+        messageForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            if (!currentUser) return;
+
+            const subject = subjectInput.value.trim() || "Conversation";
+            const message = messageInput.value.trim();
+            if (!message) return;
+            const app = selectedApplication();
+            const selectedAppId = applicationSelect.value;
+
+            try {
+                setSending(true);
+                const displayName = currentDisplayName();
+                const messageRecord = {
+                    userId: currentUser.uid,
+                    email: currentUser.email || "",
+                    subject: app ? `${app.petName || "Application"} application` : subject,
+                    message,
+                    senderRole: "user",
+                    senderId: currentUser.uid,
+                    senderName: displayName,
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp()
+                };
+
+                if (app) {
+                    Object.assign(messageRecord, {
+                        applicationId: app.id,
+                        applicationStatus: app.status || "pending",
+                        petId: app.petId || "",
+                        petName: app.petName || "",
+                        applicantName: app.applicantName || app.adopterName || app.fullName || displayName,
+                        applicantEmail: app.applicantEmail || app.email || currentUser.email || ""
+                    });
+                }
+
+                await addDoc(collection(db, "messages"), messageRecord);
+                messageForm.reset();
+                applicationSelect.value = selectedAppId;
+                renderApplicationContext();
+            } catch (error) {
+                console.error("Message send error:", error);
+                showMessage("Unable to Send Message", "Please check your Firestore rules for messages and try again.");
+            } finally {
+                setSending(false);
+            }
+        });
+
+        refreshBtn.addEventListener("click", refreshMessagesPage);
+        applicationSelect.addEventListener("change", () => {
+            renderApplicationContext();
+            renderMessages();
+        });
+        modalCloseBtn.addEventListener("click", () => messageModal.classList.add("hidden"));
+        messageModal.addEventListener("click", (event) => {
+            if (event.target === messageModal) messageModal.classList.add("hidden");
+        });
+
+        logoutBtn.addEventListener("click", async () => {
+            await signOut(auth);
+            window.location.href = "../login.html";
+        });
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                if (unsubscribeMessages) unsubscribeMessages();
+                window.location.href = "../login.html";
+                return;
+            }
+
+            currentUser = user;
+            await loadUserProfile();
+            await refreshMessagesPage();
+        });
+
+        lucide.createIcons();
+    </script>
+    <script src="../mobile-nav.js"></script>
+</body>
+</html>
+
+
+
+
+

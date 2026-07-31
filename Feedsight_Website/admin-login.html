@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - Healed And Loved Animal Sanctuary (HALAS)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-50 min-h-screen text-gray-900">
+
+    <nav class="sticky top-0 z-50 border-b border-gray-200 bg-white/95 backdrop-blur">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            <a href="index.html" class="font-bold text-2xl text-blue-600">
+                <span>HALAS</span>
+            </a>
+            <div class="flex items-center gap-2">
+                <a href="about.html" class="hidden sm:inline-flex px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">About</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="py-20 px-6 sm:px-8 lg:px-10">
+        <div class="max-w-7xl mx-auto text-center">
+            <h1 class="text-4xl sm:text-5xl font-bold text-gray-900 leading-tight mb-4">
+                HALAS Admin Portal
+            </h1>
+            <p class="text-lg text-gray-600 mb-8">
+                Sign in with your administrator account to manage applications, visits, messages, and animal records.
+            </p>
+
+            <div class="max-w-md mx-auto bg-white border border-gray-200 p-8 rounded-xl shadow-sm">
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-50 text-amber-700 text-sm font-medium mb-6">
+                    <i data-lucide="shield-check" class="w-4 h-4"></i>
+                    Admin access only
+                </div>
+
+                <form id="loginForm" class="space-y-6">
+                    <div class="text-left">
+                        <label for="email" class="block text-sm font-medium text-gray-700">Admin Email</label>
+                        <input type="email" id="email" name="email" required placeholder="Enter your admin email" class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <div class="text-left">
+                        <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                        <input type="password" id="password" name="password" required placeholder="Enter your password" class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <div>
+                        <button id="loginBtn" type="submit" class="w-full px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors text-center">
+                            Admin Log In
+                        </button>
+                    </div>
+                </form>
+
+                <div class="text-center mt-4">
+                    <a href="forgot-password.html" class="text-sm text-blue-600 hover:text-blue-500">
+                        Forgot your password?
+                    </a>
+                </div>
+
+                <div class="text-center mt-4 pt-4 border-t border-gray-100">
+                    <span class="text-sm text-gray-600">Need the adopter portal?</span>
+                    <a href="login.html" class="text-sm text-blue-600 hover:text-blue-500 font-medium">Go to user login</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div id="loadingOverlay" class="hidden fixed inset-0 bg-black/40 z-[100] flex items-center justify-center px-4">
+        <div class="bg-white rounded-xl shadow-xl p-8 text-center max-w-sm w-full">
+            <div class="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+            <h2 id="loadingTitle" class="text-xl font-bold text-gray-900">Logging in...</h2>
+            <p id="loadingText" class="text-gray-600 text-sm mt-2">Please wait while we verify your admin access.</p>
+        </div>
+    </div>
+
+    <div id="messageModal" class="hidden fixed inset-0 bg-black/40 z-[110] flex items-center justify-center px-4">
+        <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+            <div id="messageIcon" class="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="info" class="w-7 h-7 text-blue-600"></i>
+            </div>
+            <h2 id="messageTitle" class="text-2xl font-bold text-gray-900 text-center mb-2">Message</h2>
+            <p id="messageText" class="text-gray-600 text-center mb-6">Message content</p>
+            <button id="messageCloseBtn" type="button" class="w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors">
+                OK
+            </button>
+        </div>
+    </div>
+
+    <script type="module">
+        import {
+            signInWithEmailAndPassword,
+            signOut
+        } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+
+        import {
+            doc,
+            getDoc,
+            updateDoc,
+            serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+        import { auth, db } from "./firebase-app.js";
+
+        const loginForm = document.getElementById("loginForm");
+        const emailInput = document.getElementById("email");
+        const passwordInput = document.getElementById("password");
+        const loginBtn = document.getElementById("loginBtn");
+
+        const loadingOverlay = document.getElementById("loadingOverlay");
+        const loadingTitle = document.getElementById("loadingTitle");
+        const loadingText = document.getElementById("loadingText");
+
+        const messageModal = document.getElementById("messageModal");
+        const messageIcon = document.getElementById("messageIcon");
+        const messageTitle = document.getElementById("messageTitle");
+        const messageText = document.getElementById("messageText");
+        const messageCloseBtn = document.getElementById("messageCloseBtn");
+
+        let redirectAfterMessage = null;
+
+        function showLoading(title = "Logging in...", text = "Please wait while we verify your admin access.") {
+            loadingTitle.textContent = title;
+            loadingText.textContent = text;
+            loadingOverlay.classList.remove("hidden");
+            loginBtn.disabled = true;
+            loginBtn.classList.add("opacity-70", "cursor-not-allowed");
+        }
+
+        function hideLoading() {
+            loadingOverlay.classList.add("hidden");
+            loginBtn.disabled = false;
+            loginBtn.classList.remove("opacity-70", "cursor-not-allowed");
+        }
+
+        function showMessage(type, title, text, redirectUrl = null) {
+            redirectAfterMessage = redirectUrl;
+            messageTitle.textContent = title;
+            messageText.textContent = text;
+
+            if (type === "success") {
+                messageIcon.className = "w-14 h-14 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-4";
+                messageIcon.innerHTML = '<i data-lucide="check" class="w-7 h-7 text-green-600"></i>';
+            } else if (type === "error") {
+                messageIcon.className = "w-14 h-14 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-4";
+                messageIcon.innerHTML = '<i data-lucide="x" class="w-7 h-7 text-red-600"></i>';
+            } else {
+                messageIcon.className = "w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center mx-auto mb-4";
+                messageIcon.innerHTML = '<i data-lucide="info" class="w-7 h-7 text-blue-600"></i>';
+            }
+
+            messageModal.classList.remove("hidden");
+            lucide.createIcons();
+        }
+
+        messageCloseBtn.addEventListener("click", function() {
+            messageModal.classList.add("hidden");
+
+            if (redirectAfterMessage) {
+                window.location.href = redirectAfterMessage;
+            }
+        });
+
+        loginForm.addEventListener("submit", async function(event) {
+            event.preventDefault();
+
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+
+            if (!email || !password) {
+                showMessage("error", "Missing Information", "Please enter your email and password.");
+                return;
+            }
+
+            showLoading();
+
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                await user.reload();
+
+                const userRef = doc(db, "users", user.uid);
+                const userSnap = await getDoc(userRef);
+
+                if (!userSnap.exists()) {
+                    await signOut(auth);
+                    hideLoading();
+                    showMessage(
+                        "error",
+                        "Account Profile Missing",
+                        "Your account exists in Authentication, but your profile was not found in Firestore. Please contact the administrator."
+                    );
+                    return;
+                }
+
+                const userData = userSnap.data();
+                const role = String(userData.role || "user").trim().toLowerCase();
+
+                if (role !== "admin") {
+                    await signOut(auth);
+                    hideLoading();
+                    showMessage(
+                        "error",
+                        "Access Denied",
+                        "This portal is for administrator accounts only. Please use the regular user login page.",
+                        "login.html"
+                    );
+                    return;
+                }
+
+                try {
+                    await updateDoc(userRef, {
+                        emailVerified: user.emailVerified,
+                        accountStatus: "active",
+                        lastLoginAt: serverTimestamp()
+                    });
+                } catch (firestoreError) {
+                    console.warn("Admin login succeeded, but profile status was not updated:", firestoreError);
+                }
+
+                hideLoading();
+                showMessage(
+                    "success",
+                    "Login Successful",
+                    "Welcome back to the HALAS admin portal.",
+                    "admin/dashboard.html"
+                );
+            } catch (error) {
+                console.error(error);
+                hideLoading();
+
+                if (error.code === "auth/invalid-credential") {
+                    showMessage("error", "Login Failed", "Incorrect email or password.");
+                } else if (error.code === "auth/user-not-found") {
+                    showMessage("error", "Account Not Found", "No account found with this email.");
+                } else if (error.code === "auth/wrong-password") {
+                    showMessage("error", "Incorrect Password", "The password you entered is incorrect.");
+                } else if (error.code === "auth/invalid-email") {
+                    showMessage("error", "Invalid Email", "Please enter a valid email address.");
+                } else if (error.code === "auth/too-many-requests") {
+                    showMessage("error", "Too Many Attempts", "Too many failed login attempts. Please try again later.");
+                } else {
+                    showMessage("error", "Login Failed", error.message);
+                }
+            }
+        });
+
+        lucide.createIcons();
+    </script>
+</body>
+</html>

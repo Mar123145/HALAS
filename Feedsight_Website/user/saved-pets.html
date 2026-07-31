@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saved Pets - Healed And Loved Animal Sanctuary (HALAS)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-50">
+    <nav class="sticky top-0 z-50 border-b border-gray-200 bg-white/95 backdrop-blur">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            <a href="dashboard.html" class="font-bold text-2xl text-blue-600">
+                <span>HALAS</span>
+            </a>
+
+            <div class="hidden md:flex items-center gap-1">
+                <a href="dashboard.html" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Dashboard</a>
+                <a href="browse.html" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Browse</a>
+                <a href="saved-pets.html" class="px-3 py-2 rounded-lg bg-blue-50 text-blue-700 font-semibold">Saved</a>
+                <a href="messages.html" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Messages</a>
+                <a href="profile.html" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">Profile</a>
+                <button id="logoutBtn" type="button" class="inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-200 hover:bg-gray-50 text-gray-700 font-medium rounded-xl">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                    Log Out
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <section class="py-8 px-4 sm:px-6 lg:px-8">
+            <div class="max-w-7xl mx-auto">
+                <div class="grid lg:grid-cols-3 gap-8 items-center">
+                    <div class="lg:col-span-2 space-y-4">
+                        <p class="text-blue-600 font-semibold">Your Favorites</p>
+                        <h1 class="text-4xl sm:text-5xl font-bold text-gray-900 leading-tight">Saved Pets</h1>
+                        <p class="text-lg text-gray-600">
+                            Review the pets you saved, compare their details, and continue your adoption application when you are ready.
+                        </p>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                        <div class="flex items-center gap-4">
+                            <div class="w-16 h-16 rounded-full bg-orange-50 flex items-center justify-center">
+                                <i data-lucide="heart" class="w-8 h-8 text-orange-600"></i>
+                            </div>
+                            <div>
+                                <h2 id="savedCount" class="text-3xl font-bold text-gray-900">0</h2>
+                                <p class="text-gray-600">Pets saved to your list</p>
+                            </div>
+                        </div>
+                        <a href="browse.html" class="mt-5 inline-flex items-center justify-center w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors">
+                            Browse More Pets
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-8 px-4 sm:px-6 lg:px-8">
+            <div class="max-w-7xl mx-auto">
+                <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+                    <div class="grid md:grid-cols-4 gap-4">
+                        <div class="md:col-span-2">
+                            <label for="search" class="block text-sm font-medium text-gray-700">Search Saved Pets</label>
+                            <div class="relative mt-1">
+                                <i data-lucide="search" class="w-5 h-5 text-gray-400 absolute left-3 top-2.5"></i>
+                                <input type="text" id="search" name="search" placeholder="Search by name, breed, or type" class="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="petType" class="block text-sm font-medium text-gray-700">Pet Type</label>
+                            <select id="petType" name="petType" class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="all">All Pets</option>
+                                <option value="Dog">Dogs</option>
+                                <option value="Cat">Cats</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="sortBy" class="block text-sm font-medium text-gray-700">Sort By</label>
+                            <select id="sortBy" name="sortBy" class="mt-1 px-4 py-2 w-full border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="recent">Recently Saved</option>
+                                <option value="name">Name A-Z</option>
+                                <option value="youngest">Youngest First</option>
+                                <option value="oldest">Oldest First</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="pb-16 px-4 sm:px-6 lg:px-8">
+            <div class="max-w-7xl mx-auto grid lg:grid-cols-3 gap-8">
+                <div id="savedPetsList" class="lg:col-span-2 space-y-6">
+                    <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-10 text-center">
+                        <div class="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+                        <p class="text-gray-600">Loading saved pets...</p>
+                    </div>
+                </div>
+
+                <aside class="space-y-8">
+                    <div class="bg-blue-600 text-white rounded-xl shadow-sm p-6">
+                        <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center mb-4">
+                            <i data-lucide="info" class="w-6 h-6 text-white"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold mb-3">Before You Apply</h2>
+                        <p class="opacity-90 text-sm">
+                            Make sure your profile, contact number, and address are complete. Shelters may review your home details before approving an adoption.
+                        </p>
+                        <a href="profile.html" class="mt-5 inline-flex items-center justify-center w-full px-4 py-3 bg-white text-blue-600 hover:bg-gray-100 font-bold rounded-xl transition-colors">
+                            Update Profile
+                        </a>
+                    </div>
+
+                    <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+                        <h2 class="text-2xl font-bold text-gray-900 mb-4">Saved Summary</h2>
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-600">Dogs</span>
+                                <span id="dogsCount" class="font-bold text-gray-900">0</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-600">Cats</span>
+                                <span id="catsCount" class="font-bold text-gray-900">0</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-600">Available</span>
+                                <span id="availableCount" class="font-bold text-green-600">0</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-600">Pending or Reserved</span>
+                                <span id="pendingCount" class="font-bold text-blue-600">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+                        <h2 class="text-2xl font-bold text-gray-900 mb-4">Recent Activity</h2>
+                        <div id="recentActivity" class="space-y-4">
+                            <p class="text-gray-600 text-sm">Saved activity will appear here.</p>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </section>
+
+        <footer class="border-t border-gray-200 bg-white py-8 px-4 sm:px-6 lg:px-8">
+            <div class="max-w-7xl mx-auto text-center">
+                <h4 class="font-bold text-gray-900 mb-2">HALAS</h4>
+                <p class="text-gray-500 text-sm">Connecting loving pets with their forever homes.</p>
+            </div>
+        </footer>
+    </main>
+
+    <div id="confirmModal" class="hidden fixed inset-0 bg-black/40 z-[110] flex items-center justify-center px-4">
+        <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+            <div class="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="heart-off" class="w-7 h-7 text-red-600"></i>
+            </div>
+            <h2 id="confirmTitle" class="text-2xl font-bold text-gray-900 text-center mb-2">Remove Saved Pet?</h2>
+            <p id="confirmText" class="text-gray-600 text-center mb-6">This pet will be removed from your saved list.</p>
+            <div class="grid grid-cols-2 gap-3">
+                <button id="confirmCancelBtn" type="button" class="px-5 py-3 border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium rounded-xl">Cancel</button>
+                <button id="confirmActionBtn" type="button" class="px-5 py-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-xl">Remove</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+        import {
+            collection,
+            deleteDoc,
+            doc,
+            getDoc,
+            getDocs,
+            query,
+            where
+        } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+        import { auth, db } from "../firebase-app.js";
+
+        const logoutBtn = document.getElementById("logoutBtn");
+        const savedPetsList = document.getElementById("savedPetsList");
+        const searchInput = document.getElementById("search");
+        const petTypeSelect = document.getElementById("petType");
+        const sortBySelect = document.getElementById("sortBy");
+        const savedCount = document.getElementById("savedCount");
+        const dogsCount = document.getElementById("dogsCount");
+        const catsCount = document.getElementById("catsCount");
+        const availableCount = document.getElementById("availableCount");
+        const pendingCount = document.getElementById("pendingCount");
+        const recentActivity = document.getElementById("recentActivity");
+        const confirmModal = document.getElementById("confirmModal");
+        const confirmTitle = document.getElementById("confirmTitle");
+        const confirmText = document.getElementById("confirmText");
+        const confirmCancelBtn = document.getElementById("confirmCancelBtn");
+        const confirmActionBtn = document.getElementById("confirmActionBtn");
+
+        let currentUser = null;
+        let savedPets = [];
+        let activeApplicationsByPetId = new Map();
+        let confirmResolver = null;
+
+        function normalizeStatus(status) {
+            return String(status || "available").trim().toLowerCase();
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#39;");
+        }
+
+        function timestampMillis(value) {
+            if (!value) return 0;
+            if (value.toDate) return value.toDate().getTime();
+            const parsed = new Date(value);
+            return Number.isNaN(parsed.getTime()) ? 0 : parsed.getTime();
+        }
+
+        function showConfirm(title, text, actionLabel = "Remove") {
+            confirmTitle.textContent = title;
+            confirmText.textContent = text;
+            confirmActionBtn.textContent = actionLabel;
+            confirmModal.classList.remove("hidden");
+            lucide.createIcons();
+
+            return new Promise((resolve) => {
+                confirmResolver = resolve;
+            });
+        }
+
+        function closeConfirm(value) {
+            confirmModal.classList.add("hidden");
+            if (confirmResolver) {
+                confirmResolver(value);
+                confirmResolver = null;
+            }
+        }
+
+        function ageNumber(age) {
+            const match = String(age || "").match(/\d+(\.\d+)?/);
+            return match ? Number(match[0]) : Number.MAX_SAFE_INTEGER;
+        }
+
+        function statusBadge(status) {
+            const normalized = normalizeStatus(status);
+            if (normalized === "available") {
+                return `<span class="px-3 py-1 bg-green-50 text-green-600 text-sm font-semibold rounded-full">Available</span>`;
+            }
+            if (normalized === "adopted") {
+                return `<span class="px-3 py-1 bg-indigo-50 text-indigo-600 text-sm font-semibold rounded-full">Adopted</span>`;
+            }
+            return `<span class="px-3 py-1 bg-yellow-50 text-yellow-700 text-sm font-semibold rounded-full">${escapeHtml(status || "Pending")}</span>`;
+        }
+
+        function isClosedApplication(status) {
+            return ["approved", "rejected", "cancelled", "adopted"].includes(String(status || "").trim().toLowerCase());
+        }
+
+        async function loadActiveApplications() {
+            const applicationsQuery = query(
+                collection(db, "applications"),
+                where("userId", "==", currentUser.uid)
+            );
+            const snapshot = await getDocs(applicationsQuery);
+
+            activeApplicationsByPetId = new Map();
+            snapshot.docs.forEach((docSnap) => {
+                const data = docSnap.data();
+                const petId = String(data.petId || "");
+                if (petId && !isClosedApplication(data.status)) {
+                    activeApplicationsByPetId.set(petId, { id: docSnap.id, ...data });
+                }
+            });
+        }
+
+        async function loadSavedPets() {
+            const savedQuery = query(
+                collection(db, "savedPets"),
+                where("userId", "==", currentUser.uid)
+            );
+            const snapshot = await getDocs(savedQuery);
+            const records = snapshot.docs.map((docSnap) => ({
+                savedDocId: docSnap.id,
+                ...docSnap.data()
+            }));
+
+            const enriched = await Promise.all(records.map(async (record) => {
+                if (!record.petId) return record;
+
+                try {
+                    const petSnap = await getDoc(doc(db, "pets", record.petId));
+                    if (!petSnap.exists()) return record;
+                    return {
+                        ...record,
+                        ...petSnap.data(),
+                        id: record.petId,
+                        savedDocId: record.savedDocId
+                    };
+                } catch (error) {
+                    console.warn("Could not load saved pet details:", error);
+                    return record;
+                }
+            }));
+
+            savedPets = enriched.filter((item) => item.petId || item.id);
+        }
+
+        function filteredPets() {
+            const searchTerm = searchInput.value.trim().toLowerCase();
+            const selectedType = petTypeSelect.value;
+            const sortBy = sortBySelect.value;
+
+            const filtered = savedPets.filter((pet) => {
+                const type = pet.type || pet.petType || "";
+                const haystack = [
+                    pet.name,
+                    pet.petName,
+                    pet.breed,
+                    pet.petBreed,
+                    type,
+                    pet.status,
+                    pet.description
+                ].filter(Boolean).join(" ").toLowerCase();
+
+                const matchesSearch = !searchTerm || haystack.includes(searchTerm);
+                const matchesType = selectedType === "all" || type === selectedType;
+                return matchesSearch && matchesType;
+            });
+
+            return filtered.sort((a, b) => {
+                if (sortBy === "name") {
+                    return String(a.name || a.petName || "").localeCompare(String(b.name || b.petName || ""));
+                }
+                if (sortBy === "youngest") {
+                    return ageNumber(a.age) - ageNumber(b.age);
+                }
+                if (sortBy === "oldest") {
+                    return ageNumber(b.age) - ageNumber(a.age);
+                }
+                return timestampMillis(b.savedAt) - timestampMillis(a.savedAt);
+            });
+        }
+
+        function renderSummary() {
+            const dogs = savedPets.filter((pet) => (pet.type || pet.petType) === "Dog").length;
+            const cats = savedPets.filter((pet) => (pet.type || pet.petType) === "Cat").length;
+            const available = savedPets.filter((pet) => normalizeStatus(pet.status || pet.petStatus) === "available").length;
+            const pending = savedPets.filter((pet) => {
+                const status = normalizeStatus(pet.status || pet.petStatus);
+                return status === "pending" || status === "unavailable";
+            }).length;
+
+            savedCount.textContent = savedPets.length;
+            dogsCount.textContent = dogs;
+            catsCount.textContent = cats;
+            availableCount.textContent = available;
+            pendingCount.textContent = pending;
+
+            if (!savedPets.length) {
+                recentActivity.innerHTML = `<p class="text-gray-600 text-sm">No saved pets yet.</p>`;
+                return;
+            }
+
+            recentActivity.innerHTML = savedPets
+                .slice()
+                .sort((a, b) => timestampMillis(b.savedAt) - timestampMillis(a.savedAt))
+                .slice(0, 3)
+                .map((pet) => `
+                    <div class="flex gap-3">
+                        <div class="w-10 h-10 bg-orange-50 rounded-full flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="heart" class="w-5 h-5 text-orange-600"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-900">${escapeHtml(pet.name || pet.petName || "Saved pet")} saved</h3>
+                            <p class="text-gray-600 text-sm">Added to your saved pets list.</p>
+                        </div>
+                    </div>
+                `).join("");
+        }
+
+        function renderPage() {
+            renderSummary();
+            const petsToShow = filteredPets();
+
+            if (!petsToShow.length) {
+                savedPetsList.innerHTML = `
+                    <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-12 text-center">
+                        <i data-lucide="heart" class="w-16 h-16 text-gray-300 mx-auto mb-4"></i>
+                        <h2 class="text-2xl font-bold text-gray-900 mb-2">No saved pets found</h2>
+                        <p class="text-gray-600 mb-6">Save pets from the browse page to compare them here.</p>
+                        <a href="browse.html" class="inline-flex items-center justify-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors">
+                            Browse Pets
+                        </a>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            savedPetsList.innerHTML = petsToShow.map((pet) => {
+                const petId = pet.id || pet.petId;
+                const encodedPetId = encodeURIComponent(String(petId || ""));
+                const savedDocId = String(pet.savedDocId || "");
+                const name = pet.name || pet.petName || "Unnamed Pet";
+                const breed = pet.breed || pet.petBreed || "Mixed Breed";
+                const type = pet.type || pet.petType || "Pet";
+                const age = pet.age || "Age not set";
+                const size = pet.size || "Not specified";
+                const status = pet.status || pet.petStatus || "available";
+                const description = pet.description || pet.about || "No description has been added yet.";
+                const imageUrl = pet.imageUrl;
+                const existingApplication = activeApplicationsByPetId.get(String(petId || ""));
+                const applicationAction = existingApplication
+                    ? `<a href="application.html" class="inline-flex items-center justify-center px-6 py-3 bg-gray-900 hover:bg-gray-800 text-white font-medium rounded-xl transition-colors">
+                        View Application
+                    </a>`
+                    : `<a href="apply.html?petId=${encodedPetId}" class="inline-flex items-center justify-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors">
+                        Apply for Adoption
+                    </a>`;
+                const imageBlock = imageUrl
+                    ? `<img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(name)} photo" class="w-full h-full object-cover">`
+                    : `<i data-lucide="heart" class="w-20 h-20 text-blue-200"></i>`;
+
+                return `
+                    <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden hover:shadow-lg transition-shadow">
+                        <div class="grid md:grid-cols-3">
+                            <div class="h-64 md:h-full bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center overflow-hidden">
+                                ${imageBlock}
+                            </div>
+
+                            <div class="md:col-span-2 p-6">
+                                <div class="flex items-start justify-between gap-4">
+                                    <div>
+                                        <div class="flex flex-wrap items-center gap-3">
+                                            <h2 class="text-2xl font-bold text-gray-900">${escapeHtml(name)}</h2>
+                                            ${statusBadge(status)}
+                                        </div>
+                                        <p class="text-gray-600 mt-1">${escapeHtml(breed)} - ${escapeHtml(type)} - ${escapeHtml(age)}</p>
+                                    </div>
+                                    <button type="button" data-saved-doc-id="${escapeHtml(savedDocId)}" class="remove-saved-pet w-10 h-10 rounded-full bg-orange-50 text-orange-600 flex items-center justify-center hover:bg-orange-100 transition-colors" aria-label="Remove ${escapeHtml(name)} from saved pets">
+                                        <i data-lucide="heart" class="w-5 h-5 fill-current"></i>
+                                    </button>
+                                </div>
+
+                                <div class="grid sm:grid-cols-3 gap-4 mt-5">
+                                    <div class="p-3 bg-blue-50 rounded-lg">
+                                        <p class="text-sm text-gray-500">Size</p>
+                                        <p class="font-semibold text-gray-900">${escapeHtml(size)}</p>
+                                    </div>
+                                    <div class="p-3 bg-orange-50 rounded-lg">
+                                        <p class="text-sm text-gray-500">Gender</p>
+                                        <p class="font-semibold text-gray-900">${escapeHtml(pet.gender || "Not set")}</p>
+                                    </div>
+                                    <div class="p-3 bg-green-50 rounded-lg">
+                                        <p class="text-sm text-gray-500">Location</p>
+                                        <p class="font-semibold text-gray-900">${escapeHtml(pet.city || "Shelter")}</p>
+                                    </div>
+                                </div>
+
+                                <p class="text-gray-600 mt-5">${escapeHtml(description)}</p>
+
+                                <div class="flex flex-col sm:flex-row gap-3 mt-6">
+                                    <a href="pet-details.html?id=${encodedPetId}" class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 hover:bg-gray-50 font-medium rounded-xl transition-colors">
+                                        View Details
+                                    </a>
+                                    ${applicationAction}
+                                    <button type="button" data-saved-doc-id="${escapeHtml(savedDocId)}" class="remove-saved-pet inline-flex items-center justify-center px-6 py-3 text-red-600 hover:bg-red-50 font-medium rounded-xl transition-colors">
+                                        Remove
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join("");
+
+            lucide.createIcons();
+        }
+
+        window.removeSavedPet = async function(savedDocId) {
+            if (!savedDocId) return;
+
+            const savedPet = savedPets.find((pet) => pet.savedDocId === savedDocId);
+            const petName = savedPet?.name || savedPet?.petName || "this pet";
+            const confirmed = await showConfirm(
+                "Remove Saved Pet?",
+                `Remove ${petName} from your saved pets?`,
+                "Remove"
+            );
+            if (!confirmed) return;
+
+            const previous = savedPets.slice();
+            savedPets = savedPets.filter((pet) => pet.savedDocId !== savedDocId);
+            renderPage();
+
+            try {
+                await deleteDoc(doc(db, "savedPets", savedDocId));
+            } catch (error) {
+                console.error("Could not remove saved pet:", error);
+                savedPets = previous;
+                renderPage();
+                alert("Unable to remove this pet. Please try again.");
+            }
+        };
+
+        logoutBtn.addEventListener("click", async () => {
+            await signOut(auth);
+            window.location.href = "../login.html";
+        });
+
+        confirmCancelBtn.addEventListener("click", () => closeConfirm(false));
+        confirmActionBtn.addEventListener("click", () => closeConfirm(true));
+        confirmModal.addEventListener("click", (event) => {
+            if (event.target === confirmModal) closeConfirm(false);
+        });
+
+        [searchInput, petTypeSelect, sortBySelect].forEach((control) => {
+            control.addEventListener("input", renderPage);
+            control.addEventListener("change", renderPage);
+        });
+
+        savedPetsList.addEventListener("click", (event) => {
+            const button = event.target.closest(".remove-saved-pet");
+            if (!button) return;
+            removeSavedPet(button.dataset.savedDocId);
+        });
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = "../login.html";
+                return;
+            }
+
+            currentUser = user;
+
+            try {
+                await Promise.all([loadSavedPets(), loadActiveApplications()]);
+                renderPage();
+            } catch (error) {
+                console.error("Saved pets load error:", error);
+                savedPetsList.innerHTML = `
+                    <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-12 text-center">
+                        <i data-lucide="alert-circle" class="w-16 h-16 text-red-300 mx-auto mb-4"></i>
+                        <h2 class="text-2xl font-bold text-gray-900 mb-2">Unable to load saved pets</h2>
+                        <p class="text-gray-600">Please check your Firebase rules and try again.</p>
+                    </div>
+                `;
+                lucide.createIcons();
+            }
+        });
+
+        lucide.createIcons();
+    </script>
+    <script src="../mobile-nav.js"></script>
+</body>
+</html>
+
+
+
+
+
