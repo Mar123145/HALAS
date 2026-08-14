@@ -1,0 +1,1031 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
+    }
+
+    function ownsExistingRecord() {
+      return isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    function ownsNewRecord() {
+      return isSignedIn() && request.resource.data.userId == request.auth.uid;
+    }
+
+    function changedOnly(keys) {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(keys);
+    }
+
+    function validAdopterNotificationReadUpdate() {
+      return ownsExistingRecord()
+        && resource.data.get("audience", "adopter") != "admin"
+        && resource.data.get("status", "unread") == "unread"
+        && request.resource.data.status == "read"
+        && request.resource.data.updatedAt == request.time
+        && changedOnly(["status", "updatedAt"]);
+    }
+
+    function validMessageCreate() {
+      let data = request.resource.data;
+      let applicationId = data.get("applicationId", "");
+
+      return isSignedIn()
+        && data.keys().hasAll([
+          "userId",
+          "senderId",
+          "senderRole",
+          "senderName",
+          "email",
+          "subject",
+          "message",
+          "createdAt",
+          "updatedAt"
+        ])
+        && data.keys().hasOnly([
+          "userId",
+          "senderId",
+          "senderRole",
+          "senderName",
+          "email",
+          "subject",
+          "message",
+          "createdAt",
+          "updatedAt",
+          "applicationId",
+          "applicationStatus",
+          "petId",
+          "petName",
+          "applicantName",
+          "applicantEmail"
+        ])
+        && data.userId is string
+        && data.userId.size() > 0
+        && data.senderId is string
+        && data.senderId == request.auth.uid
+        && data.senderRole is string
+        && data.senderRole in ["user", "admin"]
+        && data.senderName is string
+        && data.senderName.size() <= 200
+        && data.email is string
+        && data.email.size() <= 320
+        && data.subject is string
+        && data.subject.size() > 0
+        && data.subject.size() <= 200
+        && data.message is string
+        && data.message.size() > 0
+        && data.message.size() <= 2000
+        && data.createdAt is timestamp
+        && data.createdAt == request.time
+        && data.updatedAt is timestamp
+        && data.updatedAt == request.time
+        && applicationId is string
+        && data.get("applicationStatus", "") is string
+        && data.get("petId", "") is string
+        && data.get("petName", "") is string
+        && data.get("applicantName", "") is string
+        && data.get("applicantEmail", "") is string
+        && (applicationId == ""
+          || (exists(/databases/$(database)/documents/applications/$(applicationId))
+            && get(/databases/$(database)/documents/applications/$(applicationId)).data.userId == data.userId))
+        && ((data.senderRole == "user"
+            && data.userId == request.auth.uid)
+          || (data.senderRole == "admin" && isAdmin()));
+    }
+
+    function isPetAvailableForApplication(petId) {
+      let petPath = /databases/$(database)/documents/pets/$(petId);
+      let pet = get(petPath);
+
+      return exists(petPath)
+        && pet.data.status == "available"
+        && pet.data.get("adoptionStatus", "available") == "available"
+        && pet.data.get("activeAdoptionId", null) == null;
+    }
+
+    function validApplicationStatus(status) {
+      return status in [
+        "pending",
+        "reviewing",
+        "under review",
+        "visit scheduled",
+        "visit completed",
+        "approved",
+        "rejected",
+        "cancelled",
+        "withdrawn"
+      ];
+    }
+
+    function validApplicationCreate(applicationId) {
+      let data = request.resource.data;
+      let pet = get(/databases/$(database)/documents/pets/$(data.petId));
+      let petAfter = getAfter(/databases/$(database)/documents/pets/$(data.petId));
+
+      return isSignedIn()
+        && data.keys().hasAll([
+          "userId",
+          "applicantId",
+          "applicantName",
+          "adopterName",
+          "applicantEmail",
+          "email",
+          "contactNumber",
+          "address",
+          "petId",
+          "petName",
+          "petType",
+          "petBreed",
+          "homeType",
+          "ownership",
+          "currentPets",
+          "children",
+          "householdNotes",
+          "petExperience",
+          "dailySchedule",
+          "adoptionReason",
+          "carePlan",
+          "preferredVisitDays",
+          "preferredVisitTimes",
+          "unavailableVisitDates",
+          "visitAvailabilityNotes",
+          "status",
+          "createdAt",
+          "updatedAt"
+        ])
+        && data.keys().hasOnly([
+          "userId",
+          "applicantId",
+          "applicantName",
+          "adopterName",
+          "applicantEmail",
+          "email",
+          "contactNumber",
+          "address",
+          "petId",
+          "petName",
+          "petType",
+          "petBreed",
+          "homeType",
+          "ownership",
+          "currentPets",
+          "children",
+          "householdNotes",
+          "petExperience",
+          "dailySchedule",
+          "adoptionReason",
+          "carePlan",
+          "preferredVisitDays",
+          "preferredVisitTimes",
+          "unavailableVisitDates",
+          "visitAvailabilityNotes",
+          "status",
+          "createdAt",
+          "updatedAt"
+        ])
+        && data.userId is string
+        && data.userId == request.auth.uid
+        && data.applicantId is string
+        && data.applicantId == request.auth.uid
+        && data.petId is string
+        && data.petId.size() > 0
+        && applicationId == request.auth.uid + "_" + data.petId
+        && data.applicantName is string
+        && data.applicantName.size() > 0
+        && data.adopterName is string
+        && data.adopterName == data.applicantName
+        && data.applicantEmail is string
+        && data.applicantEmail.size() > 0
+        && data.email is string
+        && data.email == data.applicantEmail
+        && data.contactNumber is string
+        && data.contactNumber.size() > 0
+        && data.address is string
+        && data.address.size() > 0
+        && data.petName is string
+        && data.petType is string
+        && data.petBreed is string
+        && data.homeType is string
+        && data.homeType.size() > 0
+        && data.ownership is string
+        && data.ownership.size() > 0
+        && data.currentPets is string
+        && data.children is string
+        && data.householdNotes is string
+        && data.petExperience is string
+        && data.petExperience.size() > 0
+        && data.dailySchedule is string
+        && data.dailySchedule.size() > 0
+        && data.adoptionReason is string
+        && data.adoptionReason.size() > 0
+        && data.carePlan is string
+        && data.carePlan.size() > 0
+        && data.preferredVisitDays is list
+        && data.preferredVisitDays.size() > 0
+        && data.preferredVisitDays.hasOnly([
+          "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
+        ])
+        && data.preferredVisitTimes is list
+        && data.preferredVisitTimes.size() > 0
+        && data.preferredVisitTimes.hasOnly([
+          "Morning", "Midday", "Afternoon", "Evening"
+        ])
+        && data.unavailableVisitDates is string
+        && data.visitAvailabilityNotes is string
+        && data.status == "pending"
+        && data.createdAt is timestamp
+        && data.createdAt == request.time
+        && data.updatedAt is timestamp
+        && data.updatedAt == request.time
+        && isPetAvailableForApplication(data.petId)
+        && petAfter.data.get("lifecycleLocked", true) == true
+        && data.petName == pet.data.name
+        && data.petType == pet.data.type
+        && data.petBreed == pet.data.breed;
+    }
+
+    function validApplicationTransition() {
+      let from = resource.data.status;
+      let to = request.resource.data.status;
+
+      return to == from
+        || (from == "pending" && to in ["reviewing", "rejected", "cancelled"])
+        || (from in ["reviewing", "under review"]
+          && to in ["visit scheduled", "rejected", "cancelled"])
+        || (from == "visit scheduled"
+          && to in ["visit completed", "reviewing", "rejected", "cancelled"])
+        || (from == "visit completed" && to in ["approved", "rejected"])
+        || (from == "approved" && to == "cancelled");
+    }
+
+    function validApprovedApplicationState(applicationId) {
+      let adoption = getAfter(/databases/$(database)/documents/adoptions/$(applicationId));
+      let pet = getAfter(/databases/$(database)/documents/pets/$(request.resource.data.petId));
+
+      return request.resource.data.status != "approved"
+        || (existsAfter(/databases/$(database)/documents/adoptions/$(applicationId))
+          && adoption.data.applicationId == applicationId
+          && adoption.data.petId == request.resource.data.petId
+          && adoption.data.adopterId == request.resource.data.userId
+          && adoption.data.status == "pending_handover"
+          && pet.data.status == "reserved"
+          && pet.data.adoptionStatus == "reserved"
+          && pet.data.activeAdoptionId == applicationId);
+    }
+
+    function validApprovedApplicationCancellation(applicationId) {
+      let adoption = getAfter(/databases/$(database)/documents/adoptions/$(applicationId));
+      let pet = getAfter(/databases/$(database)/documents/pets/$(request.resource.data.petId));
+
+      return !(resource.data.status == "approved" && request.resource.data.status == "cancelled")
+        || (adoption.data.status == "cancelled"
+          && pet.data.status == "available"
+          && pet.data.adoptionStatus == "available"
+          && pet.data.get("activeAdoptionId", null) == null);
+    }
+
+    function validRejectionAudit() {
+      let from = resource.data.status;
+      let to = request.resource.data.status;
+      let reason = request.resource.data.get("rejectionReason", "");
+
+      return (from != "rejected" && to == "rejected"
+          && reason is string
+          && reason.size() > 0
+          && reason.size() <= 500
+          && reason.matches(".*\\S.*")
+          && request.resource.data.rejectedAt is timestamp
+          && request.resource.data.rejectedAt == request.time
+          && request.resource.data.rejectedBy is string
+          && request.resource.data.rejectedBy == request.auth.uid)
+        || (!(from != "rejected" && to == "rejected")
+          && request.resource.data.get("rejectionReason", null) == resource.data.get("rejectionReason", null)
+          && request.resource.data.get("rejectedAt", null) == resource.data.get("rejectedAt", null)
+          && request.resource.data.get("rejectedBy", null) == resource.data.get("rejectedBy", null));
+    }
+
+    function validAdminApplicationUpdate(applicationId) {
+      let data = request.resource.data;
+
+      return isAdmin()
+        && changedOnly([
+          "status",
+          "updatedAt",
+          "visitScheduledAt",
+          "visitCompletedAt",
+          "activeAppointmentId",
+          "closedReason",
+          "rejectionReason",
+          "rejectedAt",
+          "rejectedBy"
+        ])
+        && data.userId == resource.data.userId
+        && data.petId == resource.data.petId
+        && (!("applicantId" in resource.data)
+          || data.applicantId == resource.data.applicantId)
+        && validApplicationStatus(data.status)
+        && validApplicationTransition()
+        && validApplicationVisitState(applicationId)
+        && validApprovedApplicationState(applicationId)
+        && validApprovedApplicationCancellation(applicationId)
+        && validRejectionAudit()
+        && data.updatedAt is timestamp
+        && data.updatedAt == request.time
+        && (!("visitScheduledAt" in data) || data.visitScheduledAt is timestamp)
+        && (!("visitCompletedAt" in data)
+          || data.visitCompletedAt == null
+          || data.visitCompletedAt is timestamp)
+        && (!("closedReason" in data) || data.closedReason is string);
+    }
+
+    function withdrawalAppointmentSlotReleased(appointment) {
+      return !("slotId" in appointment)
+        || !existsAfter(/databases/$(database)/documents/visitSlots/$(appointment.get("slotKey", appointment.slotId)));
+    }
+
+    function validWithdrawalAppointmentState(applicationId) {
+      let appointmentId = resource.data.get("activeAppointmentId", applicationId + "_visit");
+      let appointmentPath = /databases/$(database)/documents/appointments/$(appointmentId);
+      let hasAppointment = exists(appointmentPath);
+      let appointment = get(appointmentPath);
+      let appointmentAfter = getAfter(appointmentPath);
+      let from = resource.data.status;
+
+      return (!hasAppointment && !(from in ["visit scheduled", "visit completed"]))
+        || (hasAppointment
+          && appointment.data.applicationId == applicationId
+          && appointment.data.userId == request.auth.uid
+          && (from != "visit scheduled"
+            || appointment.data.status in ["scheduled", "reschedule requested", "cancel requested"])
+          && (from != "visit completed" || appointment.data.status == "completed")
+          && (!(appointment.data.status in ["scheduled", "reschedule requested", "cancel requested"])
+            || (appointmentAfter.data.status == "cancelled"
+              && appointmentAfter.data.updatedAt == request.time
+              && withdrawalAppointmentSlotReleased(appointment.data))));
+    }
+
+    function validApplicationWithdrawal(applicationId) {
+      let data = request.resource.data;
+
+      return ownsExistingRecord()
+        && resource.data.status in ["pending", "reviewing", "under review", "visit scheduled", "visit completed"]
+        && data.status == "withdrawn"
+        && changedOnly(["status", "withdrawnAt", "withdrawalReason", "updatedAt"])
+        && data.withdrawnAt is timestamp
+        && data.withdrawnAt == request.time
+        && data.withdrawalReason is string
+        && data.withdrawalReason.size() <= 500
+        && data.updatedAt is timestamp
+        && data.updatedAt == request.time
+        && validWithdrawalAppointmentState(applicationId);
+    }
+
+    function validApplicationVisitState(applicationId) {
+      let from = resource.data.status;
+      let to = request.resource.data.status;
+      let appointmentId = request.resource.data.get("activeAppointmentId", applicationId + "_visit");
+      let appointment = getAfter(/databases/$(database)/documents/appointments/$(appointmentId));
+
+      return (to != "visit scheduled"
+          && !(from == "visit scheduled" && to in ["visit completed", "reviewing", "rejected", "cancelled"]))
+        || (to == "visit scheduled"
+          && appointment.data.applicationId == applicationId
+          && appointment.data.status == "scheduled"
+          && request.resource.data.visitScheduledAt == appointment.data.scheduledAt)
+        || (from == "visit scheduled" && to == "visit completed"
+          && appointment.data.applicationId == applicationId
+          && appointment.data.status == "completed")
+        || (from == "visit scheduled" && to in ["reviewing", "rejected", "cancelled"]
+          && appointment.data.applicationId == applicationId
+          && appointment.data.status == "cancelled");
+    }
+
+    function validAdoptionStatus(status) {
+      return status in ["pending_handover", "completed", "cancelled"];
+    }
+
+    function validAdoptionShape(data) {
+      return data.keys().hasAll([
+          "applicationId",
+          "petId",
+          "adopterId",
+          "approvalDate",
+          "handoverDate",
+          "status",
+          "completedAt",
+          "completedBy",
+          "cancelledAt",
+          "cancelledBy",
+          "updatedAt"
+        ])
+        && data.keys().hasOnly([
+          "applicationId",
+          "petId",
+          "adopterId",
+          "approvalDate",
+          "handoverDate",
+          "status",
+          "completedAt",
+          "completedBy",
+          "cancelledAt",
+          "cancelledBy",
+          "cancellationReason",
+          "updatedAt"
+        ])
+        && data.applicationId is string
+        && data.applicationId.size() > 0
+        && data.petId is string
+        && data.petId.size() > 0
+        && data.adopterId is string
+        && data.adopterId.size() > 0
+        && data.approvalDate is timestamp
+        && (data.handoverDate == null || data.handoverDate is timestamp)
+        && validAdoptionStatus(data.status)
+        && (data.completedAt == null || data.completedAt is timestamp)
+        && (data.completedBy == null || data.completedBy is string)
+        && (data.cancelledAt == null || data.cancelledAt is timestamp)
+        && (data.cancelledBy == null || data.cancelledBy is string)
+        && data.get("cancellationReason", "") is string
+        && data.get("cancellationReason", "").size() <= 500
+        && data.updatedAt is timestamp;
+    }
+
+    function validAdoptionCreate(adoptionId) {
+      let data = request.resource.data;
+      let application = getAfter(/databases/$(database)/documents/applications/$(data.applicationId));
+      let pet = getAfter(/databases/$(database)/documents/pets/$(data.petId));
+
+      return isAdmin()
+        && validAdoptionShape(data)
+        && adoptionId == data.applicationId
+        && data.status == "pending_handover"
+        && data.approvalDate == request.time
+        && data.handoverDate == null
+        && data.completedAt == null
+        && data.completedBy == null
+        && data.cancelledAt == null
+        && data.cancelledBy == null
+        && data.get("cancellationReason", "") == ""
+        && data.updatedAt == request.time
+        && application.data.status == "approved"
+        && application.data.petId == data.petId
+        && application.data.userId == data.adopterId
+        && pet.data.status == "reserved"
+        && pet.data.adoptionStatus == "reserved"
+        && pet.data.activeAdoptionId == adoptionId;
+    }
+
+    function adoptionIdentityIsImmutable() {
+      return request.resource.data.applicationId == resource.data.applicationId
+        && request.resource.data.petId == resource.data.petId
+        && request.resource.data.adopterId == resource.data.adopterId
+        && request.resource.data.approvalDate == resource.data.approvalDate;
+    }
+
+    function validHandoverSchedule() {
+      return resource.data.status == "pending_handover"
+        && request.resource.data.status == "pending_handover"
+        && changedOnly(["handoverDate", "updatedAt"])
+        && request.resource.data.handoverDate is timestamp
+        && request.resource.data.handoverDate > request.time;
+    }
+
+    function validAdoptionCompletion(adoptionId) {
+      let application = getAfter(/databases/$(database)/documents/applications/$(resource.data.applicationId));
+      let pet = getAfter(/databases/$(database)/documents/pets/$(resource.data.petId));
+
+      return resource.data.status == "pending_handover"
+        && request.resource.data.status == "completed"
+        && changedOnly(["status", "completedAt", "completedBy", "updatedAt"])
+        && resource.data.handoverDate is timestamp
+        && resource.data.handoverDate <= request.time
+        && request.resource.data.completedAt == request.time
+        && request.resource.data.completedBy == request.auth.uid
+        && request.resource.data.cancelledAt == null
+        && request.resource.data.cancelledBy == null
+        && application.data.status == "approved"
+        && pet.data.status == "adopted"
+        && pet.data.adoptionStatus == "adopted"
+        && pet.data.activeAdoptionId == adoptionId;
+    }
+
+    function validAdoptionCancellation() {
+      let application = getAfter(/databases/$(database)/documents/applications/$(resource.data.applicationId));
+      let pet = getAfter(/databases/$(database)/documents/pets/$(resource.data.petId));
+
+      return resource.data.status == "pending_handover"
+        && request.resource.data.status == "cancelled"
+        && changedOnly(["status", "cancelledAt", "cancelledBy", "cancellationReason", "updatedAt"])
+        && request.resource.data.completedAt == null
+        && request.resource.data.completedBy == null
+        && request.resource.data.cancelledAt == request.time
+        && request.resource.data.cancelledBy == request.auth.uid
+        && request.resource.data.cancellationReason is string
+        && request.resource.data.cancellationReason.size() > 0
+        && request.resource.data.cancellationReason.size() <= 500
+        && request.resource.data.cancellationReason.matches(".*\\S.*")
+        && application.data.status == "cancelled"
+        && pet.data.status == "available"
+        && pet.data.adoptionStatus == "available"
+        && pet.data.get("activeAdoptionId", null) == null;
+    }
+
+    function validAdoptionUpdate(adoptionId) {
+      return isAdmin()
+        && validAdoptionShape(request.resource.data)
+        && adoptionIdentityIsImmutable()
+        && request.resource.data.updatedAt == request.time
+        && (validHandoverSchedule()
+          || validAdoptionCompletion(adoptionId)
+          || validAdoptionCancellation());
+    }
+
+    function validLifecycleLockTransition() {
+      let oldLocked = resource.data.get("lifecycleLocked", true);
+      let newLocked = request.resource.data.get("lifecycleLocked", true);
+
+      return newLocked == oldLocked
+        || (oldLocked == false && newLocked == true);
+    }
+
+    function validPetLifecycleUpdate(petId) {
+      let oldStatus = resource.data.status;
+      let newStatus = request.resource.data.status;
+      let oldAdoptionStatus = resource.data.get("adoptionStatus", oldStatus);
+      let newAdoptionStatus = request.resource.data.get("adoptionStatus", newStatus);
+      let oldAdoptionId = resource.data.get("activeAdoptionId", null);
+      let newAdoptionId = request.resource.data.get("activeAdoptionId", null);
+      let oldReservedAt = resource.data.get("reservedAt", null);
+      let newReservedAt = request.resource.data.get("reservedAt", null);
+      let oldAdoptedAt = resource.data.get("adoptedAt", null);
+      let newAdoptedAt = request.resource.data.get("adoptedAt", null);
+
+      return validLifecycleLockTransition()
+        && ((newStatus == oldStatus
+          && newAdoptionStatus == oldAdoptionStatus
+          && newAdoptionId == oldAdoptionId
+          && newReservedAt == oldReservedAt
+          && newAdoptedAt == oldAdoptedAt)
+        || (!(oldStatus in ["reserved", "adopted"])
+          && !(newStatus in ["reserved", "adopted"])
+          && newAdoptionStatus == newStatus
+          && newAdoptionId == oldAdoptionId
+          && newReservedAt == oldReservedAt
+          && newAdoptedAt == oldAdoptedAt)
+        || (oldStatus == "available"
+          && newStatus == "reserved"
+          && newAdoptionStatus == "reserved"
+          && newAdoptionId is string
+          && newAdoptionId.size() > 0
+          && newReservedAt == request.time
+          && newAdoptedAt == oldAdoptedAt
+          && getAfter(/databases/$(database)/documents/adoptions/$(newAdoptionId)).data.petId == petId
+          && getAfter(/databases/$(database)/documents/adoptions/$(newAdoptionId)).data.status == "pending_handover")
+        || (oldStatus == "reserved"
+          && newStatus == "adopted"
+          && newAdoptionStatus == "adopted"
+          && newAdoptionId == oldAdoptionId
+          && newReservedAt == oldReservedAt
+          && newAdoptedAt == request.time
+          && getAfter(/databases/$(database)/documents/adoptions/$(oldAdoptionId)).data.petId == petId
+          && getAfter(/databases/$(database)/documents/adoptions/$(oldAdoptionId)).data.status == "completed")
+        || (oldStatus == "reserved"
+          && newStatus == "available"
+          && newAdoptionStatus == "available"
+          && oldAdoptionId is string
+          && newAdoptionId == null
+          && newReservedAt == null
+          && newAdoptedAt == oldAdoptedAt
+          && getAfter(/databases/$(database)/documents/adoptions/$(oldAdoptionId)).data.petId == petId
+          && getAfter(/databases/$(database)/documents/adoptions/$(oldAdoptionId)).data.status == "cancelled"));
+    }
+
+    function validPetCreate() {
+      let data = request.resource.data;
+      let status = data.status;
+
+      return isAdmin()
+        && status is string
+        && !(status in ["reserved", "adopted"])
+        && data.get("adoptionStatus", status) == status
+        && data.get("activeAdoptionId", null) == null
+        && data.get("reservedAt", null) == null
+        && data.get("adoptedAt", null) == null
+        && data.lifecycleLocked == false;
+    }
+
+    function validApplicationLifecycleLock(petId) {
+      let applicationId = request.auth.uid + "_" + petId;
+      let application = getAfter(/databases/$(database)/documents/applications/$(applicationId));
+
+      return isSignedIn()
+        && resource.data.get("lifecycleLocked", true) == false
+        && request.resource.data.lifecycleLocked == true
+        && changedOnly(["lifecycleLocked", "updatedAt"])
+        && request.resource.data.updatedAt == request.time
+        && application.data.userId == request.auth.uid
+        && application.data.petId == petId
+        && application.data.status == "pending";
+    }
+
+    function validPetDelete() {
+      let status = resource.data.status;
+      let adoptionStatus = resource.data.get("adoptionStatus", status);
+
+      return isAdmin()
+        && !(status in ["reserved", "adopted"])
+        && !(adoptionStatus in ["reserved", "adopted"])
+        && resource.data.get("activeAdoptionId", null) == null
+        && resource.data.get("lifecycleLocked", true) == false;
+    }
+
+    function validVisitChangeRequest() {
+      return ownsExistingRecord()
+        && resource.data.status == "scheduled"
+        && request.resource.data.status in ["reschedule requested", "cancel requested"]
+        && request.resource.data.requestStatus == "pending"
+        && request.resource.data.requestType in ["reschedule", "cancel"]
+        && ((request.resource.data.status == "reschedule requested"
+            && request.resource.data.requestType == "reschedule")
+          || (request.resource.data.status == "cancel requested"
+            && request.resource.data.requestType == "cancel"))
+        && request.resource.data.requestNote is string
+        && request.resource.data.requestNote.size() > 0
+        && request.resource.data.requestedAt == request.time
+        && request.resource.data.updatedAt == request.time
+        && changedOnly([
+          "status",
+          "requestType",
+          "requestStatus",
+          "requestNote",
+          "requestedAt",
+          "updatedAt"
+        ]);
+    }
+
+    function validWithdrawalAppointmentCancellation(appointmentId) {
+      let applicationBefore = get(/databases/$(database)/documents/applications/$(resource.data.applicationId));
+      let applicationAfter = getAfter(/databases/$(database)/documents/applications/$(resource.data.applicationId));
+
+      return ownsExistingRecord()
+        && appointmentIdentityIsImmutable()
+        && appointmentId == applicationBefore.data.get("activeAppointmentId", resource.data.applicationId + "_visit")
+        && resource.data.status in ["scheduled", "reschedule requested", "cancel requested"]
+        && request.resource.data.status == "cancelled"
+        && request.resource.data.updatedAt == request.time
+        && applicationBefore.data.userId == request.auth.uid
+        && applicationBefore.data.status in ["pending", "reviewing", "under review", "visit scheduled", "visit completed"]
+        && applicationAfter.data.status == "withdrawn"
+        && applicationAfter.data.withdrawnAt == request.time
+        && applicationAfter.data.updatedAt == request.time
+        && ((resource.data.status == "scheduled"
+            && changedOnly(["status", "updatedAt"]))
+          || (resource.data.status in ["reschedule requested", "cancel requested"]
+            && request.resource.data.requestStatus == "closed"
+            && request.resource.data.requestResolvedAt == request.time
+            && changedOnly(["status", "requestStatus", "requestResolvedAt", "updatedAt"])))
+        && appointmentSlotReleased();
+    }
+
+    function validAppointmentCreate(appointmentId) {
+      let data = request.resource.data;
+      let application = getAfter(/databases/$(database)/documents/applications/$(data.applicationId));
+      let slot = getAfter(/databases/$(database)/documents/visitSlots/$(data.slotKey));
+
+      return isAdmin()
+        && data.keys().hasAll([
+          "applicationId", "userId", "applicantId", "applicantName", "adopterName",
+          "email", "contactNumber", "petId", "petName", "scheduledAt", "scheduleText",
+          "location", "note", "status", "createdBy", "slotId", "slotKey", "createdAt", "updatedAt"
+        ])
+        && data.keys().hasOnly([
+          "applicationId", "userId", "applicantId", "applicantName", "adopterName",
+          "email", "contactNumber", "petId", "petName", "scheduledAt", "scheduleText",
+          "location", "note", "status", "createdBy", "slotId", "slotKey", "createdAt", "updatedAt"
+        ])
+        && appointmentId == data.applicationId + "_visit"
+        && data.applicationId is string
+        && data.userId is string
+        && data.applicantId == data.userId
+        && data.applicantName is string
+        && data.adopterName == data.applicantName
+        && data.email is string
+        && data.contactNumber is string
+        && data.petId is string
+        && data.petName is string
+        && data.scheduledAt is timestamp
+        && data.scheduledAt > request.time
+        && data.scheduleText is string
+        && data.location is string
+        && data.location.size() > 0
+        && data.note is string
+        && data.status == "scheduled"
+        && data.createdBy == request.auth.uid
+        && data.slotId is string
+        && data.slotKey is int
+        && data.slotKey == data.scheduledAt.toMillis()
+        && data.slotKey % 60000 == 0
+        && data.createdAt == request.time
+        && data.updatedAt == request.time
+        && application.data.status == "visit scheduled"
+        && application.data.activeAppointmentId == appointmentId
+        && application.data.userId == data.userId
+        && application.data.petId == data.petId
+        && application.data.visitScheduledAt == data.scheduledAt
+        && slot.data.appointmentId == appointmentId
+        && slot.data.applicationId == data.applicationId
+        && slot.data.slotKey == data.slotKey
+        && slot.data.scheduledAt == data.scheduledAt;
+    }
+
+    function appointmentIdentityIsImmutable() {
+      return request.resource.data.applicationId == resource.data.applicationId
+        && request.resource.data.userId == resource.data.userId
+        && request.resource.data.applicantId == resource.data.applicantId
+        && request.resource.data.petId == resource.data.petId;
+    }
+
+    function validAppointmentSlot(slotId, appointmentId) {
+      let canonicalSlot = getAfter(/databases/$(database)/documents/visitSlots/$(request.resource.data.get("slotKey", slotId)));
+      return canonicalSlot.data.appointmentId == appointmentId
+        && canonicalSlot.data.applicationId == request.resource.data.applicationId
+        && canonicalSlot.data.scheduledAt == request.resource.data.scheduledAt
+        && (!("slotKey" in request.resource.data)
+          || (request.resource.data.slotKey is int
+            && request.resource.data.slotKey == request.resource.data.scheduledAt.toMillis()
+            && request.resource.data.slotKey % 60000 == 0
+            && canonicalSlot.data.slotKey == request.resource.data.slotKey));
+    }
+
+    function appointmentSlotReleased() {
+      return !("slotId" in resource.data)
+        || !existsAfter(/databases/$(database)/documents/visitSlots/$(resource.data.get("slotKey", resource.data.slotId)));
+    }
+
+    function validAppointmentTerminalTransition(appointmentId) {
+      let application = getAfter(/databases/$(database)/documents/applications/$(resource.data.applicationId));
+      let to = request.resource.data.status;
+
+      return resource.data.status == "scheduled"
+        && to in ["completed", "cancelled"]
+        && changedOnly(["status", "updatedAt"])
+        && application.data.activeAppointmentId == appointmentId
+        && ((to == "completed"
+            && application.data.status == "visit completed"
+            && application.data.visitCompletedAt == request.time)
+          || (to == "cancelled"
+            && application.data.status == "reviewing"
+            && application.data.visitCompletedAt == null))
+        && appointmentSlotReleased();
+    }
+
+    function validAppointmentWorkflowClosure(appointmentId) {
+      let application = getAfter(/databases/$(database)/documents/applications/$(resource.data.applicationId));
+      let selectedForAnotherApplicant = application.data.status == "rejected"
+        && application.data.get("closedReason", "") == "Another application for this pet was approved.";
+
+      return resource.data.status in ["scheduled", "reschedule requested", "cancel requested"]
+        && request.resource.data.status == "cancelled"
+        && ((selectedForAnotherApplicant
+            && changedOnly([
+              "status", "requestStatus", "requestResolvedAt", "cancelledAt",
+              "cancelledBy", "cancellationReason", "updatedAt"
+            ])
+            && request.resource.data.cancelledAt == request.time
+            && request.resource.data.cancelledBy == request.auth.uid
+            && request.resource.data.cancellationReason == "Pet reserved for another applicant.")
+          || (!selectedForAnotherApplicant
+            && changedOnly(["status", "requestStatus", "requestResolvedAt", "updatedAt"])))
+        && application.data.activeAppointmentId == appointmentId
+        && application.data.status in ["reviewing", "rejected", "cancelled"]
+        && (resource.data.status == "scheduled"
+          || (request.resource.data.requestStatus in ["approved", "closed"]
+            && request.resource.data.requestResolvedAt == request.time))
+        && appointmentSlotReleased();
+    }
+
+    function validAppointmentRequestResolution(appointmentId) {
+      let application = getAfter(/databases/$(database)/documents/applications/$(resource.data.applicationId));
+      let requestedStatus = resource.data.status;
+      let approvedReschedule = requestedStatus == "reschedule requested"
+        && request.resource.data.requestStatus == "approved";
+
+      return requestedStatus in ["reschedule requested", "cancel requested"]
+        && request.resource.data.status == "scheduled"
+        && request.resource.data.requestStatus in ["approved", "rejected"]
+        && request.resource.data.requestResolvedAt == request.time
+        && application.data.status == "visit scheduled"
+        && application.data.activeAppointmentId == appointmentId
+        && ((!approvedReschedule
+            && changedOnly(["status", "requestStatus", "requestResolvedAt", "updatedAt"])
+            && request.resource.data.scheduledAt == resource.data.scheduledAt
+            && request.resource.data.get("slotId", "") == resource.data.get("slotId", ""))
+          || (approvedReschedule
+            && changedOnly([
+              "status", "requestStatus", "requestResolvedAt", "scheduledAt",
+              "scheduleText", "slotId", "slotKey", "updatedAt"
+            ])
+            && request.resource.data.scheduledAt > request.time
+            && application.data.visitScheduledAt == request.resource.data.scheduledAt))
+        && (("slotId" in request.resource.data
+            && validAppointmentSlot(request.resource.data.slotId, appointmentId)
+            && (request.resource.data.slotId == resource.data.get("slotId", "")
+              || appointmentSlotReleased()))
+          || (!("slotId" in resource.data) && !approvedReschedule));
+    }
+
+    function validAppointmentRestart(appointmentId) {
+      let application = getAfter(/databases/$(database)/documents/applications/$(request.resource.data.applicationId));
+      let data = request.resource.data;
+
+      return resource.data.status in ["cancelled", "completed"]
+        && data.status == "scheduled"
+        && appointmentId == data.applicationId + "_visit"
+        && data.createdAt == request.time
+        && data.updatedAt == request.time
+        && data.scheduledAt > request.time
+        && application.data.status == "visit scheduled"
+        && application.data.activeAppointmentId == appointmentId
+        && application.data.visitScheduledAt == data.scheduledAt
+        && data.slotKey is int
+        && validAppointmentSlot(data.slotId, appointmentId);
+    }
+
+    function validAdminAppointmentUpdate(appointmentId) {
+      return isAdmin()
+        && appointmentIdentityIsImmutable()
+        && request.resource.data.updatedAt == request.time
+        && (validAppointmentTerminalTransition(appointmentId)
+          || validAppointmentWorkflowClosure(appointmentId)
+          || validAppointmentRequestResolution(appointmentId)
+          || validAppointmentRestart(appointmentId));
+    }
+
+    function validVisitSlotCreate(slotId) {
+      let data = request.resource.data;
+      let appointment = getAfter(/databases/$(database)/documents/appointments/$(data.appointmentId));
+
+      return isAdmin()
+        && data.keys().hasAll(["appointmentId", "applicationId", "slotKey", "scheduledAt", "createdAt", "updatedAt"])
+        && data.keys().hasOnly(["appointmentId", "applicationId", "slotKey", "scheduledAt", "createdAt", "updatedAt"])
+        && data.appointmentId is string
+        && data.applicationId is string
+        && data.scheduledAt is timestamp
+        && data.scheduledAt > request.time
+        && data.slotKey is int
+        && data.slotKey == data.scheduledAt.toMillis()
+        && data.slotKey % 60000 == 0
+        && data.createdAt == request.time
+        && data.updatedAt == request.time
+        && appointment.data.slotId == slotId
+        && appointment.data.slotKey == data.slotKey
+        && appointment.data.applicationId == data.applicationId
+        && appointment.data.scheduledAt == data.scheduledAt
+        && appointment.data.status == "scheduled";
+    }
+
+    function validVisitSlotUpdate(slotId) {
+      let appointment = getAfter(/databases/$(database)/documents/appointments/$(resource.data.appointmentId));
+      return isAdmin()
+        && changedOnly(["updatedAt"])
+        && request.resource.data.appointmentId == resource.data.appointmentId
+        && request.resource.data.applicationId == resource.data.applicationId
+        && request.resource.data.get("slotKey", -1) == resource.data.get("slotKey", -1)
+        && request.resource.data.scheduledAt == resource.data.scheduledAt
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.updatedAt == request.time
+        && appointment.data.slotId == slotId
+        && appointment.data.get("slotKey", -1) == resource.data.get("slotKey", -1)
+        && appointment.data.status == "scheduled";
+    }
+
+    function validVisitSlotDelete(slotId) {
+      let appointment = getAfter(/databases/$(database)/documents/appointments/$(resource.data.appointmentId));
+      return (isAdmin()
+          && (appointment.data.status in ["completed", "cancelled"]
+            || appointment.data.slotId != slotId))
+        || validWithdrawalVisitSlotDelete(slotId);
+    }
+
+    function validWithdrawalVisitSlotDelete(slotId) {
+      let appointment = getAfter(/databases/$(database)/documents/appointments/$(resource.data.appointmentId));
+      let application = getAfter(/databases/$(database)/documents/applications/$(resource.data.applicationId));
+
+      return isSignedIn()
+        && resource.data.appointmentId is string
+        && resource.data.applicationId is string
+        && appointment.data.applicationId == resource.data.applicationId
+        && appointment.data.userId == request.auth.uid
+        && appointment.data.status == "cancelled"
+        && appointment.data.updatedAt == request.time
+        && appointment.data.get("slotKey", appointment.data.slotId) == resource.data.get("slotKey", slotId)
+        && application.data.userId == request.auth.uid
+        && application.data.status == "withdrawn"
+        && application.data.withdrawnAt == request.time;
+    }
+
+    match /users/{userId} {
+      allow create: if isSignedIn()
+        && request.auth.uid == userId
+        && request.resource.data.role == "user";
+
+      allow read: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+
+      // Users may update their own profile, but cannot promote themselves
+      // or change the UID associated with the profile.
+      allow update: if isAdmin()
+        || (isSignedIn()
+          && request.auth.uid == userId
+          && request.resource.data.role == resource.data.role
+          && request.resource.data.uid == resource.data.uid);
+
+      allow delete: if false;
+    }
+
+    match /pets/{petId} {
+      allow read: if true;
+      allow create: if validPetCreate();
+      allow update: if (isAdmin() && validPetLifecycleUpdate(petId))
+        || validApplicationLifecycleLock(petId);
+      allow delete: if validPetDelete();
+    }
+
+    // Full FeedSight profiles are private. Mobile and web admins use this
+    // collection; public adoption pages must use /pets instead.
+    match /petProfiles/{profileId} {
+      allow read, create, update, delete: if isAdmin();
+
+      match /weightRecords/{recordId} {
+        allow read, create, update, delete: if isAdmin();
+      }
+    }
+
+    match /applications/{applicationId} {
+      allow create: if validApplicationCreate(applicationId);
+      allow read: if isAdmin() || ownsExistingRecord();
+      allow update: if validAdminApplicationUpdate(applicationId)
+        || validApplicationWithdrawal(applicationId);
+      // Applications are permanent workflow and audit records.
+      allow delete: if false;
+    }
+
+    match /adoptions/{adoptionId} {
+      allow create: if validAdoptionCreate(adoptionId);
+      allow read: if isAdmin()
+        || (isSignedIn() && resource.data.adopterId == request.auth.uid);
+      allow update: if validAdoptionUpdate(adoptionId);
+      // Lifecycle records are permanent audit records.
+      allow delete: if false;
+    }
+
+    match /savedPets/{savedPetId} {
+      allow create: if ownsNewRecord();
+      allow read: if isAdmin() || ownsExistingRecord();
+      allow update: if isAdmin()
+        || (ownsExistingRecord() && request.resource.data.userId == request.auth.uid);
+      allow delete: if isAdmin() || ownsExistingRecord();
+    }
+
+    match /appointments/{appointmentId} {
+      allow create: if validAppointmentCreate(appointmentId);
+      allow read: if isAdmin() || ownsExistingRecord();
+      allow update: if validAdminAppointmentUpdate(appointmentId)
+        || validVisitChangeRequest()
+        || validWithdrawalAppointmentCancellation(appointmentId);
+      allow delete: if false;
+    }
+
+    match /visitSlots/{slotId} {
+      allow read: if isAdmin();
+      allow create: if validVisitSlotCreate(slotId);
+      allow update: if validVisitSlotUpdate(slotId);
+      allow delete: if validVisitSlotDelete(slotId);
+    }
+
+    match /notifications/{notificationId} {
+      allow create: if isAdmin() || (ownsNewRecord() && request.resource.data.audience == "admin");
+      allow read: if isAdmin() || ownsExistingRecord();
+      allow update: if isAdmin()
+        || validAdopterNotificationReadUpdate();
+      allow delete: if isAdmin();
+    }
+
+    match /mail/{mailId} {
+      allow create, read: if isAdmin();
+      allow update, delete: if false;
+    }
+
+    match /messages/{messageId} {
+      allow create: if validMessageCreate();
+      allow read: if isAdmin() || ownsExistingRecord();
+      allow update, delete: if false;
+    }
+  }
+}

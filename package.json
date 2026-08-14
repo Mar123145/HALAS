@@ -1,0 +1,22 @@
+{
+  "name": "feedsight-website-security-tests",
+  "private": true,
+  "scripts": {
+    "test:rules": "firebase emulators:exec --only firestore \"node --test tests/firestore.rules.test.js\"",
+    "test:auth": "node --test tests/auth-navigation.test.mjs",
+    "test:messages-ui": "node --test tests/admin-messaging-ui.test.mjs",
+    "test:admin-handovers": "node --test tests/admin-overview-handovers.test.mjs",
+    "test:dashboard-adoption": "node --test tests/adopter-dashboard-adoption.test.mjs",
+    "test:adopter-polish": "node --test tests/adopter-workflow-polish.test.mjs",
+    "test:content": "node --test tests/content-cleanup.test.mjs",
+    "test:profile-guidance": "node --test tests/profile-completion-guidance.test.mjs",
+    "test:pet-lifecycle": "node --test tests/pet-lifecycle-ui.test.mjs",
+    "test:xss": "node --test tests/xss-rendering.test.mjs",
+    "test:atomic": "node --test tests/atomic-workflows.test.mjs"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^5.0.0",
+    "firebase": "^12.1.0",
+    "firebase-tools": "14.12.0"
+  }
+}
